@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Mortgage Payoff Accelerator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="./dist/output.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Mortgage Payoff Accelerator <span style="font-size: 0.6em; color: #94a3b8; font-weight: normal;">v1.6</span></h1>
+            <p>See how extra payments can shorten your loan term and save interest.</p>
+        </header>
+
+        <!-- Main Content Grid -->
+        <div class="main-grid">
+            <!-- Left Column: Controls -->
+            <div class="card">
+                <h2 style="color: #ff8c42; margin-bottom: 1rem; font-size: 1.125rem;">Controls</h2>
+                
+                <!-- Loan Details -->
+                <div class="info-box">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <h4>Loan Details</h4>
+                        <button class="btn btn-secondary" id="toggleManualInputBtn" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">Manual Entry</button>
+                    </div>
+                    <div class="info-grid" id="loanDetailsDisplay">
+                        <div><strong>Principal:</strong> <span id="principalDisplay">$59,957.41</span></div>
+                        <div><strong>Rate:</strong> <span id="rateDisplay">5.729%</span></div>
+                        <div><strong>P&I:</strong> <span id="piDisplay">$1,336.39</span></div>
+                        <div><strong>Escrow:</strong> <span id="escrowDisplay">$790.03</span></div>
+                        <div><strong>Total:</strong> <span id="totalDisplay">$2,126.42</span></div>
+                        <div><strong>Start:</strong> Jul 2025</div>
+                    </div>
+                    <div id="manualInputForm" style="display: none;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem;">
+                            <div>
+                                <label style="font-size: 0.75rem; color: #ff8c42;">Principal ($)</label>
+                                <input type="number" id="principalInput" value="59957.41" step="0.01" style="width: 100%; padding: 0.25rem; background: rgba(15, 52, 96, 0.5); border: 1px solid #475569; border-radius: 0.25rem; color: #e2e8f0;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; color: #ff8c42;">Rate (%)</label>
+                                <input type="number" id="rateInput" value="5.729" step="0.001" style="width: 100%; padding: 0.25rem; background: rgba(15, 52, 96, 0.5); border: 1px solid #475569; border-radius: 0.25rem; color: #e2e8f0;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; color: #ff8c42;">Monthly P&I ($)</label>
+                                <input type="number" id="piInput" value="1336.39" step="0.01" style="width: 100%; padding: 0.25rem; background: rgba(15, 52, 96, 0.5); border: 1px solid #475569; border-radius: 0.25rem; color: #e2e8f0;">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; color: #ff8c42;">Escrow ($)</label>
+                                <input type="number" id="escrowInput" value="790.03" step="0.01" style="width: 100%; padding: 0.25rem; background: rgba(15, 52, 96, 0.5); border: 1px solid #475569; border-radius: 0.25rem; color: #e2e8f0;">
+                            </div>
+                            <div style="grid-column: span 2;">
+                                <label style="font-size: 0.75rem; color: #ff8c42;">Total Payment ($)</label>
+                                <input type="number" id="totalInput" value="2126.42" step="0.01" style="width: 100%; padding: 0.25rem; background: rgba(15, 52, 96, 0.5); border: 1px solid #475569; border-radius: 0.25rem; color: #e2e8f0;">
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                            <button class="btn btn-secondary" id="calculatePIBtn" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">P&I = Total - Escrow</button>
+                        </div>
+                        <p style="font-size: 0.7rem; color: #94a3b8; margin-top: 0.5rem;">Note: Only P&I affects payoff. Escrow is for taxes/insurance.</p>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="controls-grid">
+                    <div class="input-group">
+                        <label class="label">Extra Monthly Payment</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="extraPaymentSlider" 
+                                   min="0" max="5000" step="50" value="0">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem;">
+                                <span>$0</span>
+                                <span id="extraPaymentMaxLabel">$5,000</span>
+                            </div>
+                        </div>
+                        <div id="extraPaymentDisplay" style="color: #ff8c42; font-weight: bold; font-size: 0.875rem; margin-top: 0.5rem;">
+                            $0/month
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="label">Payoff Date</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="targetDateSlider" 
+                                   min="0" max="60" step="1" value="0">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem;">
+                                <span>Jul 2025</span>
+                                <span id="maxDateLabel">-</span>
+                            </div>
+                        </div>
+                        <div id="selectedDateDisplay" style="color: #ff8c42; font-weight: bold; font-size: 0.875rem; margin-top: 0.5rem;">
+                            -
+                        </div>
+                    </div>
+                </div>
+
+                <!-- One-time Payment Section -->
+                <div style="margin-top: 1rem;" class="controls-grid">
+                    <div class="input-group">
+                        <label class="label">One-time Payment</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="oneTimeAmountSlider" 
+                                   min="0" max="61002" step="100" value="0">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem;">
+                                <span>$0</span>
+                                <span id="oneTimeMaxLabel">$61,003</span>
+                            </div>
+                        </div>
+                        <div id="oneTimeAmountDisplay" style="color: #ff8c42; font-weight: bold; font-size: 0.875rem; margin-top: 0.5rem;">
+                            $0
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="label">Payment Month</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="oneTimeMonthSlider" 
+                                   min="0" max="96" step="1" value="0">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem;">
+                                <span id="oneTimeMinMonthLabel">Jul 2025</span>
+                                <span id="oneTimeMaxMonthLabel">-</span>
+                            </div>
+                        </div>
+                        <div id="oneTimeMonthDisplay" style="color: #ff8c42; font-weight: bold; font-size: 0.875rem; margin-top: 0.5rem;">
+                            Jul 2025
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reset Button -->
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <button class="btn btn-secondary" id="resetBtn">Reset All</button>
+                </div>
+            </div>
+
+            <!-- Right Column: Results -->
+            <div class="card">
+                <h2 style="color: #ff8c42; margin-bottom: 1rem; font-size: 1.125rem;">Results</h2>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <h3>Original Payoff</h3>
+                        <p id="originalPayoffDate">-</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3>New Payoff</h3>
+                        <p id="acceleratedPayoffDate" style="color: #ff8c42;">-</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Time Saved</h3>
+                        <p id="timeSaved" style="color: #ff8c42;">-</p>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Interest Saved</h3>
+                        <p id="interestSaved" style="color: #ff8c42;">-</p>
+                    </div>
+                </div>
+                
+                <!-- Principal vs Interest Chart -->
+                <div style="margin-top: 1rem;">
+                    <h3 style="color: #ff8c42; margin-bottom: 0.5rem; font-size: 1rem;">Principal vs. Interest</h3>
+                    <div class="chart-container">
+                        <canvas id="interestChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Charts -->
+        <div class="chart-grid">
+            <div class="card">
+                <h3 style="color: #ff8c42; margin-bottom: 0.5rem; font-size: 1rem;">Balance Over Time</h3>
+                <div class="chart-container">
+                    <canvas id="balanceChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <h3 style="color: #ff8c42; font-size: 1rem;">Amortization Schedule</h3>
+                    <button class="btn btn-primary" id="toggleTableBtn">Hide Schedule</button>
+                </div>
+                <p id="tableDescription" style="font-size: 0.875rem; color: #94a3b8; margin-bottom: 0.5rem; display: none;">Click "Show Schedule" to view the detailed monthly breakdown.</p>
+                <div class="table-container" id="tableContainer">
+                    <table id="amortizationTable">
+                        <thead>
+                            <tr>
+                                <th>Payment #</th>
+                                <th>Date</th>
+                                <th>Principal</th>
+                                <th>Interest</th>
+                                <th>Extra Payment</th>
+                                <th>Total Payment</th>
+                                <th>Remaining Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script>
+        // Default loan parameters from PDF statement
+        const DEFAULT_LOAN_PARAMS = {
+            principal: 59957.41,
+            annualRate: 0.057285,
+            baseMonthlyPAndI: 1336.39,
+            escrow: 790.03,
+            totalPayment: 2126.42,
+            startDate: new Date('2025-07-01') // July 2025 - assuming June payment already made
+        };
+        
+        // Current loan parameters (can be modified)
+        let LOAN_PARAMS = { ...DEFAULT_LOAN_PARAMS };
+        
+        // Store the original payoff timeline (51 months for September 2029)
+        let TARGET_PAYOFF_MONTHS = 51;
+
+        // State
+        let currentExtraPayment = 0;
+        let oneTimePaymentAmount = 0;
+        let oneTimePaymentMonth = 1;
+        let currentResults = null;
+        let balanceChart = null;
+        let interestChart = null;
+        let showTable = true;
+
+        // DOM elements
+        const extraPaymentSlider = document.getElementById('extraPaymentSlider');
+        const extraPaymentDisplay = document.getElementById('extraPaymentDisplay');
+        const extraPaymentMaxLabel = document.getElementById('extraPaymentMaxLabel');
+        const targetDateSlider = document.getElementById('targetDateSlider');
+        const selectedDateDisplay = document.getElementById('selectedDateDisplay');
+        const maxDateLabel = document.getElementById('maxDateLabel');
+        const resetBtn = document.getElementById('resetBtn');
+        const toggleTableBtn = document.getElementById('toggleTableBtn');
+        const tableContainer = document.getElementById('tableContainer');
+        const tableDescription = document.getElementById('tableDescription');
+        const oneTimeAmountSlider = document.getElementById('oneTimeAmountSlider');
+        const oneTimeAmountDisplay = document.getElementById('oneTimeAmountDisplay');
+        const oneTimeMonthSlider = document.getElementById('oneTimeMonthSlider');
+        const oneTimeMonthDisplay = document.getElementById('oneTimeMonthDisplay');
+        const oneTimeMaxLabel = document.getElementById('oneTimeMaxLabel');
+        const oneTimeMinMonthLabel = document.getElementById('oneTimeMinMonthLabel');
+        const oneTimeMaxMonthLabel = document.getElementById('oneTimeMaxMonthLabel');
+
+        // Utility functions
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', { 
+                style: 'currency', 
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function formatDate(date) {
+            if (!date) return 'N/A';
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+        }
+
+        function calculateAmortizationSchedule(loanParams, extraMonthlyPayment = 0, oneTimePayment = {amount: 0, month: 0}) {
+            const schedule = [];
+            let currentBalance = loanParams.principal;
+            const monthlyRate = loanParams.annualRate / 12;
+            let monthNumber = 0;
+            let paymentDate = new Date(loanParams.startDate);
+            const maxMonths = 60 * 12;
+
+            while (currentBalance > 0.005 && monthNumber < maxMonths) {
+                monthNumber++;
+                const interestThisMonth = currentBalance * monthlyRate;
+                
+                let principalFromBasePayment = loanParams.baseMonthlyPAndI - interestThisMonth;
+                if (principalFromBasePayment < 0 && loanParams.baseMonthlyPAndI > 0) {
+                    principalFromBasePayment = 0;
+                }
+                
+                let actualExtraPaymentApplied = extraMonthlyPayment;
+                
+                // Add one-time payment if this is the right month
+                if (oneTimePayment.amount > 0 && monthNumber === oneTimePayment.month) {
+                    actualExtraPaymentApplied += oneTimePayment.amount;
+                }
+
+                if (currentBalance + interestThisMonth <= loanParams.baseMonthlyPAndI + actualExtraPaymentApplied) {
+                    if (currentBalance + interestThisMonth <= loanParams.baseMonthlyPAndI) { 
+                        principalFromBasePayment = currentBalance;
+                        actualExtraPaymentApplied = 0;
+                    } else { 
+                        principalFromBasePayment = Math.max(0, loanParams.baseMonthlyPAndI - interestThisMonth);
+                        actualExtraPaymentApplied = currentBalance - principalFromBasePayment;
+                    }
+                    currentBalance = 0;
+                } else {
+                    currentBalance -= (principalFromBasePayment + actualExtraPaymentApplied);
+                }
+
+                const finalPrincipalFromBase = Math.max(0, principalFromBasePayment);
+                const finalActualExtra = Math.max(0, actualExtraPaymentApplied);
+                const finalInterest = Math.max(0, interestThisMonth);
+                const totalPaymentThisMonth = finalPrincipalFromBase + finalInterest + finalActualExtra;
+
+                schedule.push({
+                    month: monthNumber,
+                    paymentDate: new Date(paymentDate),
+                    principalPaid: finalPrincipalFromBase,
+                    interestPaid: finalInterest,
+                    extraPayment: finalActualExtra,
+                    totalPayment: totalPaymentThisMonth,
+                    remainingBalance: currentBalance < 0.005 ? 0 : currentBalance,
+                });
+
+                if (currentBalance <= 0.005) {
+                    break;
+                }
+                paymentDate.setMonth(paymentDate.getMonth() + 1);
+            }
+            return schedule;
+        }
+
+        function calculateExtraPaymentForTargetDate(loanParams, targetPayoffUserDate, originalSchedule) {
+            if (originalSchedule.length === 0) return null;
+
+            const lastOriginalPaymentDate = originalSchedule[originalSchedule.length - 1].paymentDate;
+            const targetDate = new Date(targetPayoffUserDate.getFullYear(), targetPayoffUserDate.getMonth(), targetPayoffUserDate.getDate());
+            const normStartDateForCompare = new Date(loanParams.startDate.getFullYear(), loanParams.startDate.getMonth(), loanParams.startDate.getDate());
+            
+            if (targetDate < normStartDateForCompare) {
+                return null; 
+            }
+            
+            if (targetDate.getTime() >= lastOriginalPaymentDate.getTime()) {
+                return 0;
+            }
+
+            let low = 0.00;
+            let high = loanParams.principal;
+            let bestExtraPayment = null;
+            const iterations = 100;
+
+            for (let i = 0; i < iterations; i++) {
+                const mid = parseFloat(((low + high) / 2).toFixed(2));
+                
+                if (mid < 0 || (high - low) < 0.01) break;
+
+                const schedule = calculateAmortizationSchedule(loanParams, mid, {amount: 0, month: 0});
+                
+                if (schedule.length === 0 || schedule[schedule.length - 1].remainingBalance > 0.01) {
+                    low = mid + 0.01;
+                    continue;
+                }
+
+                const currentPayoffDate = schedule[schedule.length - 1].paymentDate;
+
+                if (currentPayoffDate <= targetDate) {
+                    bestExtraPayment = mid;
+                    high = mid - 0.01; 
+                } else {
+                    low = mid + 0.01;
+                }
+            }
+
+            if (bestExtraPayment !== null) {
+                const finalSchedule = calculateAmortizationSchedule(loanParams, bestExtraPayment, {amount: 0, month: 0});
+                if (finalSchedule.length > 0 && finalSchedule[finalSchedule.length-1].remainingBalance < 0.01 && finalSchedule[finalSchedule.length-1].paymentDate <= targetDate) {
+                    if (bestExtraPayment < 0.01 && lastOriginalPaymentDate <= targetDate) return 0;
+                    return bestExtraPayment;
+                }
+            }
+            return null;
+        }
+
+        function analyzeSchedules(originalSchedule, acceleratedSchedule, initialPrincipal) {
+            const originalTotalInterest = originalSchedule.reduce((sum, entry) => sum + entry.interestPaid, 0);
+            const acceleratedTotalInterest = acceleratedSchedule.reduce((sum, entry) => sum + entry.interestPaid, 0);
+
+            const originalPayoffDate = originalSchedule.length > 0 ? originalSchedule[originalSchedule.length - 1].paymentDate : null;
+            const acceleratedPayoffDate = acceleratedSchedule.length > 0 ? acceleratedSchedule[acceleratedSchedule.length - 1].paymentDate : null;
+            
+            let monthsSaved = 0;
+            if (originalPayoffDate && acceleratedPayoffDate) {
+                monthsSaved = originalSchedule.length - acceleratedSchedule.length;
+            }
+            
+            const interestSaved = originalTotalInterest - acceleratedTotalInterest;
+
+            return {
+                originalSchedule,
+                acceleratedSchedule,
+                originalTotalInterest,
+                acceleratedTotalInterest,
+                originalPayoffDate,
+                acceleratedPayoffDate,
+                monthsSaved,
+                interestSaved,
+                originalTotalPrincipalPaid: initialPrincipal,
+                acceleratedTotalPrincipalPaid: initialPrincipal,
+            };
+        }
+
+        function updateCalculations() {
+            const originalSchedule = calculateAmortizationSchedule(LOAN_PARAMS, 0, {amount: 0, month: 0});
+            const oneTimePaymentObj = {
+                amount: oneTimePaymentAmount,
+                month: oneTimePaymentMonth
+            };
+            const acceleratedSchedule = calculateAmortizationSchedule(LOAN_PARAMS, currentExtraPayment, oneTimePaymentObj);
+            
+            currentResults = analyzeSchedules(originalSchedule, acceleratedSchedule, LOAN_PARAMS.principal);
+            updateUI();
+        }
+
+        function updateUI() {
+            if (!currentResults) return;
+
+            // Update summary
+            document.getElementById('originalPayoffDate').textContent = formatDate(currentResults.originalPayoffDate);
+            document.getElementById('acceleratedPayoffDate').textContent = formatDate(currentResults.acceleratedPayoffDate);
+            document.getElementById('timeSaved').textContent = currentResults.monthsSaved > 0 ? 
+                `${currentResults.monthsSaved} months (${Math.round(currentResults.monthsSaved/12 * 10)/10} years)` : '0 months';
+            document.getElementById('interestSaved').textContent = formatCurrency(currentResults.interestSaved);
+
+            // Update the payoff date display to show the accelerated date
+            selectedDateDisplay.textContent = formatDate(currentResults.acceleratedPayoffDate);
+            
+            // Update the slider position to match
+            if (currentResults.acceleratedPayoffDate) {
+                const startDate = new Date(LOAN_PARAMS.startDate);
+                const monthsDiff = (currentResults.acceleratedPayoffDate.getFullYear() - startDate.getFullYear()) * 12 + 
+                                  (currentResults.acceleratedPayoffDate.getMonth() - startDate.getMonth());
+                targetDateSlider.value = monthsDiff;
+            }
+
+            // Update charts
+            updateCharts();
+
+            // Update table if visible
+            if (showTable) {
+                updateTable();
+            }
+        }
+
+        function updateCharts() {
+            if (!currentResults) return;
+
+            // Balance chart data
+            const maxLength = Math.max(currentResults.originalSchedule.length, currentResults.acceleratedSchedule.length);
+            const balanceData = [];
+            const labels = [];
+
+            for (let i = 0; i < maxLength; i++) {
+                const originalEntry = currentResults.originalSchedule[i];
+                const acceleratedEntry = currentResults.acceleratedSchedule[i];
+                labels.push(i + 1);
+                balanceData.push({
+                    original: originalEntry ? originalEntry.remainingBalance : 0,
+                    accelerated: acceleratedEntry ? acceleratedEntry.remainingBalance : 0,
+                });
+            }
+
+            // Update balance chart
+            if (balanceChart) {
+                balanceChart.data.labels = labels;
+                balanceChart.data.datasets[0].data = balanceData.map(d => d.original);
+                balanceChart.data.datasets[1].data = balanceData.map(d => d.accelerated);
+                balanceChart.update();
+            }
+
+            // Update interest chart
+            if (interestChart) {
+                interestChart.data.datasets[0].data = [
+                    currentResults.originalTotalPrincipalPaid,
+                    currentResults.acceleratedTotalPrincipalPaid
+                ];
+                interestChart.data.datasets[1].data = [
+                    currentResults.originalTotalInterest,
+                    currentResults.acceleratedTotalInterest
+                ];
+                interestChart.update();
+            }
+        }
+
+        function updateTable() {
+            const schedule = (currentExtraPayment > 0 || oneTimePaymentAmount > 0) ? 
+                currentResults.acceleratedSchedule : currentResults.originalSchedule;
+            
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            schedule.forEach(entry => {
+                const row = tbody.insertRow();
+                const isOneTimeMonth = entry.month === oneTimePaymentMonth && oneTimePaymentAmount > 0;
+                row.innerHTML = `
+                    <td>${entry.month}</td>
+                    <td>${formatDate(entry.paymentDate)}</td>
+                    <td>${formatCurrency(entry.principalPaid)}</td>
+                    <td>${formatCurrency(entry.interestPaid)}</td>
+                    <td>${formatCurrency(entry.extraPayment)}${isOneTimeMonth ? '*' : ''}</td>
+                    <td>${formatCurrency(entry.totalPayment)}</td>
+                    <td>${formatCurrency(entry.remainingBalance)}</td>
+                `;
+            });
+        }
+
+        function handleExtraPaymentChange(value) {
+            currentExtraPayment = value;
+            extraPaymentSlider.value = value;
+            extraPaymentDisplay.textContent = formatCurrency(value) + '/month';
+            updateCalculations();
+        }
+
+        function getDateFromSliderValue(sliderValue) {
+            if (sliderValue === 0) return null;
+            
+            const startDate = new Date(LOAN_PARAMS.startDate);
+            const targetDate = new Date(startDate);
+            targetDate.setMonth(targetDate.getMonth() + parseInt(sliderValue));
+            return targetDate;
+        }
+
+        function handleTargetDateSliderChange(sliderValue) {
+            const targetDate = getDateFromSliderValue(sliderValue);
+            
+            if (targetDate && currentResults?.originalSchedule && currentResults.originalSchedule.length > 0) {
+                
+                const calculatedExtra = calculateExtraPaymentForTargetDate(LOAN_PARAMS, targetDate, currentResults.originalSchedule);
+
+                if (calculatedExtra !== null) {
+                    currentExtraPayment = calculatedExtra;
+                    extraPaymentSlider.value = calculatedExtra;
+                    extraPaymentDisplay.textContent = formatCurrency(calculatedExtra) + '/month';
+                    selectedDateDisplay.textContent = formatDate(targetDate);
+                    updateCalculations();
+                } else {
+                    alert("Target payoff date is unachievable. Please choose a different date.");
+                    targetDateSlider.value = 0;
+                    handleTargetDateSliderChange(0);
+                }
+            } else {
+                currentExtraPayment = 0;
+                extraPaymentSlider.value = 0;
+                extraPaymentDisplay.textContent = formatCurrency(0) + '/month';
+                // Reset to original payoff date
+                const originalSchedule = calculateAmortizationSchedule(LOAN_PARAMS, 0, {amount: 0, month: 0});
+                if (originalSchedule.length > 0) {
+                    const originalPayoffDate = originalSchedule[originalSchedule.length - 1].paymentDate;
+                    const startDate = new Date(LOAN_PARAMS.startDate);
+                    const monthsDiff = (originalPayoffDate.getFullYear() - startDate.getFullYear()) * 12 + 
+                                      (originalPayoffDate.getMonth() - startDate.getMonth());
+                    targetDateSlider.value = monthsDiff;
+                    selectedDateDisplay.textContent = formatDate(originalPayoffDate);
+                } else {
+                    selectedDateDisplay.textContent = "-";
+                }
+                updateCalculations();
+            }
+        }
+
+        function resetAll() {
+            currentExtraPayment = 0;
+            oneTimePaymentAmount = 0;
+            oneTimePaymentMonth = 1;
+            
+            extraPaymentSlider.value = 0;
+            extraPaymentDisplay.textContent = '$0/month';
+            
+            oneTimeAmountSlider.value = 0;
+            oneTimeAmountDisplay.textContent = '$0';
+            oneTimeMonthSlider.value = 0;
+            oneTimeMonthDisplay.textContent = 'Jul 2025';
+            
+            // Reset to original payoff date
+            const originalSchedule = calculateAmortizationSchedule(LOAN_PARAMS, 0, {amount: 0, month: 0});
+            if (originalSchedule.length > 0) {
+                const originalPayoffDate = originalSchedule[originalSchedule.length - 1].paymentDate;
+                const startDate = new Date(LOAN_PARAMS.startDate);
+                const monthsDiff = (originalPayoffDate.getFullYear() - startDate.getFullYear()) * 12 + 
+                                  (originalPayoffDate.getMonth() - startDate.getMonth());
+                targetDateSlider.value = monthsDiff;
+                selectedDateDisplay.textContent = formatDate(originalPayoffDate);
+            } else {
+                targetDateSlider.value = 0;
+                selectedDateDisplay.textContent = '-';
+            }
+            
+            updateCalculations();
+        }
+
+        // Event listeners
+        extraPaymentSlider.addEventListener('input', (e) => handleExtraPaymentChange(parseFloat(e.target.value)));
+        targetDateSlider.addEventListener('input', (e) => handleTargetDateSliderChange(parseFloat(e.target.value)));
+        resetBtn.addEventListener('click', resetAll);
+        
+        // One-time payment listeners
+        oneTimeAmountSlider.addEventListener('input', (e) => {
+            oneTimePaymentAmount = parseFloat(e.target.value) || 0;
+            oneTimeAmountDisplay.textContent = oneTimePaymentAmount > 0 ? formatCurrency(oneTimePaymentAmount) : '$0';
+            updateCalculations();
+        });
+        
+        oneTimeMonthSlider.addEventListener('input', (e) => {
+            const sliderValue = parseInt(e.target.value);
+            oneTimePaymentMonth = sliderValue + 1; // Convert to 1-based for calculation
+            // Create date directly from year/month to avoid any Date parsing issues
+            const startDate = new Date(2025, 6, 1); // Month 6 = July (0-based)
+            const paymentDate = new Date(startDate);
+            paymentDate.setMonth(startDate.getMonth() + sliderValue);
+            oneTimeMonthDisplay.textContent = formatDate(paymentDate);
+            updateCalculations();
+        });
+
+        toggleTableBtn.addEventListener('click', () => {
+            showTable = !showTable;
+            if (showTable) {
+                tableContainer.style.display = 'block';
+                tableDescription.style.display = 'none';
+                toggleTableBtn.textContent = 'Hide Schedule';
+                updateTable();
+            } else {
+                tableContainer.style.display = 'none';
+                tableDescription.style.display = 'block';
+                toggleTableBtn.textContent = 'Show Schedule';
+            }
+        });
+
+        // Manual input event listeners
+        const toggleManualInputBtn = document.getElementById('toggleManualInputBtn');
+        const manualInputForm = document.getElementById('manualInputForm');
+        const loanDetailsDisplay = document.getElementById('loanDetailsDisplay');
+        // Remove applyManualInputBtn since we have real-time updates
+        const calculatePIBtn = document.getElementById('calculatePIBtn');
+        
+        toggleManualInputBtn.addEventListener('click', () => {
+            const isManual = manualInputForm.style.display === 'none';
+            if (isManual) {
+                // Entering manual mode
+                manualInputForm.style.display = 'block';
+                loanDetailsDisplay.style.display = 'none';
+                toggleManualInputBtn.textContent = 'Default Values';
+            } else {
+                // Returning to default values
+                manualInputForm.style.display = 'none';
+                loanDetailsDisplay.style.display = 'block';
+                toggleManualInputBtn.textContent = 'Manual Entry';
+                
+                // Reset to PDF default values
+                LOAN_PARAMS = { ...DEFAULT_LOAN_PARAMS };
+                TARGET_PAYOFF_MONTHS = 51; // Reset target timeline
+                document.getElementById('principalInput').value = DEFAULT_LOAN_PARAMS.principal;
+                document.getElementById('rateInput').value = (DEFAULT_LOAN_PARAMS.annualRate * 100).toFixed(3);
+                document.getElementById('piInput').value = DEFAULT_LOAN_PARAMS.baseMonthlyPAndI;
+                document.getElementById('escrowInput').value = DEFAULT_LOAN_PARAMS.escrow;
+                document.getElementById('totalInput').value = DEFAULT_LOAN_PARAMS.totalPayment;
+                
+                // Update displays and recalculate
+                applyManualInputs();
+            }
+        });
+        
+        // Calculate standard monthly payment for a loan
+        function calculateStandardPayment(principal, annualRate, months) {
+            if (months <= 0) return 0;
+            const monthlyRate = annualRate / 12;
+            if (monthlyRate === 0) return principal / months;
+            
+            const payment = principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) / 
+                           (Math.pow(1 + monthlyRate, months) - 1);
+            return payment;
+        }
+        
+        // Calculate remaining months based on current balance and payment
+        function calculateRemainingMonths(principal, annualRate, monthlyPayment) {
+            const monthlyRate = annualRate / 12;
+            if (monthlyRate === 0) return Math.ceil(principal / monthlyPayment);
+            
+            const months = -Math.log(1 - (principal * monthlyRate) / monthlyPayment) / Math.log(1 + monthlyRate);
+            return Math.ceil(months);
+        }
+        
+        function applyManualInputs(changedField = null) {
+            // Get current values
+            const principal = parseFloat(document.getElementById('principalInput').value) || 0;
+            const annualRate = (parseFloat(document.getElementById('rateInput').value) || 0) / 100;
+            const escrow = parseFloat(document.getElementById('escrowInput').value) || 0;
+            let piPayment = parseFloat(document.getElementById('piInput').value) || 0;
+            let totalPayment = parseFloat(document.getElementById('totalInput').value) || 0;
+            
+            // Logic for recalculating dependent values
+            if (changedField === 'rate' || changedField === 'principal') {
+                // When rate or principal changes, recalculate payment to maintain same payoff timeline
+                if (principal > 0 && annualRate > 0) {
+                    // Use the fixed target timeline (51 months = September 2029)
+                    piPayment = calculateStandardPayment(principal, annualRate, TARGET_PAYOFF_MONTHS);
+                    document.getElementById('piInput').value = piPayment.toFixed(2);
+                    totalPayment = piPayment + escrow;
+                    document.getElementById('totalInput').value = totalPayment.toFixed(2);
+                }
+            } else if (changedField === 'pi') {
+                // When P&I changes, recalculate the target timeline
+                if (principal > 0 && annualRate > 0 && piPayment > 0) {
+                    TARGET_PAYOFF_MONTHS = calculateRemainingMonths(principal, annualRate, piPayment);
+                }
+            } else if (changedField === 'escrow') {
+                // When escrow changes, update total
+                totalPayment = piPayment + escrow;
+                document.getElementById('totalInput').value = totalPayment.toFixed(2);
+            } else if (changedField === 'total') {
+                // When total changes, recalculate P&I
+                piPayment = totalPayment - escrow;
+                document.getElementById('piInput').value = piPayment.toFixed(2);
+            }
+            
+            // Update LOAN_PARAMS
+            LOAN_PARAMS.principal = principal;
+            LOAN_PARAMS.annualRate = annualRate;
+            LOAN_PARAMS.baseMonthlyPAndI = piPayment;
+            LOAN_PARAMS.escrow = escrow;
+            LOAN_PARAMS.totalPayment = totalPayment;
+            
+            // Update displays
+            document.getElementById('principalDisplay').textContent = formatCurrency(principal);
+            document.getElementById('rateDisplay').textContent = (annualRate * 100).toFixed(3) + '%';
+            document.getElementById('piDisplay').textContent = formatCurrency(piPayment);
+            document.getElementById('escrowDisplay').textContent = formatCurrency(escrow);
+            document.getElementById('totalDisplay').textContent = formatCurrency(totalPayment);
+            
+            // Update one-time payment slider max
+            oneTimeAmountSlider.max = Math.floor(principal);
+            oneTimeMaxLabel.textContent = formatCurrency(principal);
+            
+            // Force complete recalculation
+            currentExtraPayment = 0;
+            extraPaymentSlider.value = 0;
+            extraPaymentDisplay.textContent = '$0/month';
+            targetDateSlider.value = 0;
+            selectedDateDisplay.textContent = '-';
+            updateCalculations();
+        }
+        
+        // Removed apply button - using real-time updates instead
+        
+        // Add real-time updates for all inputs with field identification
+        document.getElementById('principalInput').addEventListener('input', () => applyManualInputs('principal'));
+        document.getElementById('rateInput').addEventListener('input', () => applyManualInputs('rate'));
+        document.getElementById('piInput').addEventListener('input', () => applyManualInputs('pi'));
+        document.getElementById('escrowInput').addEventListener('input', () => applyManualInputs('escrow'));
+        document.getElementById('totalInput').addEventListener('input', () => applyManualInputs('total'));
+        
+        calculatePIBtn.addEventListener('click', () => {
+            const total = parseFloat(document.getElementById('totalInput').value) || 0;
+            const escrow = parseFloat(document.getElementById('escrowInput').value) || 0;
+            const pi = total - escrow;
+            document.getElementById('piInput').value = pi.toFixed(2);
+            applyManualInputs('total');
+        });
+
+        // Initialize charts
+        function initializeCharts() {
+            // Balance chart
+            const balanceCtx = document.getElementById('balanceChart').getContext('2d');
+            balanceChart = new Chart(balanceCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Original Loan',
+                        data: [],
+                        borderColor: '#64748b',
+                        backgroundColor: 'rgba(100, 116, 139, 0.1)',
+                        tension: 0.1
+                    }, {
+                        label: 'With Extra Payments',
+                        data: [],
+                        borderColor: '#ff8c42',
+                        backgroundColor: 'rgba(255, 140, 66, 0.1)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#e2e8f0'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            },
+                            grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                        }
+                    }
+                }
+            });
+
+            // Interest chart
+            const interestCtx = document.getElementById('interestChart').getContext('2d');
+            interestChart = new Chart(interestCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Original Loan', 'With Extra Payments'],
+                    datasets: [{
+                        label: 'Principal',
+                        data: [0, 0],
+                        backgroundColor: '#64748b'
+                    }, {
+                        label: 'Interest',
+                        data: [0, 0],
+                        backgroundColor: '#ef4444'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#e2e8f0'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#94a3b8',
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            },
+                            grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize sliders with dynamic max values
+        function initializeSliders() {
+            const originalSchedule = calculateAmortizationSchedule(LOAN_PARAMS, 0, {amount: 0, month: 0});
+            if (originalSchedule.length > 0) {
+                const originalPayoffDate = originalSchedule[originalSchedule.length - 1].paymentDate;
+                const startDate = new Date(LOAN_PARAMS.startDate);
+                const monthsDiff = (originalPayoffDate.getFullYear() - startDate.getFullYear()) * 12 + 
+                                  (originalPayoffDate.getMonth() - startDate.getMonth());
+                
+                // Set payoff date slider
+                targetDateSlider.max = monthsDiff;
+                targetDateSlider.value = monthsDiff;
+                maxDateLabel.textContent = formatDate(originalPayoffDate);
+                selectedDateDisplay.textContent = formatDate(originalPayoffDate);
+                
+                // Set one-time payment sliders
+                oneTimeAmountSlider.max = Math.round(LOAN_PARAMS.principal);
+                oneTimeMaxLabel.textContent = formatCurrency(LOAN_PARAMS.principal);
+                
+                oneTimeMonthSlider.max = originalSchedule.length - 1; // 0-based slider
+                oneTimeMaxMonthLabel.textContent = formatDate(originalPayoffDate);
+                oneTimeMonthDisplay.textContent = formatDate(startDate);
+                
+                // Set initial display correctly
+                oneTimeMonthSlider.value = 0;
+                oneTimePaymentMonth = 1;
+                
+                // Set extra payment slider max to $5,000
+                extraPaymentSlider.max = 5000;
+                extraPaymentMaxLabel.textContent = formatCurrency(5000);
+            }
+        }
+
+        // Initialize
+        initializeCharts();
+        initializeSliders();
+        
+        // Set initial display values
+        document.getElementById('principalDisplay').textContent = formatCurrency(LOAN_PARAMS.principal);
+        document.getElementById('rateDisplay').textContent = (LOAN_PARAMS.annualRate * 100).toFixed(3) + '%';
+        document.getElementById('piDisplay').textContent = formatCurrency(LOAN_PARAMS.baseMonthlyPAndI);
+        document.getElementById('escrowDisplay').textContent = formatCurrency(LOAN_PARAMS.escrow);
+        document.getElementById('totalDisplay').textContent = formatCurrency(LOAN_PARAMS.totalPayment);
+        
+        updateCalculations();
+        
+        // Trigger initial display update for one-time payment month
+        const initialSliderValue = parseInt(oneTimeMonthSlider.value);
+        oneTimePaymentMonth = initialSliderValue + 1;
+        const initialStartDate = new Date(2025, 6, 1); // Month 6 = July (0-based)
+        const initialPaymentDate = new Date(initialStartDate);
+        initialPaymentDate.setMonth(initialStartDate.getMonth() + initialSliderValue);
+        oneTimeMonthDisplay.textContent = formatDate(initialPaymentDate);
+        
+        // Show table by default
+        if (showTable && currentResults) {
+            updateTable();
+        }
+    </script>
+</body>
+</html>
