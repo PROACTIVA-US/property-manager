@@ -1,0 +1,432 @@
+import { useState, useMemo } from 'react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+  PieChart,
+  Pie,
+} from 'recharts';
+import {
+  DollarSign,
+  Home,
+  TrendingUp,
+  TrendingDown,
+  Wallet,
+  PiggyBank,
+  Info,
+} from 'lucide-react';
+import {
+  type PropertyFinancials,
+  type PersonalExpenses,
+  calculateCashFlow,
+  calculateRentalComparison,
+  formatCurrency,
+  DEFAULT_PROPERTY_FINANCIALS,
+  DEFAULT_PERSONAL_EXPENSES,
+} from '../lib/financials';
+
+interface FinancialComparisonProps {
+  initialProperty?: PropertyFinancials;
+  initialPersonal?: PersonalExpenses;
+}
+
+export default function FinancialComparison({
+  initialProperty = DEFAULT_PROPERTY_FINANCIALS,
+  initialPersonal = DEFAULT_PERSONAL_EXPENSES,
+}: FinancialComparisonProps) {
+  const [property, setProperty] = useState<PropertyFinancials>(initialProperty);
+  const [personal, setPersonal] = useState<PersonalExpenses>(initialPersonal);
+  const [showInputs, setShowInputs] = useState(false);
+
+  // Calculate derived values
+  const cashFlow = useMemo(() => calculateCashFlow(property), [property]);
+  const comparison = useMemo(
+    () => calculateRentalComparison(property, personal),
+    [property, personal]
+  );
+
+  const monthlyCashFlow = cashFlow.cashFlowBeforeTax / 12;
+  const isPositiveCashFlow = monthlyCashFlow >= 0;
+  const isPositiveAdvantage = comparison.monthlyAdvantage >= 0;
+
+  // Data for expense breakdown chart
+  const expenseData = [
+    { name: 'Property Tax', value: property.monthlyPropertyTax, color: '#ef4444' },
+    { name: 'Insurance', value: property.monthlyInsurance, color: '#f97316' },
+    { name: 'Maintenance', value: property.monthlyMaintenanceReserve, color: '#eab308' },
+    { name: 'Vacancy', value: property.monthlyVacancyReserve, color: '#84cc16' },
+    { name: 'Management', value: property.monthlyManagementFee, color: '#22c55e' },
+    { name: 'HOA', value: property.monthlyHOA, color: '#06b6d4' },
+  ].filter(item => item.value > 0);
+
+  // Data for income vs expenses comparison
+  const comparisonData = [
+    {
+      name: 'Income',
+      Rental: property.monthlyRentalIncome,
+      Personal: personal.currentRentPayment + personal.currentUtilityCosts,
+    },
+    {
+      name: 'Expenses',
+      Rental: property.monthlyPropertyTax + property.monthlyInsurance + property.monthlyHOA +
+              property.monthlyMaintenanceReserve + property.monthlyVacancyReserve +
+              property.monthlyManagementFee + property.monthlyMortgagePayment,
+      Personal: personal.currentRentPayment + personal.currentUtilityCosts,
+    },
+    {
+      name: 'Net',
+      Rental: monthlyCashFlow,
+      Personal: 0,
+    },
+  ];
+
+  const handlePropertyChange = (field: keyof PropertyFinancials, value: string) => {
+    const numValue = parseFloat(value) || 0;
+    setProperty(prev => ({ ...prev, [field]: numValue }));
+  };
+
+  const handlePersonalChange = (field: keyof PersonalExpenses, value: string) => {
+    const numValue = parseFloat(value) || 0;
+    setPersonal(prev => ({ ...prev, [field]: numValue }));
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h3 className="text-xl font-bold text-brand-light">Financial Comparison</h3>
+          <p className="text-sm text-brand-muted">Compare rental income against your living expenses</p>
+        </div>
+        <button
+          onClick={() => setShowInputs(!showInputs)}
+          className="btn-secondary text-sm"
+        >
+          {showInputs ? 'Hide Inputs' : 'Edit Values'}
+        </button>
+      </div>
+
+      {/* Input Section (Collapsible) */}
+      {showInputs && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Personal Expenses Inputs */}
+          <div className="card">
+            <h4 className="font-semibold text-brand-orange mb-4 flex items-center gap-2">
+              <Wallet size={18} />
+              Your Current Living Costs
+            </h4>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-brand-muted mb-1">
+                  Current Monthly Rent (where you live now)
+                </label>
+                <input
+                  type="number"
+                  value={personal.currentRentPayment}
+                  onChange={(e) => handlePersonalChange('currentRentPayment', e.target.value)}
+                  className="input-field w-full"
+                  placeholder="1500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-brand-muted mb-1">
+                  Current Monthly Utilities
+                </label>
+                <input
+                  type="number"
+                  value={personal.currentUtilityCosts}
+                  onChange={(e) => handlePersonalChange('currentUtilityCosts', e.target.value)}
+                  className="input-field w-full"
+                  placeholder="200"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-brand-muted mb-1">
+                  Monthly Job Income
+                </label>
+                <input
+                  type="number"
+                  value={personal.currentJobIncome}
+                  onChange={(e) => handlePersonalChange('currentJobIncome', e.target.value)}
+                  className="input-field w-full"
+                  placeholder="6000"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Property Income/Expenses Inputs */}
+          <div className="card">
+            <h4 className="font-semibold text-brand-orange mb-4 flex items-center gap-2">
+              <Home size={18} />
+              Rental Property Financials
+            </h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-brand-muted mb-1">
+                  Monthly Rental Income
+                </label>
+                <input
+                  type="number"
+                  value={property.monthlyRentalIncome}
+                  onChange={(e) => handlePropertyChange('monthlyRentalIncome', e.target.value)}
+                  className="input-field w-full"
+                  placeholder="2400"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-brand-muted mb-1">
+                  Monthly Mortgage (P&I)
+                </label>
+                <input
+                  type="number"
+                  value={property.monthlyMortgagePayment}
+                  onChange={(e) => handlePropertyChange('monthlyMortgagePayment', e.target.value)}
+                  className="input-field w-full"
+                  placeholder="1800"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-brand-muted mb-1">
+                  Property Tax (monthly)
+                </label>
+                <input
+                  type="number"
+                  value={property.monthlyPropertyTax}
+                  onChange={(e) => handlePropertyChange('monthlyPropertyTax', e.target.value)}
+                  className="input-field w-full"
+                  placeholder="350"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-brand-muted mb-1">
+                  Insurance (monthly)
+                </label>
+                <input
+                  type="number"
+                  value={property.monthlyInsurance}
+                  onChange={(e) => handlePropertyChange('monthlyInsurance', e.target.value)}
+                  className="input-field w-full"
+                  placeholder="150"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-brand-muted mb-1">
+                  Maintenance Reserve
+                </label>
+                <input
+                  type="number"
+                  value={property.monthlyMaintenanceReserve}
+                  onChange={(e) => handlePropertyChange('monthlyMaintenanceReserve', e.target.value)}
+                  className="input-field w-full"
+                  placeholder="200"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-brand-muted mb-1">
+                  Vacancy Reserve
+                </label>
+                <input
+                  type="number"
+                  value={property.monthlyVacancyReserve}
+                  onChange={(e) => handlePropertyChange('monthlyVacancyReserve', e.target.value)}
+                  className="input-field w-full"
+                  placeholder="120"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Key Metrics */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Monthly Cash Flow */}
+        <div className="card !p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className={`p-1.5 rounded-lg ${isPositiveCashFlow ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+              {isPositiveCashFlow ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+            </div>
+            <span className="text-xs text-brand-muted uppercase">Cash Flow</span>
+          </div>
+          <p className={`text-xl font-bold ${isPositiveCashFlow ? 'text-green-400' : 'text-red-400'}`}>
+            {formatCurrency(monthlyCashFlow)}
+            <span className="text-xs font-normal text-brand-muted">/mo</span>
+          </p>
+        </div>
+
+        {/* Monthly Advantage */}
+        <div className="card !p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className={`p-1.5 rounded-lg ${isPositiveAdvantage ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+              <PiggyBank size={16} />
+            </div>
+            <span className="text-xs text-brand-muted uppercase">Net Benefit</span>
+          </div>
+          <p className={`text-xl font-bold ${isPositiveAdvantage ? 'text-green-400' : 'text-red-400'}`}>
+            {formatCurrency(comparison.monthlyAdvantage)}
+            <span className="text-xs font-normal text-brand-muted">/mo</span>
+          </p>
+        </div>
+
+        {/* Cap Rate */}
+        <div className="card !p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400">
+              <DollarSign size={16} />
+            </div>
+            <span className="text-xs text-brand-muted uppercase">Cap Rate</span>
+          </div>
+          <p className="text-xl font-bold text-brand-light">
+            {cashFlow.capRate.toFixed(1)}%
+          </p>
+        </div>
+
+        {/* Cash on Cash */}
+        <div className="card !p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="p-1.5 rounded-lg bg-purple-500/20 text-purple-400">
+              <TrendingUp size={16} />
+            </div>
+            <span className="text-xs text-brand-muted uppercase">Cash on Cash</span>
+          </div>
+          <p className="text-xl font-bold text-brand-light">
+            {cashFlow.cashOnCashReturn.toFixed(1)}%
+          </p>
+        </div>
+      </div>
+
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Income vs Expenses Bar Chart */}
+        <div className="card">
+          <h4 className="font-semibold text-brand-orange mb-4">Income vs Expenses</h4>
+          <div className="h-[250px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={comparisonData} margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" />
+                <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
+                <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(val) => `$${val/1000}k`} />
+                <Tooltip
+                  formatter={(val: number) => formatCurrency(val)}
+                  contentStyle={{
+                    backgroundColor: '#1a1a2e',
+                    borderRadius: '8px',
+                    border: '1px solid #334155',
+                    color: '#fff'
+                  }}
+                />
+                <Bar dataKey="Rental" fill="#ff8c42" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Personal" fill="#64748b" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex justify-center gap-6 mt-2 text-xs">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded bg-brand-orange" />
+              <span className="text-brand-muted">Rental Property</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded bg-slate-500" />
+              <span className="text-brand-muted">Personal Housing</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Expense Breakdown Pie Chart */}
+        <div className="card">
+          <h4 className="font-semibold text-brand-orange mb-4">Operating Expense Breakdown</h4>
+          <div className="h-[250px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={expenseData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={50}
+                  outerRadius={80}
+                  paddingAngle={2}
+                >
+                  {expenseData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(val: number) => formatCurrency(val)}
+                  contentStyle={{
+                    backgroundColor: '#1a1a2e',
+                    borderRadius: '8px',
+                    border: '1px solid #334155',
+                    color: '#fff'
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex flex-wrap justify-center gap-3 mt-2">
+            {expenseData.map((item) => (
+              <div key={item.name} className="flex items-center gap-1.5 text-xs">
+                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                <span className="text-brand-muted">{item.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Summary Analysis */}
+      <div className="card bg-gradient-to-br from-brand-navy to-slate-800">
+        <div className="flex items-start gap-3">
+          <div className="p-2 bg-brand-orange/20 rounded-lg text-brand-orange shrink-0">
+            <Info size={20} />
+          </div>
+          <div>
+            <h4 className="font-semibold text-brand-light mb-2">Analysis Summary</h4>
+            <div className="text-sm text-brand-muted space-y-2">
+              {isPositiveAdvantage ? (
+                <p>
+                  Your rental property generates a <span className="text-green-400 font-medium">
+                  net monthly benefit of {formatCurrency(comparison.monthlyAdvantage)}</span> after
+                  accounting for your personal housing costs. This means owning this rental is
+                  financially advantageous compared to your current living situation.
+                </p>
+              ) : (
+                <p>
+                  Your rental property currently shows a <span className="text-red-400 font-medium">
+                  net monthly cost of {formatCurrency(Math.abs(comparison.monthlyAdvantage))}</span>.
+                  However, this doesn't account for equity building, appreciation, or tax benefits
+                  from depreciation.
+                </p>
+              )}
+              <p>
+                Your effective housing cost (what you spend on housing after rental income) is{' '}
+                <span className="text-brand-light font-medium">
+                  {formatCurrency(comparison.effectiveHousingCost)}/month
+                </span>
+                {comparison.effectiveHousingCost < personal.currentRentPayment && (
+                  <span className="text-green-400">
+                    {' '}(saving {formatCurrency(personal.currentRentPayment - comparison.effectiveHousingCost)}/mo vs just renting)
+                  </span>
+                )}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Disclaimer */}
+      <p className="text-xs text-brand-muted text-center px-4">
+        This analysis is for educational purposes only and does not constitute financial advice.
+        Actual results may vary based on market conditions, tax situations, and other factors.
+        Consult with qualified financial and tax professionals for personalized guidance.
+      </p>
+    </div>
+  );
+}

@@ -3,7 +3,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Layout from './components/Layout';
 import LoginPage from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import MortgageCalculator from './components/MortgageCalculator';
+import Financials from './pages/Financials';
 import VendorsPage from './pages/Vendors';
 import TenantPortal from './pages/TenantPortal';
 
@@ -34,7 +34,7 @@ export default function App() {
 
           <Route path="/financials" element={
             <ProtectedRoute>
-              <MortgageCalculator />
+              <Financials />
             </ProtectedRoute>
           } />
 
