@@ -3,7 +3,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Layout from './components/Layout';
 import LoginPage from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import MortgageCalculator from './components/MortgageCalculator';
+import Financials from './pages/Financials';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -32,7 +32,7 @@ export default function App() {
 
           <Route path="/financials" element={
             <ProtectedRoute>
-              <MortgageCalculator />
+              <Financials />
             </ProtectedRoute>
           } />
 
