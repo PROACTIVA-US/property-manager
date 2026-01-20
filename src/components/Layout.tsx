@@ -1,14 +1,15 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Calculator, 
-  Wrench, 
-  MessageSquare, 
-  FileText, 
+import {
+  LayoutDashboard,
+  Calculator,
+  Wrench,
+  MessageSquare,
+  FileText,
   LogOut,
-  Users
+  Users,
+  HardHat
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -22,6 +23,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { name: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['owner', 'tenant', 'pm'] },
     { name: 'Financials', href: '/financials', icon: Calculator, roles: ['owner'] },
     { name: 'Maintenance', href: '/maintenance', icon: Wrench, roles: ['owner', 'pm', 'tenant'] },
+    { name: 'Vendors', href: '/vendors', icon: HardHat, roles: ['owner', 'pm'] },
     { name: 'Messages', href: '/messages', icon: MessageSquare, roles: ['owner', 'pm', 'tenant'] },
     { name: 'Documents', href: '/documents', icon: FileText, roles: ['owner', 'pm', 'tenant'] },
     { name: 'Tenants', href: '/tenants', icon: Users, roles: ['owner', 'pm'] },
