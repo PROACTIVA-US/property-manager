@@ -1,11 +1,11 @@
 # Project State
 
 ## Current Status
-- Transitioning from static HTML/JS to React + Firebase.
-- Setting up environment.
+- React + TypeScript + Vite project initialized.
+- Tailwind CSS installed and configured.
+- Legacy code archived in `legacy/`.
 
 ## Todo
-- [ ] Move legacy files to `legacy/` directory to clean up root.
-- [ ] Initialize React app with Vite.
-- [ ] Install Tailwind CSS in the new React app.
+- [ ] Port Mortgage Calculator logic to React components.
 - [ ] Set up Firebase project configuration.
+- [ ] Implement User Authentication.

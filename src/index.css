@@ -1,3 +1,37 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-brand-navy: #0f3460;
+  --color-brand-dark: #1a1a2e;
+  --color-brand-orange: #ff8c42;
+  --color-brand-light: #e2e8f0;
+  --color-brand-muted: #94a3b8;
+}
+
+@layer base {
+  body {
+    @apply bg-brand-dark text-brand-light antialiased;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-brand-navy/50 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6 shadow-xl;
+  }
+  
+  .card-gradient {
+    @apply bg-gradient-to-br from-brand-navy to-brand-navy/80;
+  }
+
+  .btn-primary {
+    @apply bg-brand-orange text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition-colors shadow-lg shadow-orange-900/20;
+  }
+
+  .btn-secondary {
+    @apply bg-slate-700/50 text-brand-light px-4 py-2 rounded-lg font-medium hover:bg-slate-700 transition-colors border border-slate-600;
+  }
+
+  .input-field {
+    @apply bg-brand-dark/50 border border-slate-700 rounded-lg px-3 py-2 text-brand-light focus:outline-none focus:border-brand-orange transition-colors;
+  }
+}

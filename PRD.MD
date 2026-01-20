@@ -47,6 +47,7 @@
 ### 3.4. Property and Document Management
 
 *   **Vendor Directory:** A comprehensive list showing all current vendors.
+*   **Estimate uploads and comparison
 *   **Rent Payment Tracking:** Display a history and current status of rent payments made.
 *   **Lease Management:**
     *   Show the current lease document.
