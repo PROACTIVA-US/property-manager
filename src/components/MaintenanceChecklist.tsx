@@ -17,11 +17,10 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import {
-  MaintenanceTask,
-  TaskCategory,
-  TaskFrequency,
+  type MaintenanceTask,
+  type TaskCategory,
+  type TaskFrequency,
   loadTasks,
-  saveTasks,
   toggleTaskCompletion,
   addTask,
   updateTask,
