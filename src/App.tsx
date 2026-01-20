@@ -5,12 +5,13 @@ import LoginPage from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import MortgageCalculator from './components/MortgageCalculator';
 import VendorsPage from './pages/Vendors';
+import TenantPortal from './pages/TenantPortal';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
 
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  
+
   if (!user) {
     return <Navigate to="/login" />;
   }
@@ -24,7 +25,7 @@ export default function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          
+
           <Route path="/" element={
             <ProtectedRoute>
               <Dashboard />
@@ -40,6 +41,13 @@ export default function App() {
           <Route path="/vendors" element={
             <ProtectedRoute>
               <VendorsPage />
+            </ProtectedRoute>
+          } />
+
+          {/* Tenant Portal Routes */}
+          <Route path="/tenant/:section" element={
+            <ProtectedRoute>
+              <TenantPortal />
             </ProtectedRoute>
           } />
 

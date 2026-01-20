@@ -26,10 +26,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Simulate checking local storage for auth
     const storedRole = localStorage.getItem('mockUserRole') as UserRole;
     if (storedRole) {
+      // Use realistic names for each role
+      const displayNames: Record<string, string> = {
+        tenant: 'Gregg Marshall',
+        owner: 'Sarah Thompson',
+        pm: 'Mike Johnson',
+      };
+
       setUser({
         uid: '123',
         email: `${storedRole}@example.com`,
-        displayName: `Mock ${storedRole.charAt(0).toUpperCase() + storedRole.slice(1)}`,
+        displayName: displayNames[storedRole] || `Mock ${storedRole.charAt(0).toUpperCase() + storedRole.slice(1)}`,
         role: storedRole
       });
     }
@@ -40,12 +47,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Simulate API call
     setLoading(true);
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     if (role) {
+      // Use realistic names for each role
+      const displayNames: Record<string, string> = {
+        tenant: 'Gregg Marshall',
+        owner: 'Sarah Thompson',
+        pm: 'Mike Johnson',
+      };
+
       setUser({
         uid: '123',
         email: `${role}@example.com`,
-        displayName: `Mock ${role.charAt(0).toUpperCase() + role.slice(1)}`,
+        displayName: displayNames[role] || `Mock ${role.charAt(0).toUpperCase() + role.slice(1)}`,
         role: role
       });
       localStorage.setItem('mockUserRole', role);
