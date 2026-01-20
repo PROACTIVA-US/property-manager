@@ -280,7 +280,7 @@ export function calculateTaxEstimate(
   property: PropertyFinancials,
   taxInputs: TaxInputs
 ): TaxEstimate {
-  const { income: incomeBrackets, ltcg: ltcgBrackets } = getTaxBrackets(taxInputs.filingStatus);
+  const { ltcg: ltcgBrackets } = getTaxBrackets(taxInputs.filingStatus);
 
   // Calculate depreciation taken (straight-line over 27.5 years for residential)
   const depreciableBase = taxInputs.depreciableValue - taxInputs.landValue + taxInputs.improvementsCost;

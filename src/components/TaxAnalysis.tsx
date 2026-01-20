@@ -26,8 +26,6 @@ import {
 import {
   type PropertyFinancials,
   type TaxInputs,
-  type TaxEstimate,
-  type TaxStrategy,
   calculateTaxEstimate,
   getMarginalTaxRate,
   TAX_MITIGATION_STRATEGIES,

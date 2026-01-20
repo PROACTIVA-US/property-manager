@@ -1,7 +1,5 @@
 import { useState, useMemo } from 'react';
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -11,14 +9,13 @@ import {
   ReferenceLine,
   Area,
   ComposedChart,
+  Line,
 } from 'recharts';
 import {
   Scale,
   TrendingUp,
   TrendingDown,
   Clock,
-  Target,
-  ArrowRight,
   Building2,
   BarChart3,
   Info,
@@ -43,7 +40,7 @@ export default function KeepVsSell({
   initialTaxInputs = DEFAULT_TAX_INPUTS,
 }: KeepVsSellProps) {
   const [property, setProperty] = useState<PropertyFinancials>(initialProperty);
-  const [taxInputs, setTaxInputs] = useState<TaxInputs>(initialTaxInputs);
+  const [taxInputs] = useState<TaxInputs>(initialTaxInputs);
   const [alternativeReturn, setAlternativeReturn] = useState(7); // S&P 500 average
   const [projectionYears, setProjectionYears] = useState(10);
   const [showInputs, setShowInputs] = useState(false);
@@ -86,7 +83,6 @@ export default function KeepVsSell({
 
   // Calculate some helpful metrics
   const currentEquity = property.currentMarketValue - property.mortgageBalance;
-  const fiveYearProjection = analysis.projections[4];
   const tenYearProjection = analysis.projections[projectionYears - 1];
   const keepVsSellDiff = tenYearProjection
     ? tenYearProjection.totalReturn - tenYearProjection.alternativeInvestmentValue
