@@ -1,14 +1,28 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import MaintenanceChecklist from '../MaintenanceChecklist';
 import VendorDirectory from '../VendorDirectory';
-import { Users, Phone, AlertTriangle, Calendar } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { AlertTriangle, Calendar, MessageSquare, Star } from 'lucide-react';
 import { getVendors } from '../../lib/vendors';
+import { getThreads, getInspections, getAverageSatisfaction, type Thread, type Inspection } from '../../lib/messages';
 
 export default function PMDashboard() {
   const { user } = useAuth();
   const vendors = getVendors();
   const activeVendors = vendors.filter(v => v.status !== 'inactive').length;
+
+  const [threads, setThreads] = useState<Thread[]>([]);
+  const [inspections, setInspections] = useState<Inspection[]>([]);
+  const [satisfaction, setSatisfaction] = useState(0);
+
+  useEffect(() => {
+    setThreads(getThreads());
+    setInspections(getInspections().filter(i => i.status === 'pending'));
+    setSatisfaction(getAverageSatisfaction());
+  }, []);
+
+  const unreadCount = threads.reduce((acc, t) => acc + t.unreadCount, 0);
 
   return (
     <div className="space-y-6">
@@ -19,18 +33,18 @@ export default function PMDashboard() {
           </h1>
           <p className="text-brand-muted">Welcome back, {user?.displayName}</p>
         </div>
-        <button className="btn-primary flex items-center gap-2">
+        <Link to="/messages?tab=inspections" className="btn-primary flex items-center gap-2">
           <Calendar size={18} />
           Schedule Inspection
-        </button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Main Tasks */}
         <div className="lg:col-span-2 space-y-6">
-          
+
           {/* Quick Stats Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="card bg-gradient-to-br from-brand-navy to-blue-900/50">
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 bg-brand-orange/20 rounded-lg text-brand-orange">
@@ -41,27 +55,53 @@ export default function PMDashboard() {
               <p className="text-2xl font-bold text-brand-light">1</p>
               <p className="text-xs text-brand-muted mt-1">HVAC Maintenance Required</p>
             </div>
-            
-            <div className="card">
+
+            <Link to="/messages" className="card hover:bg-brand-navy/70 transition-colors">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
+                  <MessageSquare size={20} />
+                </div>
+                <h3 className="font-semibold text-brand-light">Messages</h3>
+              </div>
+              <p className="text-2xl font-bold text-brand-light">{unreadCount}</p>
+              <p className="text-xs text-brand-muted mt-1">
+                {unreadCount > 0 ? 'Unread messages' : 'All caught up'}
+              </p>
+            </Link>
+
+            <Link to="/messages?tab=inspections" className="card hover:bg-brand-navy/70 transition-colors">
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 bg-green-500/20 rounded-lg text-green-400">
-                  <Users size={20} />
+                  <Calendar size={20} />
                 </div>
-                <h3 className="font-semibold text-brand-light">Tenant Status</h3>
+                <h3 className="font-semibold text-brand-light">Inspections</h3>
               </div>
-              <p className="text-2xl font-bold text-brand-light">Good</p>
-              <p className="text-xs text-brand-muted mt-1">Rent Paid on Time</p>
-            </div>
+              <p className="text-2xl font-bold text-brand-light">{inspections.length}</p>
+              <p className="text-xs text-brand-muted mt-1">
+                {inspections.length > 0 ? 'Pending inspections' : 'None scheduled'}
+              </p>
+            </Link>
 
-            <Link to="/vendors" className="card block hover:border-brand-orange/50 transition-colors">
+            <Link to="/messages?tab=satisfaction" className="card hover:bg-brand-navy/70 transition-colors">
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400">
-                  <Phone size={20} />
+                <div className="p-2 bg-yellow-500/20 rounded-lg text-yellow-400">
+                  <Star size={20} />
                 </div>
-                <h3 className="font-semibold text-brand-light">Vendors</h3>
+                <h3 className="font-semibold text-brand-light">Satisfaction</h3>
               </div>
-              <p className="text-2xl font-bold text-brand-light">{activeVendors}</p>
-              <p className="text-xs text-brand-muted mt-1">Active Contracts</p>
+              <div className="flex items-center gap-2">
+                <p className="text-2xl font-bold text-brand-light">{satisfaction > 0 ? satisfaction.toFixed(1) : '--'}</p>
+                <div className="flex">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      size={12}
+                      className={star <= Math.round(satisfaction) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-600'}
+                    />
+                  ))}
+                </div>
+              </div>
+              <p className="text-xs text-brand-muted mt-1">Tenant rating</p>
             </Link>
           </div>
 
@@ -82,7 +122,7 @@ export default function PMDashboard() {
               </div>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <button className="btn-secondary text-xs">Email</button>
-                <button className="btn-secondary text-xs">Message</button>
+                <Link to="/messages" className="btn-secondary text-xs text-center">Message</Link>
               </div>
             </div>
           </div>
@@ -91,7 +131,7 @@ export default function PMDashboard() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-brand-orange">Vendor Directory</h3>
               <Link to="/vendors" className="text-xs text-brand-muted hover:text-brand-light">
-                Manage
+                Manage ({activeVendors} active)
               </Link>
             </div>
             <VendorDirectory compact />

@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Financials from './pages/Financials';
 import VendorsPage from './pages/Vendors';
 import TenantPortal from './pages/TenantPortal';
+import MessagesPage from './pages/Messages';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -48,6 +49,12 @@ export default function App() {
           <Route path="/tenant/:section" element={
             <ProtectedRoute>
               <TenantPortal />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/messages" element={
+            <ProtectedRoute>
+              <MessagesPage />
             </ProtectedRoute>
           } />
 

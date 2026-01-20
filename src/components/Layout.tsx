@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
 import {
@@ -12,10 +12,27 @@ import {
   HardHat
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { getThreads, getNotifications } from '../lib/messages';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Refresh unread counts periodically
+  useEffect(() => {
+    const updateCounts = () => {
+      const threads = getThreads();
+      const notifications = getNotifications();
+      const threadUnread = threads.reduce((acc, t) => acc + t.unreadCount, 0);
+      const notifUnread = notifications.filter(n => !n.read).length;
+      setUnreadCount(threadUnread + notifUnread);
+    };
+
+    updateCounts();
+    const interval = setInterval(updateCounts, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   if (!user) return <>{children}</>;
 
@@ -43,13 +60,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <nav className="flex-1 px-2 space-y-1">
               {filteredNav.map((item) => {
                 const isActive = location.pathname === item.href;
+                const showBadge = item.href === '/messages' && unreadCount > 0;
                 return (
                   <Link
                     key={item.name}
                     to={item.href}
                     className={cn(
-                      isActive 
-                        ? 'bg-brand-orange/10 text-brand-orange' 
+                      isActive
+                        ? 'bg-brand-orange/10 text-brand-orange'
                         : 'text-brand-muted hover:bg-white/5 hover:text-brand-light',
                       'group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors'
                     )}
@@ -62,6 +80,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       aria-hidden="true"
                     />
                     {item.name}
+                    {showBadge && (
+                      <span className="ml-auto px-2 py-0.5 rounded-full text-xs font-bold bg-brand-orange text-white">
+                        {unreadCount}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
