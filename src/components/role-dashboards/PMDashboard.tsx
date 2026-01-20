@@ -1,9 +1,14 @@
 import { useAuth } from '../../contexts/AuthContext';
 import MaintenanceChecklist from '../MaintenanceChecklist';
+import VendorDirectory from '../VendorDirectory';
 import { Users, Phone, AlertTriangle, Calendar } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { getVendors } from '../../lib/vendors';
 
 export default function PMDashboard() {
   const { user } = useAuth();
+  const vendors = getVendors();
+  const activeVendors = vendors.filter(v => v.status !== 'inactive').length;
 
   return (
     <div className="space-y-6">
@@ -48,16 +53,16 @@ export default function PMDashboard() {
               <p className="text-xs text-brand-muted mt-1">Rent Paid on Time</p>
             </div>
 
-            <div className="card">
+            <Link to="/vendors" className="card block hover:border-brand-orange/50 transition-colors">
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400">
                   <Phone size={20} />
                 </div>
                 <h3 className="font-semibold text-brand-light">Vendors</h3>
               </div>
-              <p className="text-2xl font-bold text-brand-light">4</p>
+              <p className="text-2xl font-bold text-brand-light">{activeVendors}</p>
               <p className="text-xs text-brand-muted mt-1">Active Contracts</p>
-            </div>
+            </Link>
           </div>
 
           <MaintenanceChecklist />
@@ -85,27 +90,11 @@ export default function PMDashboard() {
           <div className="card">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-brand-orange">Vendor Directory</h3>
-              <button className="text-xs text-brand-muted hover:text-brand-light">Manage</button>
+              <Link to="/vendors" className="text-xs text-brand-muted hover:text-brand-light">
+                Manage
+              </Link>
             </div>
-            <div className="space-y-3">
-              {[
-                { name: 'Smith Plumbing', role: 'Plumber', status: 'Available' },
-                { name: 'Green Gardens', role: 'Landscaper', status: 'Scheduled' },
-                { name: 'Volt Electric', role: 'Electrician', status: 'Available' },
-              ].map((vendor, i) => (
-                <div key={i} className="flex items-center justify-between p-2 rounded hover:bg-brand-dark/50 transition-colors">
-                  <div>
-                    <p className="text-sm font-medium text-brand-light">{vendor.name}</p>
-                    <p className="text-xs text-brand-muted">{vendor.role}</p>
-                  </div>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full ${
-                    vendor.status === 'Available' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'
-                  }`}>
-                    {vendor.status}
-                  </span>
-                </div>
-              ))}
-            </div>
+            <VendorDirectory compact />
           </div>
         </div>
       </div>
