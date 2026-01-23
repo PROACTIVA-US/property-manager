@@ -7,7 +7,9 @@ import Financials from './pages/Financials';
 import VendorsPage from './pages/Vendors';
 import TenantPortal from './pages/TenantPortal';
 import MessagesPage from './pages/Messages';
+import Maintenance from './pages/Maintenance';
 import Documents from './pages/Documents';
+import Tenants from './pages/Tenants';
 import Settings from './pages/Settings';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -60,9 +62,21 @@ export default function App() {
             </ProtectedRoute>
           } />
 
+          <Route path="/maintenance" element={
+            <ProtectedRoute>
+              <Maintenance />
+            </ProtectedRoute>
+          } />
+
           <Route path="/documents" element={
             <ProtectedRoute>
               <Documents />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/tenants" element={
+            <ProtectedRoute>
+              <Tenants />
             </ProtectedRoute>
           } />
 
