@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { Settings as SettingsIcon, Download, Upload, RotateCcw } from 'lucide-react';
 import type { SettingsData } from '../lib/settings';
 import { loadSettings, exportSettings, importSettings, resetSettings } from '../lib/settings';
+import OwnerForm from '../components/settings/OwnerForm';
 import PropertyForm from '../components/settings/PropertyForm';
 import MortgageForm from '../components/settings/MortgageForm';
 import RentalIncomeForm from '../components/settings/RentalIncomeForm';
 import TaxInfoForm from '../components/settings/TaxInfoForm';
 import TenantForm from '../components/settings/TenantForm';
 
-type TabId = 'property' | 'mortgage' | 'rental' | 'tax' | 'tenant';
+type TabId = 'owner' | 'property' | 'mortgage' | 'rental' | 'tax' | 'tenant';
 
 interface Tab {
   id: TabId;
@@ -17,6 +18,7 @@ interface Tab {
 }
 
 const tabs: Tab[] = [
+  { id: 'owner', label: 'Owner', description: 'Your contact and business info' },
   { id: 'property', label: 'Property', description: 'Property details and value' },
   { id: 'mortgage', label: 'Mortgage', description: 'Loan information' },
   { id: 'rental', label: 'Rental Income', description: 'Income and expenses' },
@@ -25,7 +27,7 @@ const tabs: Tab[] = [
 ];
 
 export default function Settings() {
-  const [activeTab, setActiveTab] = useState<TabId>('property');
+  const [activeTab, setActiveTab] = useState<TabId>('owner');
   const [settings, setSettings] = useState<SettingsData>(loadSettings());
   const [importMessage, setImportMessage] = useState('');
 
@@ -166,6 +168,9 @@ export default function Settings() {
 
       {/* Tab Content */}
       <div className="card p-6">
+        {activeTab === 'owner' && (
+          <OwnerForm initialData={settings.owner} onSave={handleDataSaved} />
+        )}
         {activeTab === 'property' && (
           <PropertyForm initialData={settings.property} onSave={handleDataSaved} />
         )}

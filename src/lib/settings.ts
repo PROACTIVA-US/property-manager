@@ -53,6 +53,16 @@ export interface TaxInfoData {
   estimatedSellingCosts: number; // Typically 6-10% of sale price
 }
 
+export interface OwnerData {
+  name: string;
+  email: string;
+  phone: string;
+  entityType: 'individual' | 'llc' | 's_corp' | 'c_corp' | 'partnership' | 'trust';
+  entityName?: string; // If different from owner name (e.g., "Smith Properties LLC")
+  businessAddress?: string;
+  taxId?: string; // EIN or SSN (last 4 digits only for display)
+}
+
 export interface TenantData {
   name: string;
   email: string;
@@ -73,6 +83,7 @@ export interface PersonalExpensesData {
 }
 
 export interface SettingsData {
+  owner: OwnerData;
   property: PropertyData;
   mortgage: MortgageData;
   rentalIncome: RentalIncomeData;
@@ -85,6 +96,16 @@ export interface SettingsData {
 // ============================================================================
 // Default Values (from legacy system)
 // ============================================================================
+
+export const DEFAULT_OWNER: OwnerData = {
+  name: 'Property Owner',
+  email: 'owner@example.com',
+  phone: '(555) 000-0000',
+  entityType: 'individual',
+  entityName: '',
+  businessAddress: '',
+  taxId: '',
+};
 
 export const DEFAULT_PROPERTY: PropertyData = {
   address: '1234 Property Lane',
@@ -178,6 +199,7 @@ export function loadSettings(): SettingsData {
 
   // Return defaults if nothing stored
   return {
+    owner: DEFAULT_OWNER,
     property: DEFAULT_PROPERTY,
     mortgage: DEFAULT_MORTGAGE,
     rentalIncome: DEFAULT_RENTAL_INCOME,
@@ -202,6 +224,16 @@ export function saveSettings(settings: SettingsData): void {
     console.error('Failed to save settings:', error);
     throw error;
   }
+}
+
+/**
+ * Update owner data
+ */
+export function updateOwner(owner: Partial<OwnerData>): SettingsData {
+  const settings = loadSettings();
+  settings.owner = { ...settings.owner, ...owner };
+  saveSettings(settings);
+  return settings;
 }
 
 /**
@@ -269,6 +301,7 @@ export function updatePersonalExpenses(expenses: Partial<PersonalExpensesData>):
  */
 export function resetSettings(): SettingsData {
   const defaults: SettingsData = {
+    owner: DEFAULT_OWNER,
     property: DEFAULT_PROPERTY,
     mortgage: DEFAULT_MORTGAGE,
     rentalIncome: DEFAULT_RENTAL_INCOME,
