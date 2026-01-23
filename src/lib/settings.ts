@@ -187,18 +187,7 @@ const STORAGE_KEY = 'propertyManager_settings_v1';
  * Load all settings from localStorage
  */
 export function loadSettings(): SettingsData {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored) as SettingsData;
-      return parsed;
-    }
-  } catch (error) {
-    console.error('Failed to load settings:', error);
-  }
-
-  // Return defaults if nothing stored
-  return {
+  const defaults: SettingsData = {
     owner: DEFAULT_OWNER,
     property: DEFAULT_PROPERTY,
     mortgage: DEFAULT_MORTGAGE,
@@ -208,6 +197,30 @@ export function loadSettings(): SettingsData {
     personalExpenses: DEFAULT_PERSONAL_EXPENSES,
     lastUpdated: new Date().toISOString(),
   };
+
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored) as Partial<SettingsData>;
+
+      // Merge with defaults to handle missing fields (migration from old versions)
+      return {
+        owner: parsed.owner || DEFAULT_OWNER,
+        property: parsed.property || DEFAULT_PROPERTY,
+        mortgage: parsed.mortgage || DEFAULT_MORTGAGE,
+        rentalIncome: parsed.rentalIncome || DEFAULT_RENTAL_INCOME,
+        taxInfo: parsed.taxInfo || DEFAULT_TAX_INFO,
+        tenant: parsed.tenant || DEFAULT_TENANT,
+        personalExpenses: parsed.personalExpenses || DEFAULT_PERSONAL_EXPENSES,
+        lastUpdated: parsed.lastUpdated || new Date().toISOString(),
+      };
+    }
+  } catch (error) {
+    console.error('Failed to load settings:', error);
+  }
+
+  // Return defaults if nothing stored
+  return defaults;
 }
 
 /**
