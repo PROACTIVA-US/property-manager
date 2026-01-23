@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { MortgageData } from '../../lib/settings';
 import { updateMortgage, formatCurrency } from '../../lib/settings';
-import { Calculator, Save, Info } from 'lucide-react';
+import { Calculator, Save } from 'lucide-react';
 
 interface MortgageFormProps {
   initialData: MortgageData;
@@ -62,15 +62,6 @@ export default function MortgageForm({ initialData, onSave }: MortgageFormProps)
         <div>
           <h3 className="text-xl font-bold text-brand-light">Mortgage Details</h3>
           <p className="text-sm text-brand-muted">Current loan information from your lender</p>
-        </div>
-      </div>
-
-      {/* Info Banner */}
-      <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg flex items-start gap-3">
-        <Info className="text-blue-400 flex-shrink-0 mt-0.5" size={18} />
-        <div className="text-sm text-brand-muted">
-          <p className="font-medium text-brand-light mb-1">Pre-filled with accurate data</p>
-          <p>These values were imported from your legacy mortgage calculator. Update as needed.</p>
         </div>
       </div>
 
