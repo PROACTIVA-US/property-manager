@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { PropertyData, updateProperty, formatCurrency } from '../../lib/settings';
+import type { PropertyData } from '../../lib/settings';
+import { updateProperty, formatCurrency } from '../../lib/settings';
 import { Building2, Save } from 'lucide-react';
 
 interface PropertyFormProps {

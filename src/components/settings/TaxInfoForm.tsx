@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { TaxInfoData, updateTaxInfo, formatCurrency } from '../../lib/settings';
+import type { TaxInfoData } from '../../lib/settings';
+import { updateTaxInfo, formatCurrency } from '../../lib/settings';
 import { FileText, Save } from 'lucide-react';
 
 interface TaxInfoFormProps {

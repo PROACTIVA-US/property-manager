@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Settings as SettingsIcon, Download, Upload, RotateCcw } from 'lucide-react';
-import { loadSettings, exportSettings, importSettings, resetSettings, SettingsData } from '../lib/settings';
+import type { SettingsData } from '../lib/settings';
+import { loadSettings, exportSettings, importSettings, resetSettings } from '../lib/settings';
 import PropertyForm from '../components/settings/PropertyForm';
 import MortgageForm from '../components/settings/MortgageForm';
 import RentalIncomeForm from '../components/settings/RentalIncomeForm';

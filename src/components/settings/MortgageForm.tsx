@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { MortgageData, updateMortgage, formatCurrency } from '../../lib/settings';
+import type { MortgageData } from '../../lib/settings';
+import { updateMortgage, formatCurrency } from '../../lib/settings';
 import { Calculator, Save, Info } from 'lucide-react';
 
 interface MortgageFormProps {

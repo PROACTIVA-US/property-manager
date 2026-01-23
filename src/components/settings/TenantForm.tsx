@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { TenantData, updateTenant, formatCurrency } from '../../lib/settings';
+import type { TenantData } from '../../lib/settings';
+import { updateTenant, formatCurrency } from '../../lib/settings';
 import { Users, Save } from 'lucide-react';
 
 interface TenantFormProps {

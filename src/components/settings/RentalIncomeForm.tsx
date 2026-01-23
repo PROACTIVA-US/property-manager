@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { RentalIncomeData, updateRentalIncome, formatCurrency, calculateMonthlyOperatingExpenses, MortgageData, calculateMonthlyCashFlow } from '../../lib/settings';
+import type { RentalIncomeData, MortgageData } from '../../lib/settings';
+import { updateRentalIncome, formatCurrency, calculateMonthlyOperatingExpenses, calculateMonthlyCashFlow } from '../../lib/settings';
 import { DollarSign, Save } from 'lucide-react';
 
 interface RentalIncomeFormProps {
