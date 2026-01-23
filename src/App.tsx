@@ -7,6 +7,7 @@ import Financials from './pages/Financials';
 import VendorsPage from './pages/Vendors';
 import TenantPortal from './pages/TenantPortal';
 import MessagesPage from './pages/Messages';
+import Settings from './pages/Settings';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -55,6 +56,12 @@ export default function App() {
           <Route path="/messages" element={
             <ProtectedRoute>
               <MessagesPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <Settings />
             </ProtectedRoute>
           } />
 

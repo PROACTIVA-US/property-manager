@@ -9,7 +9,8 @@ import {
   FileText,
   LogOut,
   Users,
-  HardHat
+  HardHat,
+  Settings as SettingsIcon
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { getThreads, getNotifications } from '../lib/messages';
@@ -44,6 +45,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { name: 'Messages', href: '/messages', icon: MessageSquare, roles: ['owner', 'pm', 'tenant'] },
     { name: 'Documents', href: '/documents', icon: FileText, roles: ['owner', 'pm', 'tenant'] },
     { name: 'Tenants', href: '/tenants', icon: Users, roles: ['owner', 'pm'] },
+    { name: 'Settings', href: '/settings', icon: SettingsIcon, roles: ['owner', 'pm'] },
   ];
 
   const filteredNav = navigation.filter(item => item.roles.includes(user.role || ''));
