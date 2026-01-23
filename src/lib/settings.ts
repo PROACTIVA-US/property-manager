@@ -63,6 +63,15 @@ export interface OwnerData {
   taxId?: string; // EIN or SSN (last 4 digits only for display)
 }
 
+export interface PMData {
+  name: string;
+  email: string;
+  phone: string;
+  companyName?: string;
+  licenseNumber?: string;
+  managementFeePercent?: number; // Percentage of monthly rent
+}
+
 export interface TenantData {
   name: string;
   email: string;
@@ -84,6 +93,7 @@ export interface PersonalExpensesData {
 
 export interface SettingsData {
   owner: OwnerData;
+  pm: PMData;
   property: PropertyData;
   mortgage: MortgageData;
   rentalIncome: RentalIncomeData;
@@ -105,6 +115,15 @@ export const DEFAULT_OWNER: OwnerData = {
   entityName: '',
   businessAddress: '',
   taxId: '',
+};
+
+export const DEFAULT_PM: PMData = {
+  name: 'Property Manager',
+  email: 'pm@example.com',
+  phone: '(555) 000-0000',
+  companyName: '',
+  licenseNumber: '',
+  managementFeePercent: 0,
 };
 
 export const DEFAULT_PROPERTY: PropertyData = {
@@ -189,6 +208,7 @@ const STORAGE_KEY = 'propertyManager_settings_v1';
 export function loadSettings(): SettingsData {
   const defaults: SettingsData = {
     owner: DEFAULT_OWNER,
+    pm: DEFAULT_PM,
     property: DEFAULT_PROPERTY,
     mortgage: DEFAULT_MORTGAGE,
     rentalIncome: DEFAULT_RENTAL_INCOME,
@@ -206,6 +226,7 @@ export function loadSettings(): SettingsData {
       // Merge with defaults to handle missing fields (migration from old versions)
       return {
         owner: parsed.owner || DEFAULT_OWNER,
+        pm: parsed.pm || DEFAULT_PM,
         property: parsed.property || DEFAULT_PROPERTY,
         mortgage: parsed.mortgage || DEFAULT_MORTGAGE,
         rentalIncome: parsed.rentalIncome || DEFAULT_RENTAL_INCOME,
@@ -245,6 +266,16 @@ export function saveSettings(settings: SettingsData): void {
 export function updateOwner(owner: Partial<OwnerData>): SettingsData {
   const settings = loadSettings();
   settings.owner = { ...settings.owner, ...owner };
+  saveSettings(settings);
+  return settings;
+}
+
+/**
+ * Update property manager data
+ */
+export function updatePM(pm: Partial<PMData>): SettingsData {
+  const settings = loadSettings();
+  settings.pm = { ...settings.pm, ...pm };
   saveSettings(settings);
   return settings;
 }
@@ -315,6 +346,7 @@ export function updatePersonalExpenses(expenses: Partial<PersonalExpensesData>):
 export function resetSettings(): SettingsData {
   const defaults: SettingsData = {
     owner: DEFAULT_OWNER,
+    pm: DEFAULT_PM,
     property: DEFAULT_PROPERTY,
     mortgage: DEFAULT_MORTGAGE,
     rentalIncome: DEFAULT_RENTAL_INCOME,

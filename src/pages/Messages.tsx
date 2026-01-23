@@ -38,15 +38,21 @@ import {
 } from '../lib/messages';
 import { cn } from '../lib/utils';
 import type { UserRole } from '../contexts/AuthContext';
+import { loadSettings } from '../lib/settings';
 
 type TabType = 'messages' | 'inspections' | 'satisfaction' | 'notifications';
 
-// Available participants for new threads (mock data matching auth context)
-const ALL_PARTICIPANTS = [
-  { id: 'owner-1', role: 'owner' as UserRole, name: 'Shanie Holman' },
-  { id: 'pm-1', role: 'pm' as UserRole, name: 'Dan Connolly' },
-  { id: 'tenant-1', role: 'tenant' as UserRole, name: 'Gregg Marshall' },
-];
+// Get real names from settings
+const getParticipants = () => {
+  const settings = loadSettings();
+  return [
+    { id: 'owner-1', role: 'owner' as UserRole, name: settings.owner.name },
+    { id: 'pm-1', role: 'pm' as UserRole, name: settings.pm.name },
+    { id: 'tenant-1', role: 'tenant' as UserRole, name: settings.tenant.name },
+  ];
+};
+
+const ALL_PARTICIPANTS = getParticipants();
 
 export default function MessagesPage() {
   const { user } = useAuth();

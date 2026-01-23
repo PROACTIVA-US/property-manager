@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, type ReactNode, useEffect } from 'react';
+import { loadSettings } from '../lib/settings';
 
 export type UserRole = 'owner' | 'tenant' | 'pm' | null;
 
@@ -26,17 +27,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Simulate checking local storage for auth
     const storedRole = localStorage.getItem('mockUserRole') as UserRole;
     if (storedRole) {
-      // Use realistic names for each role
+      // Get real data from settings
+      const settings = loadSettings();
+
       const displayNames: Record<string, string> = {
-        tenant: 'Gregg Marshall',
-        owner: 'Sarah Thompson',
-        pm: 'Mike Johnson',
+        tenant: settings.tenant.name,
+        owner: settings.owner.name,
+        pm: settings.pm.name,
+      };
+
+      const emails: Record<string, string> = {
+        tenant: settings.tenant.email,
+        owner: settings.owner.email,
+        pm: settings.pm.email,
       };
 
       setUser({
         uid: '123',
-        email: `${storedRole}@example.com`,
-        displayName: displayNames[storedRole] || `Mock ${storedRole.charAt(0).toUpperCase() + storedRole.slice(1)}`,
+        email: emails[storedRole] || `${storedRole}@example.com`,
+        displayName: displayNames[storedRole] || `${storedRole.charAt(0).toUpperCase() + storedRole.slice(1)}`,
         role: storedRole
       });
     }
@@ -49,17 +58,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await new Promise(resolve => setTimeout(resolve, 500));
 
     if (role) {
-      // Use realistic names for each role
+      // Get real data from settings
+      const settings = loadSettings();
+
       const displayNames: Record<string, string> = {
-        tenant: 'Gregg Marshall',
-        owner: 'Sarah Thompson',
-        pm: 'Mike Johnson',
+        tenant: settings.tenant.name,
+        owner: settings.owner.name,
+        pm: settings.pm.name,
+      };
+
+      const emails: Record<string, string> = {
+        tenant: settings.tenant.email,
+        owner: settings.owner.email,
+        pm: settings.pm.email,
       };
 
       setUser({
         uid: '123',
-        email: `${role}@example.com`,
-        displayName: displayNames[role] || `Mock ${role.charAt(0).toUpperCase() + role.slice(1)}`,
+        email: emails[role] || `${role}@example.com`,
+        displayName: displayNames[role] || `${role.charAt(0).toUpperCase() + role.slice(1)}`,
         role: role
       });
       localStorage.setItem('mockUserRole', role);
