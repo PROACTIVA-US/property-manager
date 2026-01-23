@@ -172,7 +172,7 @@ export default function PropertyForm({ initialData, onSave }: PropertyFormProps)
           <input
             type="number"
             value={formData.yearBuilt || ''}
-            onChange={(e) => handleChange('yearBuilt', parseInt(e.target.value) || undefined)}
+            onChange={(e) => handleChange('yearBuilt', e.target.value ? parseInt(e.target.value) : '')}
             className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
             placeholder="2010"
             min="1800"
@@ -186,7 +186,7 @@ export default function PropertyForm({ initialData, onSave }: PropertyFormProps)
           <input
             type="number"
             value={formData.squareFootage || ''}
-            onChange={(e) => handleChange('squareFootage', parseInt(e.target.value) || undefined)}
+            onChange={(e) => handleChange('squareFootage', e.target.value ? parseInt(e.target.value) : '')}
             className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
             placeholder="1200"
             min="0"
@@ -199,7 +199,7 @@ export default function PropertyForm({ initialData, onSave }: PropertyFormProps)
           <input
             type="number"
             value={formData.bedrooms || ''}
-            onChange={(e) => handleChange('bedrooms', parseInt(e.target.value) || undefined)}
+            onChange={(e) => handleChange('bedrooms', e.target.value ? parseInt(e.target.value) : '')}
             className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
             placeholder="2"
             min="0"
@@ -213,7 +213,7 @@ export default function PropertyForm({ initialData, onSave }: PropertyFormProps)
           <input
             type="number"
             value={formData.bathrooms || ''}
-            onChange={(e) => handleChange('bathrooms', parseFloat(e.target.value) || undefined)}
+            onChange={(e) => handleChange('bathrooms', e.target.value ? parseFloat(e.target.value) : '')}
             className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
             placeholder="2"
             min="0"
@@ -230,7 +230,7 @@ export default function PropertyForm({ initialData, onSave }: PropertyFormProps)
         </label>
         <select
           value={formData.propertyType || 'single_family'}
-          onChange={(e) => handleChange('propertyType', e.target.value as PropertyData['propertyType'])}
+          onChange={(e) => handleChange('propertyType', e.target.value)}
           className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
         >
           <option value="single_family">Single Family Home</option>

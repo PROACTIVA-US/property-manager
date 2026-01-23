@@ -218,7 +218,7 @@ export default function MortgageForm({ initialData, onSave }: MortgageFormProps)
           <input
             type="number"
             value={formData.originalLoanAmount || ''}
-            onChange={(e) => handleChange('originalLoanAmount', parseFloat(e.target.value) || undefined)}
+            onChange={(e) => handleChange('originalLoanAmount', e.target.value ? parseFloat(e.target.value) : '')}
             className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
             min="0"
             step="1000"
