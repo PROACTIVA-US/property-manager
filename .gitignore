@@ -26,3 +26,4 @@ dist-ssr
 # AI Assistant local files
 CLAUDE.local.md
 .claude/archive/
+worktrees/
