@@ -14,6 +14,7 @@ import {
   FileText,
   ChevronRight,
   Sparkles,
+  Pencil,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
@@ -117,7 +118,14 @@ export default function OwnerDashboard() {
         <>
           {/* High-level metrics */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="card bg-gradient-to-br from-brand-navy to-slate-800">
+            <div className="card bg-gradient-to-br from-brand-navy to-slate-800 group relative">
+              <Link
+                to="/settings?tab=rental"
+                className="absolute top-3 right-3 p-1.5 bg-slate-700/50 rounded-lg text-brand-muted hover:text-brand-orange hover:bg-slate-700 transition-all opacity-0 group-hover:opacity-100"
+                title="Edit rental income and expenses"
+              >
+                <Pencil size={14} />
+              </Link>
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 bg-green-500/20 rounded-lg text-green-400">
                   <DollarSign size={24} />
@@ -134,7 +142,14 @@ export default function OwnerDashboard() {
               </p>
             </div>
 
-            <div className="card">
+            <div className="card group relative">
+              <Link
+                to="/settings?tab=property"
+                className="absolute top-3 right-3 p-1.5 bg-slate-700/50 rounded-lg text-brand-muted hover:text-brand-orange hover:bg-slate-700 transition-all opacity-0 group-hover:opacity-100"
+                title="Edit property value and mortgage"
+              >
+                <Pencil size={14} />
+              </Link>
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
                   <TrendingUp size={24} />

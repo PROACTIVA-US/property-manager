@@ -7,7 +7,9 @@ import {
   TrendingUp,
   Building2,
   Info,
+  Pencil,
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import MortgageCalculator from '../components/MortgageCalculator';
 import FinancialComparison from '../components/FinancialComparison';
 import TaxAnalysis from '../components/TaxAnalysis';
@@ -108,7 +110,14 @@ export default function Financials() {
 
       {/* Quick Stats Bar */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="card !p-4 flex items-center gap-3">
+        <div className="card !p-4 flex items-center gap-3 group relative">
+          <Link
+            to="/settings?tab=property"
+            className="absolute top-2 right-2 p-1 bg-slate-700/50 rounded text-brand-muted hover:text-brand-orange hover:bg-slate-700 transition-all opacity-0 group-hover:opacity-100"
+            title="Edit market value"
+          >
+            <Pencil size={12} />
+          </Link>
           <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
             <Building2 size={20} />
           </div>
@@ -119,7 +128,14 @@ export default function Financials() {
             </p>
           </div>
         </div>
-        <div className="card !p-4 flex items-center gap-3">
+        <div className="card !p-4 flex items-center gap-3 group relative">
+          <Link
+            to="/settings?tab=property"
+            className="absolute top-2 right-2 p-1 bg-slate-700/50 rounded text-brand-muted hover:text-brand-orange hover:bg-slate-700 transition-all opacity-0 group-hover:opacity-100"
+            title="Edit property value and mortgage"
+          >
+            <Pencil size={12} />
+          </Link>
           <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400">
             <TrendingUp size={20} />
           </div>
@@ -128,7 +144,14 @@ export default function Financials() {
             <p className="text-lg font-bold text-brand-light">{formatCurrency(equity)}</p>
           </div>
         </div>
-        <div className="card !p-4 flex items-center gap-3">
+        <div className="card !p-4 flex items-center gap-3 group relative">
+          <Link
+            to="/settings?tab=rental"
+            className="absolute top-2 right-2 p-1 bg-slate-700/50 rounded text-brand-muted hover:text-brand-orange hover:bg-slate-700 transition-all opacity-0 group-hover:opacity-100"
+            title="Edit rental income and expenses"
+          >
+            <Pencil size={12} />
+          </Link>
           <div className={`p-2 rounded-lg ${monthlyCashFlow >= 0 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
             <DollarSign size={20} />
           </div>
@@ -139,7 +162,14 @@ export default function Financials() {
             </p>
           </div>
         </div>
-        <div className="card !p-4 flex items-center gap-3">
+        <div className="card !p-4 flex items-center gap-3 group relative">
+          <Link
+            to="/settings?tab=rental"
+            className="absolute top-2 right-2 p-1 bg-slate-700/50 rounded text-brand-muted hover:text-brand-orange hover:bg-slate-700 transition-all opacity-0 group-hover:opacity-100"
+            title="Edit rental income for cap rate"
+          >
+            <Pencil size={12} />
+          </Link>
           <div className="p-2 bg-brand-orange/20 rounded-lg text-brand-orange">
             <Calculator size={20} />
           </div>

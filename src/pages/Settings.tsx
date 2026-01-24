@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Settings as SettingsIcon, Download, Upload, RotateCcw } from 'lucide-react';
 import type { SettingsData } from '../lib/settings';
 import { loadSettings, exportSettings, importSettings, resetSettings } from '../lib/settings';
@@ -29,7 +30,11 @@ const tabs: Tab[] = [
 ];
 
 export default function Settings() {
-  const [activeTab, setActiveTab] = useState<TabId>('owner');
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') as TabId;
+  const [activeTab, setActiveTab] = useState<TabId>(
+    initialTab && tabs.find(t => t.id === initialTab) ? initialTab : 'owner'
+  );
   const [settings, setSettings] = useState<SettingsData>(loadSettings());
   const [importMessage, setImportMessage] = useState('');
 
