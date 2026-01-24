@@ -27,3 +27,4 @@ dist-ssr
 CLAUDE.local.md
 .claude/archive/
 worktrees/
+.vercel
