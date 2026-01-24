@@ -35,6 +35,15 @@ export const STATUS_LABELS: Record<VendorStatus, string> = {
   inactive: 'Inactive',
 };
 
+export type ResponseTime = 'same_day' | 'next_day' | '2_3_days' | 'week_plus';
+
+export const RESPONSE_TIME_LABELS: Record<ResponseTime, string> = {
+  same_day: 'Same Day',
+  next_day: 'Next Day',
+  '2_3_days': '2-3 Days',
+  week_plus: 'Week+',
+};
+
 export interface Estimate {
   id: string;
   vendorId: string;
@@ -55,6 +64,13 @@ export interface JobHistoryEntry {
   notes?: string;
 }
 
+export interface VendorEmergencyContact {
+  name: string;
+  phone: string;
+  email?: string;
+  available24x7: boolean;
+}
+
 export interface Vendor {
   id: string;
   name: string;
@@ -63,6 +79,15 @@ export interface Vendor {
   email: string;
   status: VendorStatus;
   notes?: string;
+  // Emergency contact for after-hours/urgent issues
+  emergencyContact?: VendorEmergencyContact;
+  // Business info
+  companyName?: string;
+  licenseNumber?: string;
+  insuranceExpiry?: string;
+  // Rating and reliability
+  averageRating?: number;
+  responseTime?: 'same_day' | 'next_day' | '2_3_days' | 'week_plus';
   createdAt: string;
   updatedAt: string;
 }
@@ -276,6 +301,16 @@ function getDefaultVendors(): Vendor[] {
       email: 'contact@smithplumbing.com',
       status: 'available',
       notes: 'Reliable for emergency calls. 24/7 availability.',
+      companyName: 'Smith Plumbing & Drain Services',
+      licenseNumber: 'PL-2024-1234',
+      responseTime: 'same_day',
+      averageRating: 4.8,
+      emergencyContact: {
+        name: 'Mike Smith (Owner)',
+        phone: '(555) 123-4500',
+        email: 'emergency@smithplumbing.com',
+        available24x7: true,
+      },
       createdAt: now,
       updatedAt: now,
     },
@@ -287,6 +322,9 @@ function getDefaultVendors(): Vendor[] {
       email: 'info@greengardens.com',
       status: 'scheduled',
       notes: 'Weekly lawn maintenance scheduled for Tuesdays.',
+      companyName: 'Green Gardens Landscaping LLC',
+      responseTime: '2_3_days',
+      averageRating: 4.5,
       createdAt: now,
       updatedAt: now,
     },
@@ -298,6 +336,16 @@ function getDefaultVendors(): Vendor[] {
       email: 'service@voltelectric.com',
       status: 'available',
       notes: 'Licensed and insured. Good for panel upgrades.',
+      companyName: 'Volt Electric Inc.',
+      licenseNumber: 'EL-2023-5678',
+      insuranceExpiry: '2026-12-31',
+      responseTime: 'next_day',
+      averageRating: 4.9,
+      emergencyContact: {
+        name: 'Volt Electric Dispatch',
+        phone: '(555) 345-6700',
+        available24x7: true,
+      },
       createdAt: now,
       updatedAt: now,
     },
@@ -307,8 +355,19 @@ function getDefaultVendors(): Vendor[] {
       specialty: 'hvac',
       phone: '(555) 456-7890',
       email: 'support@coolairhvac.com',
-      status: 'inactive',
-      notes: 'Previously used for AC installation. Currently on hold due to scheduling issues.',
+      status: 'scheduled',
+      notes: 'Currently handling HVAC upgrade project.',
+      companyName: 'Cool Air Heating & Cooling',
+      licenseNumber: 'HVAC-2024-9012',
+      insuranceExpiry: '2026-06-30',
+      responseTime: 'same_day',
+      averageRating: 4.2,
+      emergencyContact: {
+        name: 'Cool Air 24/7 Line',
+        phone: '(555) 456-7899',
+        email: 'emergency@coolairhvac.com',
+        available24x7: true,
+      },
       createdAt: now,
       updatedAt: now,
     },
