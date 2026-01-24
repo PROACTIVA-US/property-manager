@@ -70,6 +70,10 @@ export default function PropertyForm({ initialData, onSave }: PropertyFormProps)
             required
           />
         </div>
+        {/* TODO: Hide Unit Number field if propertyType is 'single_family'
+            - Only show for: condo, apartment, townhouse, multi_family
+            - Conditionally render based on formData.propertyType
+        */}
         <div>
           <label className="block text-sm font-medium text-brand-light mb-2">
             Unit Number
