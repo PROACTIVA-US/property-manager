@@ -211,6 +211,42 @@ export function getCurrentBalance(): { amount: number; dueDate: string; status: 
 // Lease functions
 export function getLease(): Lease {
   initializeStorage();
+
+  // Try to load from settings first for dynamic data
+  try {
+    const settingsData = localStorage.getItem('propertyManagerSettings');
+    if (settingsData) {
+      const settings = JSON.parse(settingsData);
+      if (settings.tenant && settings.property) {
+        // Build lease from settings
+        return {
+          id: 'lease-001',
+          propertyAddress: settings.property.address || '1234 Property Lane',
+          unitNumber: settings.property.unitNumber || 'Apt 4B',
+          startDate: settings.tenant.leaseStartDate || '2024-07-01',
+          endDate: settings.tenant.leaseEndDate || '2025-06-30',
+          monthlyRent: settings.tenant.monthlyRent || 2400,
+          securityDeposit: settings.tenant.securityDeposit || 4800,
+          terms: [
+            'No smoking on premises',
+            'Pets allowed with $500 deposit (max 2 pets)',
+            'Quiet hours: 10 PM - 8 AM',
+            'Tenant responsible for utilities (electric, gas, internet)',
+            'Garbage and water included in rent',
+            'Parking space #42 assigned to unit',
+            '30-day notice required for non-renewal',
+            'Renters insurance required (min $100k liability)',
+          ],
+          documentUrl: '#lease-document',
+          renewalEligible: true,
+          renewalInterestExpressed: false,
+        };
+      }
+    }
+  } catch (e) {
+    // Fall through to localStorage check
+  }
+
   const data = localStorage.getItem(STORAGE_KEYS.LEASE);
   return data ? JSON.parse(data) : MOCK_LEASE;
 }

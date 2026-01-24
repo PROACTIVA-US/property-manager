@@ -11,6 +11,7 @@ import Maintenance from './pages/Maintenance';
 import Documents from './pages/Documents';
 import Tenants from './pages/Tenants';
 import Settings from './pages/Settings';
+import Expenses from './pages/Expenses';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -40,6 +41,12 @@ export default function App() {
           <Route path="/financials" element={
             <ProtectedRoute>
               <Financials />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/expenses" element={
+            <ProtectedRoute>
+              <Expenses />
             </ProtectedRoute>
           } />
 

@@ -10,7 +10,8 @@ import {
   LogOut,
   Users,
   HardHat,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  Receipt
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { getThreads, getNotifications } from '../lib/messages';
@@ -40,6 +41,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const navigation = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['owner', 'tenant', 'pm'] },
     { name: 'Financials', href: '/financials', icon: Calculator, roles: ['owner'] },
+    { name: 'Expenses', href: '/expenses', icon: Receipt, roles: ['owner', 'pm'] },
     { name: 'Maintenance', href: '/maintenance', icon: Wrench, roles: ['owner', 'pm', 'tenant'] },
     { name: 'Vendors', href: '/vendors', icon: HardHat, roles: ['owner', 'pm'] },
     { name: 'Messages', href: '/messages', icon: MessageSquare, roles: ['owner', 'pm', 'tenant'] },

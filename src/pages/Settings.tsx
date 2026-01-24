@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Settings as SettingsIcon, Download, Upload, RotateCcw } from 'lucide-react';
+import { Settings as SettingsIcon, Download, Upload, RotateCcw, Zap } from 'lucide-react';
 import type { SettingsData } from '../lib/settings';
 import { loadSettings, exportSettings, importSettings, resetSettings } from '../lib/settings';
 import OwnerForm from '../components/settings/OwnerForm';
@@ -10,6 +10,7 @@ import MortgageForm from '../components/settings/MortgageForm';
 import RentalIncomeForm from '../components/settings/RentalIncomeForm';
 import TaxInfoForm from '../components/settings/TaxInfoForm';
 import TenantForm from '../components/settings/TenantForm';
+import QuickSetupWizard from '../components/QuickSetupWizard';
 
 type TabId = 'owner' | 'pm' | 'property' | 'mortgage' | 'rental' | 'tax' | 'tenant';
 
@@ -37,6 +38,7 @@ export default function Settings() {
   );
   const [settings, setSettings] = useState<SettingsData>(loadSettings());
   const [importMessage, setImportMessage] = useState('');
+  const [showQuickSetup, setShowQuickSetup] = useState(false);
 
   useEffect(() => {
     // Reload settings when tab changes (in case updated elsewhere)
@@ -108,6 +110,14 @@ export default function Settings() {
         {/* Actions */}
         <div className="flex items-center gap-2">
           <button
+            onClick={() => setShowQuickSetup(true)}
+            className="btn-primary flex items-center gap-2 text-sm"
+            title="Quick setup wizard"
+          >
+            <Zap size={16} />
+            Quick Setup
+          </button>
+          <button
             onClick={handleExport}
             className="btn-secondary flex items-center gap-2 text-sm"
             title="Export all settings as JSON"
@@ -135,6 +145,17 @@ export default function Settings() {
           </button>
         </div>
       </div>
+
+      {/* Quick Setup Wizard Modal */}
+      {showQuickSetup && (
+        <QuickSetupWizard
+          onComplete={() => {
+            setShowQuickSetup(false);
+            setSettings(loadSettings());
+          }}
+          onCancel={() => setShowQuickSetup(false)}
+        />
+      )}
 
       {/* Import Message */}
       {importMessage && (

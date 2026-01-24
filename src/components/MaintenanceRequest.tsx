@@ -85,11 +85,16 @@ export default function MaintenanceRequest({ onBack }: MaintenanceRequestProps) 
     setTimeout(() => setShowSuccess(false), 4000);
   };
 
-  const handlePhotoSelect = () => {
-    // In a real app, this would open a file picker
-    // For now, just set a placeholder
-    setPhotoPreview('photo-placeholder');
-    console.log('Photo selection would open here');
+  const handlePhotoSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Create a preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const getStatusIcon = (status: MaintenanceStatus) => {
@@ -297,16 +302,18 @@ export default function MaintenanceRequest({ onBack }: MaintenanceRequestProps) 
                   </button>
                 </div>
               ) : (
-                <button
-                  type="button"
-                  onClick={handlePhotoSelect}
-                  className="w-full p-6 border-2 border-dashed border-slate-700 rounded-lg hover:border-slate-600 transition-colors text-brand-muted hover:text-brand-light"
-                >
+                <label className="w-full p-6 border-2 border-dashed border-slate-700 rounded-lg hover:border-slate-600 transition-colors text-brand-muted hover:text-brand-light cursor-pointer block">
                   <div className="flex flex-col items-center gap-2">
                     <Camera size={32} />
                     <span className="text-sm">Click to add a photo</span>
                   </div>
-                </button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoSelect}
+                    className="hidden"
+                  />
+                </label>
               )}
             </div>
 
