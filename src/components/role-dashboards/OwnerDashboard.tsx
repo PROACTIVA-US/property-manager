@@ -4,6 +4,7 @@ import MortgageCalculator from '../MortgageCalculator';
 import FinancialComparison from '../FinancialComparison';
 import TaxAnalysis from '../TaxAnalysis';
 import KeepVsSell from '../KeepVsSell';
+import PropertyValueWidget from '../PropertyValueWidget';
 import {
   Bot,
   DollarSign,
@@ -175,6 +176,41 @@ export default function OwnerDashboard() {
               <span className="text-xs text-brand-orange font-medium">Start Chat &rarr;</span>
             </div>
           </div>
+
+          {/* Property Value Widget */}
+          <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-1">
+              <PropertyValueWidget />
+            </div>
+            <div className="lg:col-span-2">
+              <div className="card h-full">
+                <h3 className="text-lg font-bold text-brand-light mb-2">Market Insights</h3>
+                <p className="text-sm text-brand-muted mb-4">
+                  Track your property's value over time and compare with recent market trends.
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-brand-muted">Purchase Price</span>
+                    <span className="text-brand-light font-medium">
+                      {formatCurrency(DEFAULT_PROPERTY_FINANCIALS.purchasePrice)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-brand-muted">Current Value</span>
+                    <span className="text-brand-light font-medium">
+                      {formatCurrency(DEFAULT_PROPERTY_FINANCIALS.currentMarketValue)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm pt-3 border-t border-slate-700">
+                    <span className="text-brand-muted">Appreciation</span>
+                    <span className="text-green-400 font-bold">
+                      +{formatCurrency(equity)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
 
           {/* Analysis Tools Grid */}
           <section>

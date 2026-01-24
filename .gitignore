@@ -28,3 +28,6 @@ CLAUDE.local.md
 .claude/archive/
 worktrees/
 .vercel
+
+# Property value data (user-specific)
+property-value-data.json
