@@ -27,7 +27,7 @@ export interface ZillowEstimate {
  * @param address - Full property address (e.g., "14102 129th Ave NE, Kirkland, WA 98034")
  * @returns Promise<ZillowEstimate>
  */
-export async function fetchZillowEstimate(address: string): Promise<ZillowEstimate> {
+export async function fetchZillowEstimate(_address: string): Promise<ZillowEstimate> {
   // This is a placeholder for the browser automation logic
   // In a real implementation, you would:
   // 1. Navigate to Zillow's estimator page

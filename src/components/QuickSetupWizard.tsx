@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, ChevronRight, ChevronLeft, Check, Home, DollarSign, Users, FileText } from 'lucide-react';
+import { X, ChevronRight, ChevronLeft, Check, Home, DollarSign, Users } from 'lucide-react';
 import { updateProperty, updateMortgage, updateRentalIncome, updateTenant, type PropertyData, type MortgageData, type RentalIncomeData, type TenantData } from '../lib/settings';
 
 interface QuickSetupWizardProps {
@@ -56,7 +56,7 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
     if (currentStep === 'property') {
       return property.address && property.currentMarketValue;
     } else if (currentStep === 'mortgage') {
-      return mortgage.principal && mortgage.interestRate && mortgage.monthlyPayment;
+      return mortgage.principal && mortgage.interestRate && mortgage.totalMonthlyPayment;
     } else if (currentStep === 'rental') {
       return rental.monthlyRent;
     } else if (currentStep === 'tenant') {
@@ -193,8 +193,8 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
                   </label>
                   <input
                     type="number"
-                    value={mortgage.monthlyPayment || ''}
-                    onChange={(e) => setMortgage({ ...mortgage, monthlyPayment: Number(e.target.value) })}
+                    value={mortgage.totalMonthlyPayment || ''}
+                    onChange={(e) => setMortgage({ ...mortgage, totalMonthlyPayment: Number(e.target.value) })}
                     className="input w-full"
                     placeholder="1800"
                   />
