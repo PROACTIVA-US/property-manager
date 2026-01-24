@@ -127,17 +127,17 @@ export const DEFAULT_PM: PMData = {
 };
 
 export const DEFAULT_PROPERTY: PropertyData = {
-  address: '1234 Property Lane',
-  unitNumber: 'Apt 4B',
+  address: '14102 129th Ave NE, Kirkland, WA 98034',
+  unitNumber: '',
   purchasePrice: 350000,
   purchaseDate: '2019-07-01',
-  currentMarketValue: 420000,
+  currentMarketValue: 1089100,
   landValue: 70000, // ~20% of purchase price
   yearBuilt: 2010,
-  squareFootage: 1200,
-  bedrooms: 2,
+  squareFootage: 1400,
+  bedrooms: 3,
   bathrooms: 2,
-  propertyType: 'condo',
+  propertyType: 'single_family',
 };
 
 // Real data from legacy mortgage calculator
