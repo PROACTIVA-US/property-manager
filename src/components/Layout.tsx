@@ -43,10 +43,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { name: 'Financials', href: '/financials', icon: Calculator, roles: ['owner'] },
     { name: 'Expenses', href: '/expenses', icon: Receipt, roles: ['owner', 'pm'] },
     { name: 'Maintenance', href: '/maintenance', icon: Wrench, roles: ['owner', 'pm', 'tenant'] },
-    { name: 'Vendors', href: '/vendors', icon: HardHat, roles: ['owner', 'pm'] },
+    { name: 'Vendors', href: '/vendors', icon: HardHat, roles: ['pm'] }, // PM-only
     { name: 'Messages', href: '/messages', icon: MessageSquare, roles: ['owner', 'pm', 'tenant'] },
     { name: 'Documents', href: '/documents', icon: FileText, roles: ['owner', 'pm', 'tenant'] },
-    { name: 'Tenants', href: '/tenants', icon: Users, roles: ['owner', 'pm'] },
+    { name: 'Tenants', href: '/tenants', icon: Users, roles: ['pm'] }, // PM-only
     { name: 'Settings', href: '/settings', icon: SettingsIcon, roles: ['owner', 'pm'] },
   ];
 

@@ -267,6 +267,75 @@ export function notifyProjectAssigned(projectTitle: string, projectId: string, _
   });
 }
 
+/**
+ * Notify stakeholders (PM and tenant) when owner makes changes
+ * Used for owner actions on projects/maintenance tasks
+ */
+export function notifyStakeholders(params: {
+  type: 'project_created' | 'project_updated' | 'project_deleted' | 'task_created' | 'task_updated' | 'task_deleted';
+  itemTitle: string;
+  itemId: string;
+  link: string;
+  stakeholders: ('pm' | 'tenant')[];
+  changeDescription?: string;
+}): void {
+  const { type, itemTitle, itemId, link, stakeholders, changeDescription } = params;
+
+  // Determine notification details based on action type
+  const details = getNotificationDetails(type, itemTitle, changeDescription);
+
+  // Create notifications for each stakeholder
+  stakeholders.forEach(stakeholder => {
+    createNotification({
+      type: type.includes('project') ? 'project_status' : 'maintenance',
+      priority: type.includes('deleted') ? 'high' : 'normal',
+      title: details.title,
+      body: `${details.body}${stakeholder === 'pm' ? ' (Owner action)' : ''}`,
+      timestamp: Date.now(),
+      read: false,
+      archived: false,
+      link,
+      actionRequired: type.includes('created') || type.includes('deleted'),
+      metadata: { projectId: itemId },
+    });
+  });
+}
+
+function getNotificationDetails(
+  type: 'project_created' | 'project_updated' | 'project_deleted' | 'task_created' | 'task_updated' | 'task_deleted',
+  itemTitle: string,
+  changeDescription?: string
+): { title: string; body: string } {
+  const isProject = type.includes('project');
+  const itemType = isProject ? 'project' : 'task';
+
+  switch (type) {
+    case 'project_created':
+    case 'task_created':
+      return {
+        title: `New ${itemType} created`,
+        body: `"${itemTitle}" has been created`,
+      };
+    case 'project_updated':
+    case 'task_updated':
+      return {
+        title: `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} updated`,
+        body: changeDescription || `"${itemTitle}" has been updated`,
+      };
+    case 'project_deleted':
+    case 'task_deleted':
+      return {
+        title: `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} deleted`,
+        body: `"${itemTitle}" has been removed`,
+      };
+    default:
+      return {
+        title: `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} changed`,
+        body: `"${itemTitle}" has been modified`,
+      };
+  }
+}
+
 // ============ Helper Functions ============
 
 function generateId(): string {

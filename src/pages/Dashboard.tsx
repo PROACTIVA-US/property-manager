@@ -1,5 +1,8 @@
 import { useAuth, type UserRole } from '../contexts/AuthContext';
 import { WelcomeHub } from '../components/welcome/WelcomeHub';
+import OwnerDashboard from '../components/role-dashboards/OwnerDashboard';
+import PMDashboard from '../components/role-dashboards/PMDashboard';
+import TenantDashboard from '../components/role-dashboards/TenantDashboard';
 import { LayoutDashboard } from 'lucide-react';
 
 export default function Dashboard() {
@@ -18,8 +21,17 @@ export default function Dashboard() {
       );
     }
 
-    // Use WelcomeHub for all roles
-    return <WelcomeHub />;
+    // Render role-specific dashboards
+    switch (user.role) {
+      case 'owner':
+        return <OwnerDashboard />;
+      case 'pm':
+        return <PMDashboard />;
+      case 'tenant':
+        return <TenantDashboard />;
+      default:
+        return <WelcomeHub />;
+    }
   };
 
   return (
