@@ -47,7 +47,7 @@ function getAnthropicClient(): Anthropic {
  */
 export async function generateProject(
   request: ProjectGenerationRequest,
-  options: AIGenerationOptions = {}
+  options: AIGenerationOptions = {} // eslint-disable-line @typescript-eslint/no-unused-vars
 ): Promise<AIGenerationResponse> {
   const startTime = Date.now();
 
@@ -119,7 +119,7 @@ export async function generateProject(
 
 function buildProjectGenerationPrompt(
   request: ProjectGenerationRequest,
-  options: AIGenerationOptions
+  _options: AIGenerationOptions
 ): string {
   const { description, propertyContext, constraints } = request;
 
@@ -237,7 +237,7 @@ Return ONLY the JSON object, no additional text.`;
 
 function parseAIResponse(
   responseText: string,
-  request: ProjectGenerationRequest
+  _request: ProjectGenerationRequest
 ): GeneratedProject {
   try {
     // Extract JSON from response (Claude sometimes wraps it in markdown)
@@ -278,13 +278,16 @@ function parseAIResponse(
         categoryMap.get(item.category)!.push(item);
       });
 
-      parsedData.bom.categories = Array.from(categoryMap.entries()).map(([category, items]) => ({
-        name: getCategoryLabel(category),
-        category,
-        items,
-        subtotal: items.reduce((sum: number, item: { totalPrice: number }) => sum + item.totalPrice, 0),
-        itemCount: items.length,
-      }));
+      parsedData.bom.categories = Array.from(categoryMap.entries()).map(([category, items]) => {
+        const categoryItems = items as Array<{ totalPrice: number }>;
+        return {
+          name: getCategoryLabel(category),
+          category,
+          items,
+          subtotal: categoryItems.reduce((sum: number, item: { totalPrice: number }) => sum + item.totalPrice, 0),
+          itemCount: items.length,
+        };
+      });
 
       // Add BOM metadata
       parsedData.bom.id = `bom_${Date.now()}`;

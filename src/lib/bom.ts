@@ -80,7 +80,8 @@ export function recalculateBOM(bom: BillOfMaterials): BillOfMaterials {
     totalPrice: item.quantity * item.unitPrice * item.wasteFactor,
   }));
 
-  // Recalculate category groupsconst categoryMap = new Map<BOMCategory, BOMItem[]>();
+  // Recalculate category groups
+  const categoryMap = new Map<BOMCategory, BOMItem[]>();
   items.forEach((item) => {
     if (!categoryMap.has(item.category)) {
       categoryMap.set(item.category, []);

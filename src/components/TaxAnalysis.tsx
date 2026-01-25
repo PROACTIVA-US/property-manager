@@ -408,7 +408,7 @@ export default function TaxAnalysis({
 
         <div className="space-y-3">
           {TAX_MITIGATION_STRATEGIES.map((strategy) => {
-            const Icon = STRATEGY_ICONS[strategy.id] || FileText;
+            const Icon = (STRATEGY_ICONS[strategy.id] || FileText) as React.ElementType<{ size?: number }>;
             const isExpanded = expandedStrategy === strategy.id;
 
             return (

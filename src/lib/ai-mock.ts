@@ -27,7 +27,7 @@ export function generateMockProject(request: ProjectGenerationRequest): Generate
   }
 }
 
-function generateDeckProject(request: ProjectGenerationRequest): GeneratedProject {
+function generateDeckProject(_request: ProjectGenerationRequest): GeneratedProject {
   const bom: BillOfMaterials = {
     id: `bom_${Date.now()}`,
     projectId: '',
@@ -242,7 +242,7 @@ function generatePaintProject(_request: ProjectGenerationRequest): GeneratedProj
   return {
     title: 'Interior Room Painting',
     description: 'Professional painting of interior room with prep work',
-    category: 'painting',
+    category: 'cosmetic',
     priority: 'low',
     status: 'draft',
     phases: [],
@@ -299,7 +299,7 @@ function generateFenceProject(_request: ProjectGenerationRequest): GeneratedProj
   return {
     title: 'Install Privacy Fence',
     description: '6ft privacy fence installation around property perimeter',
-    category: 'landscaping',
+    category: 'renovation',
     priority: 'medium',
     status: 'draft',
     phases: [],
@@ -357,7 +357,7 @@ function generateHVACProject(_request: ProjectGenerationRequest): GeneratedProje
   return {
     title: 'HVAC System Upgrade',
     description: 'Replace aging HVAC system with high-efficiency unit',
-    category: 'hvac',
+    category: 'upgrade',
     priority: 'high',
     status: 'draft',
     phases: [],

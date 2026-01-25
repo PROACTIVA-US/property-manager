@@ -29,6 +29,7 @@ import { getVendorById } from '../lib/vendors';
 import { cn } from '../lib/utils';
 import ProjectDetailModal from './ProjectDetailModal';
 import ProjectFormModal from './ProjectFormModal';
+import SmartProjectCreator from './bom/SmartProjectCreator';
 
 interface ProjectKanbanProps {
   compact?: boolean;
@@ -45,6 +46,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [isAICreatorOpen, setIsAICreatorOpen] = useState(false);
 
   // Which stages to show in compact mode
   const compactStages: ProjectStatus[] = ['pending_approval', 'approved', 'in_progress'];
@@ -146,6 +148,15 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
     setEditingProject(null);
   };
 
+  const handleAICreatorOpen = () => {
+    setIsAICreatorOpen(true);
+  };
+
+  const handleAICreatorSave = () => {
+    loadProjects();
+    setIsAICreatorOpen(false);
+  };
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'urgent':
@@ -199,10 +210,16 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
               {stats.activeCount} active project{stats.activeCount !== 1 ? 's' : ''}
             </span>
           </div>
-          <button onClick={handleAddProject} className="btn-primary text-xs flex items-center gap-1">
-            <Plus size={14} />
-            New Project
-          </button>
+          <div className="flex gap-2">
+            <button onClick={handleAICreatorOpen} className="btn-primary text-xs flex items-center gap-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+              <Sparkles size={14} />
+              AI Create
+            </button>
+            <button onClick={handleAddProject} className="btn-primary text-xs flex items-center gap-1">
+              <Plus size={14} />
+              Manual
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -273,6 +290,11 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
           }}
           onSave={handleFormSave}
         />
+        <SmartProjectCreator
+          isOpen={isAICreatorOpen}
+          onClose={() => setIsAICreatorOpen(false)}
+          onSave={handleAICreatorSave}
+        />
       </div>
     );
   }
@@ -288,10 +310,19 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
             {stats.activeCount} active, {stats.completedCount} completed
           </p>
         </div>
-        <button onClick={handleAddProject} className="btn-primary flex items-center gap-2">
-          <Plus size={18} />
-          New Project
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={handleAICreatorOpen}
+            className="btn-primary flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+          >
+            <Sparkles size={18} />
+            Create with AI
+          </button>
+          <button onClick={handleAddProject} className="btn-secondary flex items-center gap-2">
+            <Plus size={18} />
+            New Project
+          </button>
+        </div>
       </div>
 
       {/* Kanban Board */}
@@ -506,6 +537,11 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
           setEditingProject(null);
         }}
         onSave={handleFormSave}
+      />
+      <SmartProjectCreator
+        isOpen={isAICreatorOpen}
+        onClose={() => setIsAICreatorOpen(false)}
+        onSave={handleAICreatorSave}
       />
     </div>
   );

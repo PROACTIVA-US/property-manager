@@ -4,7 +4,7 @@
  * This file defines all TypeScript interfaces for AI-powered project generation.
  */
 
-import type { ProjectCategory, ProjectPriority, ProjectStatus } from './project.types';
+import type { ProjectCategory, ProjectPriority, ProjectStatus } from '../lib/projects';
 import type { BillOfMaterials } from './bom.types';
 
 // ============================================================================

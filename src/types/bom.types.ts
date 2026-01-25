@@ -4,7 +4,7 @@
  * This file defines all TypeScript interfaces for the BOM system.
  */
 
-import type { ProjectCategory, ProjectPriority } from './project.types';
+// Removed unused import
 
 // ============================================================================
 // BOM Item Types

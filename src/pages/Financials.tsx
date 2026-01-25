@@ -184,7 +184,7 @@ export default function Financials() {
       <div className="border-b border-slate-700/50">
         <nav className="flex gap-1 overflow-x-auto pb-px" aria-label="Financial analysis tabs">
           {tabs.map((tab) => {
-            const Icon = tab.icon;
+            const Icon = tab.icon as React.ElementType<{ size?: number }>;
             const isActive = activeTab === tab.id;
             return (
               <button
