@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { X, Calendar, DollarSign, User, AlertCircle, CheckCircle, Clock, FileText, MessageSquare, Users, Sparkles, Paperclip } from 'lucide-react';
+import { X, Calendar, DollarSign, User, AlertCircle, CheckCircle, Clock, FileText, MessageSquare, Users, Sparkles, Paperclip, Receipt } from 'lucide-react';
 import type { Project } from '../lib/projects';
 import { STATUS_LABELS, PRIORITY_LABELS, CATEGORY_LABELS } from '../lib/projects';
 import { getVendorById } from '../lib/vendors';
+import { getBOMByProjectId } from '../lib/bom';
 import ProjectPhases from './ProjectPhases';
 import ProjectMessageCenter from './ProjectMessageCenter';
 import StakeholderManager from './StakeholderManager';
 import ImpactAnalysisView from './ImpactAnalysisView';
+import BOMDetailView from './bom/BOMDetailView';
 
 interface ProjectDetailModalProps {
   project: Project;
@@ -15,7 +17,7 @@ interface ProjectDetailModalProps {
   onUpdate: () => void;
 }
 
-type Tab = 'overview' | 'milestones' | 'messages' | 'stakeholders' | 'impact' | 'attachments';
+type Tab = 'overview' | 'milestones' | 'messages' | 'stakeholders' | 'bom' | 'impact' | 'attachments';
 
 export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate }: ProjectDetailModalProps) {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
@@ -23,12 +25,14 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
   if (!isOpen) return null;
 
   const vendor = project.primaryVendorId ? getVendorById(project.primaryVendorId) : null;
+  const projectBOM = getBOMByProjectId(project.id);
 
   const tabs = [
     { id: 'overview' as Tab, label: 'Overview', icon: FileText },
     { id: 'milestones' as Tab, label: 'Milestones', icon: CheckCircle, count: project.phases.length },
     { id: 'messages' as Tab, label: 'Messages', icon: MessageSquare },
     { id: 'stakeholders' as Tab, label: 'Stakeholders', icon: Users, count: project.stakeholders.length },
+    { id: 'bom' as Tab, label: 'Bill of Materials', icon: Receipt, show: !!projectBOM },
     { id: 'impact' as Tab, label: 'Impact Analysis', icon: Sparkles, show: !!project.impactAnalysis },
     { id: 'attachments' as Tab, label: 'Attachments', icon: Paperclip },
   ].filter(tab => tab.show !== false);
@@ -263,6 +267,10 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
 
           {activeTab === 'stakeholders' && (
             <StakeholderManager project={project} onUpdate={onUpdate} />
+          )}
+
+          {activeTab === 'bom' && projectBOM && (
+            <BOMDetailView bom={projectBOM} showExport={true} />
           )}
 
           {activeTab === 'impact' && project.impactAnalysis && (
