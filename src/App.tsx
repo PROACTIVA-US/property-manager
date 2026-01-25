@@ -13,7 +13,7 @@ import Maintenance from './pages/Maintenance';
 import Documents from './pages/Documents';
 import Tenants from './pages/Tenants';
 import Settings from './pages/Settings';
-import Expenses from './pages/Expenses';
+// Expenses now integrated into Maintenance page
 import Gallery from './pages/Gallery';
 import Responsibilities from './pages/Responsibilities';
 import Projects from './pages/Projects';
@@ -98,11 +98,8 @@ export default function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/expenses" element={
-            <ProtectedRoute>
-              <Expenses />
-            </ProtectedRoute>
-          } />
+          {/* Expenses redirect to Maintenance */}
+          <Route path="/expenses" element={<Navigate to="/maintenance" replace />} />
 
           <Route path="/vendors" element={
             <ProtectedRoute>

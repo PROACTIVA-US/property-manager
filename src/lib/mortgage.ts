@@ -135,6 +135,37 @@ export function analyzeSchedules(
   };
 }
 
+/**
+ * Calculate the current principal balance based on how many payments have been made
+ * since the loan start date
+ */
+export function calculateCurrentPrincipal(
+  loanParams: LoanParams,
+  asOfDate: Date = new Date()
+): number {
+  // Calculate how many months have passed since loan start
+  const startDate = new Date(loanParams.startDate);
+  const monthsElapsed = Math.max(0,
+    (asOfDate.getFullYear() - startDate.getFullYear()) * 12 +
+    (asOfDate.getMonth() - startDate.getMonth())
+  );
+
+  if (monthsElapsed === 0) {
+    return loanParams.principal;
+  }
+
+  // Calculate the amortization schedule up to the current month
+  const schedule = calculateAmortizationSchedule(loanParams, 0, { amount: 0, month: 0 });
+
+  // Find the current balance at the elapsed months
+  if (monthsElapsed >= schedule.length) {
+    return 0; // Loan is paid off
+  }
+
+  // Return the remaining balance after the payments made
+  return schedule[monthsElapsed - 1]?.remainingBalance || loanParams.principal;
+}
+
 export function calculateExtraPaymentForTargetDate(
   loanParams: LoanParams,
   targetPayoffUserDate: Date,

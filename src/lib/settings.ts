@@ -187,9 +187,9 @@ export const DEFAULT_TENANT: TenantData = {
 };
 
 export const DEFAULT_PERSONAL_EXPENSES: PersonalExpensesData = {
-  currentRentPayment: 1500,
-  currentUtilityCosts: 200,
-  currentJobIncome: 6000,
+  currentRentPayment: 1800, // Office space cost per month
+  currentUtilityCosts: 0,
+  currentJobIncome: 70000 / 12, // $70k annual income
 };
 
 // ============================================================================
