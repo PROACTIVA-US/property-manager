@@ -108,9 +108,9 @@ export interface SettingsData {
 // ============================================================================
 
 export const DEFAULT_OWNER: OwnerData = {
-  name: 'Property Owner',
-  email: 'owner@example.com',
-  phone: '(555) 000-0000',
+  name: 'Shanie Holman',
+  email: 'shanie@email.com',
+  phone: '(555) 100-0002',
   entityType: 'individual',
   entityName: '',
   businessAddress: '',
@@ -118,11 +118,11 @@ export const DEFAULT_OWNER: OwnerData = {
 };
 
 export const DEFAULT_PM: PMData = {
-  name: 'Property Manager',
-  email: 'pm@example.com',
-  phone: '(555) 000-0000',
-  companyName: '',
-  licenseNumber: '',
+  name: 'Dan Connolly',
+  email: 'dan@propertymanager.com',
+  phone: '(555) 100-0001',
+  companyName: 'Connolly Property Management',
+  licenseNumber: 'PM-2024-0001',
   managementFeePercent: 0,
 };
 
