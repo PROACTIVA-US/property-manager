@@ -25,14 +25,14 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
   if (!isOpen) return null;
 
   const vendor = project.primaryVendorId ? getVendorById(project.primaryVendorId) : null;
-  const projectBOM = getBOMByProjectId(project.id);
+  const bom = getBOMByProjectId(project.id);
 
   const tabs = [
     { id: 'overview' as Tab, label: 'Overview', icon: FileText },
     { id: 'milestones' as Tab, label: 'Milestones', icon: CheckCircle, count: project.phases.length },
     { id: 'messages' as Tab, label: 'Messages', icon: MessageSquare },
     { id: 'stakeholders' as Tab, label: 'Stakeholders', icon: Users, count: project.stakeholders.length },
-    { id: 'bom' as Tab, label: 'Bill of Materials', icon: Receipt, show: !!projectBOM },
+    { id: 'bom' as Tab, label: 'Bill of Materials', icon: Receipt, show: !!bom },
     { id: 'impact' as Tab, label: 'Impact Analysis', icon: Sparkles, show: !!project.impactAnalysis },
     { id: 'attachments' as Tab, label: 'Attachments', icon: Paperclip },
   ].filter(tab => tab.show !== false);
@@ -269,8 +269,8 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
             <StakeholderManager project={project} onUpdate={onUpdate} />
           )}
 
-          {activeTab === 'bom' && projectBOM && (
-            <BOMDetailView bom={projectBOM} showExport={true} />
+          {activeTab === 'bom' && bom && (
+            <BOMDetailView bom={bom} showExport={true} />
           )}
 
           {activeTab === 'impact' && project.impactAnalysis && (
