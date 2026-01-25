@@ -80,9 +80,20 @@ export default function QuickStartSection() {
     },
     // Owner-specific actions
     {
+      id: 'notifications',
+      title: 'Notifications',
+      description: '',
+      icon: Bell,
+      iconColor: 'text-pink-400',
+      bgColor: 'bg-pink-500/10',
+      hoverBgColor: 'hover:bg-pink-500/20',
+      action: () => {}, // TODO: Implement notification center
+      roles: ['owner'],
+    },
+    {
       id: 'view-projects-owner',
-      title: 'View Projects',
-      description: 'Monitor and manage maintenance and improvement projects',
+      title: 'Maintenance',
+      description: '',
       icon: Wrench,
       iconColor: 'text-orange-400',
       bgColor: 'bg-orange-500/10',
@@ -92,8 +103,8 @@ export default function QuickStartSection() {
     },
     {
       id: 'view-financials',
-      title: 'View Financials',
-      description: 'Access financial reports and investment analysis',
+      title: 'Financials',
+      description: '',
       icon: DollarSign,
       iconColor: 'text-green-400',
       bgColor: 'bg-green-500/10',
@@ -103,8 +114,8 @@ export default function QuickStartSection() {
     },
     {
       id: 'view-lease',
-      title: 'View Lease Info',
-      description: 'Full access to lease details and tenant information',
+      title: 'Lease Info',
+      description: '',
       icon: FileText,
       iconColor: 'text-blue-400',
       bgColor: 'bg-blue-500/10',
@@ -135,9 +146,9 @@ export default function QuickStartSection() {
       action: () => navigate('/documents'),
       roles: ['tenant'],
     },
-    // Shared actions (all roles)
+    // Shared actions (all roles except owner who has it in owner-specific)
     {
-      id: 'notifications',
+      id: 'notifications-shared',
       title: 'Check Notifications',
       description: 'Stay updated on property and project alerts',
       icon: Bell,
@@ -145,7 +156,7 @@ export default function QuickStartSection() {
       bgColor: 'bg-pink-500/10',
       hoverBgColor: 'hover:bg-pink-500/20',
       action: () => {}, // TODO: Implement notification center
-      roles: ['owner', 'pm', 'tenant'],
+      roles: ['pm', 'tenant'],
     },
   ];
 
@@ -157,7 +168,7 @@ export default function QuickStartSection() {
   return (
     <div className="mb-8">
       <h2 className="text-xl font-semibold text-gray-100 mb-4">Quick Start</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className={`grid gap-4 ${user?.role === 'owner' ? 'grid-cols-4' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
         {filteredActions.map((action) => {
           const Icon = action.icon;
           const isHovered = hoveredAction === action.id;
@@ -175,7 +186,9 @@ export default function QuickStartSection() {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-medium text-gray-100 mb-1">{action.title}</h3>
-                <p className="text-sm text-gray-400">{action.description}</p>
+                {action.description && (
+                  <p className="text-sm text-gray-400">{action.description}</p>
+                )}
               </div>
               <ArrowRight
                 className={`w-4 h-4 text-gray-500 transition-opacity absolute top-4 right-4 ${

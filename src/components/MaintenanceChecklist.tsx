@@ -36,6 +36,7 @@ import {
   CATEGORY_INFO,
   getCurrentDate,
 } from '../lib/maintenance';
+import { notifyStakeholders } from '../lib/notifications';
 
 type FilterStatus = 'all' | 'pending' | 'completed' | 'overdue' | 'upcoming';
 
@@ -58,6 +59,7 @@ const INITIAL_FORM_DATA: TaskFormData = {
 export default function MaintenanceChecklist() {
   const { user } = useAuth();
   const isPM = user?.role === 'pm';
+  const isOwner = user?.role === 'owner';
 
   const [tasks, setTasks] = useState<MaintenanceTask[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Set<TaskCategory>>(
@@ -179,25 +181,62 @@ export default function MaintenanceChecklist() {
           notes: formData.notes.trim() || undefined,
         })
       );
+
+      // Notify stakeholders if Owner made the change
+      if (isOwner) {
+        notifyStakeholders({
+          type: 'task_updated',
+          itemTitle: formData.description.trim(),
+          itemId: editingTask.id,
+          link: '/maintenance',
+          stakeholders: ['pm', 'tenant'],
+          changeDescription: `Task "${formData.description.trim()}" has been updated`,
+        });
+      }
     } else {
       // Add new task
-      setTasks(
-        addTask(tasks, {
-          description: formData.description.trim(),
-          category: formData.category,
-          frequency: formData.frequency,
-          dueDate: formData.dueDate || undefined,
-          notes: formData.notes.trim() || undefined,
-        })
-      );
+      const updatedTasks = addTask(tasks, {
+        description: formData.description.trim(),
+        category: formData.category,
+        frequency: formData.frequency,
+        dueDate: formData.dueDate || undefined,
+        notes: formData.notes.trim() || undefined,
+      });
+      setTasks(updatedTasks);
+
+      // Notify stakeholders if Owner created the task
+      if (isOwner) {
+        const newTask = updatedTasks[updatedTasks.length - 1]; // Get the newly added task
+        notifyStakeholders({
+          type: 'task_created',
+          itemTitle: formData.description.trim(),
+          itemId: newTask.id,
+          link: '/maintenance',
+          stakeholders: ['pm', 'tenant'],
+        });
+      }
     }
 
     handleCloseModal();
   };
 
   const handleDeleteTask = (taskId: string) => {
+    // Get task info before deleting for notification
+    const taskToDelete = tasks.find(t => t.id === taskId);
+
     setTasks(deleteTask(tasks, taskId));
     setDeleteConfirm(null);
+
+    // Notify stakeholders if Owner deleted the task
+    if (isOwner && taskToDelete) {
+      notifyStakeholders({
+        type: 'task_deleted',
+        itemTitle: taskToDelete.description,
+        itemId: taskId,
+        link: '/maintenance',
+        stakeholders: ['pm', 'tenant'],
+      });
+    }
   };
 
   const getDueDateDisplay = (task: MaintenanceTask) => {
@@ -254,7 +293,7 @@ export default function MaintenanceChecklist() {
         </div>
 
         <div className="flex items-center gap-2">
-          {isPM && (
+          {(isPM || isOwner) && (
             <button
               onClick={handleOpenAddModal}
               className="btn-primary flex items-center gap-2 text-sm"
@@ -349,7 +388,7 @@ export default function MaintenanceChecklist() {
                     {categoryStats.completed}/{categoryStats.total}
                   </span>
 
-                  {isPM && isExpanded && (
+                  {(isPM || isOwner) && isExpanded && (
                     <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
                       <button
                         onClick={() => handleCompleteCategory(category)}
@@ -424,8 +463,8 @@ export default function MaintenanceChecklist() {
                           </div>
                         </div>
 
-                        {/* PM Actions */}
-                        {isPM && (
+                        {/* PM/Owner Actions */}
+                        {(isPM || isOwner) && (
                           <div className="flex items-center gap-1 ml-2">
                             <button
                               onClick={() => handleOpenEditModal(task)}
