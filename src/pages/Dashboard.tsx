@@ -1,31 +1,25 @@
 import { useAuth, type UserRole } from '../contexts/AuthContext';
-import OwnerDashboard from '../components/role-dashboards/OwnerDashboard';
-import PMDashboard from '../components/role-dashboards/PMDashboard';
-import TenantDashboard from '../components/role-dashboards/TenantDashboard';
+import { WelcomeHub } from '../components/welcome/WelcomeHub';
 import { LayoutDashboard } from 'lucide-react';
 
 export default function Dashboard() {
   const { user, login } = useAuth();
 
   const renderDashboard = () => {
-    switch (user?.role) {
-      case 'owner':
-        return <OwnerDashboard />;
-      case 'pm':
-        return <PMDashboard />;
-      case 'tenant':
-        return <TenantDashboard />;
-      default:
-        return (
-          <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-            <LayoutDashboard size={48} className="text-brand-muted mb-4" />
-            <h2 className="text-xl font-bold text-brand-light">No Role Selected</h2>
-            <p className="text-brand-muted max-w-md mt-2">
-              Please contact support or use the debug menu to select a role.
-            </p>
-          </div>
-        );
+    if (!user?.role) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
+          <LayoutDashboard size={48} className="text-brand-muted mb-4" />
+          <h2 className="text-xl font-bold text-brand-light">No Role Selected</h2>
+          <p className="text-brand-muted max-w-md mt-2">
+            Please contact support or use the debug menu to select a role.
+          </p>
+        </div>
+      );
     }
+
+    // Use WelcomeHub for all roles
+    return <WelcomeHub />;
   };
 
   return (
