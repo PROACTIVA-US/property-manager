@@ -1,7 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Layout from './components/Layout';
 import LoginPage from './pages/Login';
+import WelcomePage from './pages/WelcomePage';
 import Dashboard from './pages/Dashboard';
 import Financials from './pages/Financials';
 import VendorsPage from './pages/Vendors';
@@ -16,6 +18,11 @@ import Gallery from './pages/Gallery';
 import Responsibilities from './pages/Responsibilities';
 import Projects from './pages/Projects';
 import View3D from './pages/View3D';
+import HelpCenter from './components/help/HelpCenter';
+import ContextualTip from './components/help/ContextualTip';
+import AIAssistant from './components/ai-assistant/AIAssistant';
+import { useHelpStore } from './stores/helpStore';
+import { useAIAssistantStore } from './stores/aiAssistantStore';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -29,14 +36,57 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <Layout>{children}</Layout>;
 }
 
+// Keyboard shortcuts handler
+function KeyboardShortcuts() {
+  const { toggleHelp } = useHelpStore();
+  const { toggleAssistant } = useAIAssistantStore();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd+/ or Ctrl+/ - Toggle Help Center
+      if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+        e.preventDefault();
+        toggleHelp();
+      }
+      // Cmd+. or Ctrl+. - Toggle AI Assistant
+      if ((e.metaKey || e.ctrlKey) && e.key === '.') {
+        e.preventDefault();
+        toggleAssistant();
+      }
+      // Escape - Close panels
+      if (e.key === 'Escape') {
+        const { isOpen: helpOpen, closeHelp } = useHelpStore.getState();
+        const { isOpen: aiOpen, closeAssistant } = useAIAssistantStore.getState();
+        if (helpOpen) closeHelp();
+        if (aiOpen) closeAssistant();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [toggleHelp, toggleAssistant]);
+
+  return null;
+}
+
 export default function App() {
   return (
     <AuthProvider>
       <Router>
+        <KeyboardShortcuts />
+        <HelpCenter />
+        <AIAssistant />
+        <ContextualTip />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
 
           <Route path="/" element={
+            <ProtectedRoute>
+              <WelcomePage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/properties" element={
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>

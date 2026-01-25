@@ -7,7 +7,7 @@ interface QuickAction {
   id: string;
   title: string;
   description: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<{ className?: string }>;
   iconColor: string;
   bgColor: string;
   hoverBgColor: string;
