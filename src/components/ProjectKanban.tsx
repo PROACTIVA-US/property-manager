@@ -27,9 +27,8 @@ import {
 } from '../lib/projects';
 import { getVendorById } from '../lib/vendors';
 import { cn } from '../lib/utils';
-// TODO: Phase 2 - Implement these components
-// import ProjectDetailModal from './ProjectDetailModal';
-// import ProjectFormModal from './ProjectFormModal';
+import ProjectDetailModal from './ProjectDetailModal';
+import ProjectFormModal from './ProjectFormModal';
 
 interface ProjectKanbanProps {
   compact?: boolean;
@@ -40,10 +39,10 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
   const [projects, setProjects] = useState<Project[]>([]);
   const [draggedProject, setDraggedProject] = useState<Project | null>(null);
   const [dragOverStage, setDragOverStage] = useState<ProjectStatus | null>(null);
-  const [_selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [_isDetailOpen, setIsDetailOpen] = useState(false);
-  const [_isFormOpen, setIsFormOpen] = useState(false);
-  const [_editingProject, setEditingProject] = useState<Project | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
@@ -141,8 +140,6 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
     setIsFormOpen(true);
   };
 
-  // TODO: Phase 2 - Will be used when ProjectFormModal is implemented
-  // @ts-expect-error - Will be used in Phase 2
   const handleFormSave = () => {
     loadProjects();
     setIsFormOpen(false);
@@ -255,7 +252,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
           ))}
         </div>
 
-        {/* Modals - TODO: Phase 2 - Uncomment when modals are implemented
+        {/* Modals */}
         {selectedProject && (
           <ProjectDetailModal
             project={selectedProject}
@@ -275,7 +272,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
             setEditingProject(null);
           }}
           onSave={handleFormSave}
-        /> */}
+        />
       </div>
     );
   }
@@ -489,7 +486,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
         <div className="fixed inset-0 z-40" onClick={() => setMenuOpenId(null)} />
       )}
 
-      {/* Modals - TODO: Phase 2 - Uncomment when modals are implemented
+      {/* Modals */}
       {selectedProject && (
         <ProjectDetailModal
           project={selectedProject}
@@ -509,7 +506,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
           setEditingProject(null);
         }}
         onSave={handleFormSave}
-      /> */}
+      />
     </div>
   );
 }

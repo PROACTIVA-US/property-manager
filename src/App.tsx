@@ -14,6 +14,7 @@ import Settings from './pages/Settings';
 import Expenses from './pages/Expenses';
 import Gallery from './pages/Gallery';
 import Responsibilities from './pages/Responsibilities';
+import Projects from './pages/Projects';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -104,6 +105,12 @@ export default function App() {
           <Route path="/responsibilities" element={
             <ProtectedRoute>
               <Responsibilities />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/projects" element={
+            <ProtectedRoute>
+              <Projects />
             </ProtectedRoute>
           } />
 

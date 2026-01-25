@@ -198,6 +198,9 @@ export interface Project {
   // Impact analysis
   impactAnalysis?: ImpactAnalysis;
 
+  // Messages
+  messages: ProjectMessage[];
+
   // Metadata
   createdAt: string;
   updatedAt: string;
@@ -211,7 +214,8 @@ export interface Project {
 // ============ Storage Keys ============
 
 const PROJECTS_KEY = 'propertyMgr_projects';
-const PROJECT_MESSAGES_KEY = 'propertyMgr_projectMessages';
+// PROJECT_MESSAGES_KEY is deprecated - messages are now stored within projects
+// const PROJECT_MESSAGES_KEY = 'propertyMgr_projectMessages';
 const PROJECT_ATTACHMENTS_KEY = 'propertyMgr_projectAttachments';
 
 // ============ Project CRUD ============
@@ -258,6 +262,7 @@ export function createProject(
 
   const newProject: Project = {
     ...data,
+    messages: data.messages || [], // Initialize messages array if not provided
     id: generateId(),
     createdAt: now,
     updatedAt: now,
@@ -334,9 +339,9 @@ export function deleteProject(id: string): boolean {
 
 export function getProjectMessages(projectId: string): ProjectMessage[] {
   try {
-    const stored = localStorage.getItem(PROJECT_MESSAGES_KEY);
-    const all: ProjectMessage[] = stored ? JSON.parse(stored) : [];
-    return all.filter(m => m.projectId === projectId).sort(
+    const project = getProjectById(projectId);
+    if (!project) return [];
+    return project.messages.sort(
       (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
     );
   } catch (error) {
@@ -347,26 +352,29 @@ export function getProjectMessages(projectId: string): ProjectMessage[] {
 
 export function getAllProjectMessages(): ProjectMessage[] {
   try {
-    const stored = localStorage.getItem(PROJECT_MESSAGES_KEY);
-    return stored ? JSON.parse(stored) : [];
+    const projects = getProjects();
+    return projects.flatMap(p => p.messages);
   } catch (error) {
     console.error('Error reading project messages:', error);
     return [];
   }
 }
 
-export function saveProjectMessages(messages: ProjectMessage[]): void {
-  try {
-    localStorage.setItem(PROJECT_MESSAGES_KEY, JSON.stringify(messages));
-  } catch (error) {
-    console.error('Error saving project messages:', error);
-  }
+export function saveProjectMessages(_messages: ProjectMessage[]): void {
+  // Deprecated: Messages are now stored within projects
+  // This function is kept for backwards compatibility but does nothing
+  console.warn('saveProjectMessages is deprecated. Messages are now stored within project objects.');
 }
 
 export function createProjectMessage(
   data: Omit<ProjectMessage, 'id' | 'timestamp'>
 ): ProjectMessage {
-  const messages = getAllProjectMessages();
+  const projects = getProjects();
+  const projectIndex = projects.findIndex(p => p.id === data.projectId);
+
+  if (projectIndex === -1) {
+    throw new Error(`Project with id ${data.projectId} not found`);
+  }
 
   const newMessage: ProjectMessage = {
     ...data,
@@ -374,21 +382,27 @@ export function createProjectMessage(
     timestamp: new Date().toISOString(),
   };
 
-  messages.push(newMessage);
-  saveProjectMessages(messages);
+  projects[projectIndex].messages.push(newMessage);
+  projects[projectIndex].updatedAt = new Date().toISOString();
+  saveProjects(projects);
 
   return newMessage;
 }
 
 export function markMessagesAsRead(projectId: string, userId: string): void {
-  const messages = getAllProjectMessages();
-  const updated = messages.map(m => {
-    if (m.projectId === projectId && !m.readBy.includes(userId)) {
+  const projects = getProjects();
+  const projectIndex = projects.findIndex(p => p.id === projectId);
+
+  if (projectIndex === -1) return;
+
+  projects[projectIndex].messages = projects[projectIndex].messages.map(m => {
+    if (!m.readBy.includes(userId)) {
       return { ...m, readBy: [...m.readBy, userId] };
     }
     return m;
   });
-  saveProjectMessages(updated);
+
+  saveProjects(projects);
 }
 
 export function getUnreadMessageCount(projectId: string, userId: string): number {
@@ -396,9 +410,10 @@ export function getUnreadMessageCount(projectId: string, userId: string): number
   return messages.filter(m => !m.readBy.includes(userId) && m.senderId !== userId).length;
 }
 
-function deleteProjectMessages(projectId: string): void {
-  const messages = getAllProjectMessages().filter(m => m.projectId !== projectId);
-  saveProjectMessages(messages);
+function deleteProjectMessages(_projectId: string): void {
+  // Messages are now part of the project and will be deleted with the project
+  // This function is kept for backwards compatibility but does nothing
+  console.warn('deleteProjectMessages is deprecated. Messages are deleted with the project.');
 }
 
 // ============ Project Attachments ============
@@ -851,6 +866,7 @@ function getDefaultProjects(): Project[] {
       createdBy: 'pm-1',
       notes: 'Tenant has been very accommodating. Scheduling around their work schedule.',
       tags: ['hvac', 'upgrade', 'capital-improvement'],
+      messages: [],
     },
     {
       id: 'project-2',
@@ -907,6 +923,7 @@ function getDefaultProjects(): Project[] {
       updatedAt: now,
       createdBy: 'pm-1',
       tags: ['cosmetic', 'exterior'],
+      messages: [],
     },
   ];
 }
