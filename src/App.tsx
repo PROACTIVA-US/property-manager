@@ -15,6 +15,7 @@ import Expenses from './pages/Expenses';
 import Gallery from './pages/Gallery';
 import Responsibilities from './pages/Responsibilities';
 import Projects from './pages/Projects';
+import View3D from './pages/View3D';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -111,6 +112,12 @@ export default function App() {
           <Route path="/projects" element={
             <ProtectedRoute>
               <Projects />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/3d-view" element={
+            <ProtectedRoute>
+              <View3D />
             </ProtectedRoute>
           } />
 
