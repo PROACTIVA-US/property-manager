@@ -1,236 +1,310 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Settings as SettingsIcon, Download, Upload, RotateCcw, Zap } from 'lucide-react';
+import {
+  Settings as SettingsIcon,
+  User,
+  Users,
+  Palette,
+  Shield,
+  Info,
+  Moon,
+  Sun,
+  Monitor,
+  Database,
+  Clock,
+} from 'lucide-react';
 import type { SettingsData } from '../lib/settings';
-import { loadSettings, exportSettings, importSettings, resetSettings } from '../lib/settings';
+import { loadSettings } from '../lib/settings';
 import OwnerForm from '../components/settings/OwnerForm';
 import PMForm from '../components/settings/PMForm';
-import PropertyForm from '../components/settings/PropertyForm';
-import MortgageForm from '../components/settings/MortgageForm';
-import RentalIncomeForm from '../components/settings/RentalIncomeForm';
-import TaxInfoForm from '../components/settings/TaxInfoForm';
-import TenantForm from '../components/settings/TenantForm';
-import QuickSetupWizard from '../components/QuickSetupWizard';
 
-type TabId = 'owner' | 'pm' | 'property' | 'mortgage' | 'rental' | 'tax' | 'tenant';
+type TabId = 'account' | 'pm' | 'appearance' | 'security';
 
 interface Tab {
   id: TabId;
   label: string;
   description: string;
+  icon: React.ElementType;
 }
 
 const tabs: Tab[] = [
-  { id: 'owner', label: 'Owner', description: 'Your contact and business info' },
-  { id: 'pm', label: 'Property Manager', description: 'PM contact information' },
-  { id: 'property', label: 'Property', description: 'Property details and value' },
-  { id: 'mortgage', label: 'Mortgage', description: 'Loan information' },
-  { id: 'rental', label: 'Rental Income', description: 'Income and expenses' },
-  { id: 'tax', label: 'Tax Info', description: 'Tax planning data' },
-  { id: 'tenant', label: 'Tenant', description: 'Current tenant details' },
+  { id: 'account', label: 'Account', description: 'Your contact and business information', icon: User },
+  { id: 'pm', label: 'Property Manager', description: 'Property manager contact details', icon: Users },
+  { id: 'appearance', label: 'Appearance', description: 'Theme and display preferences', icon: Palette },
+  { id: 'security', label: 'Security & Data', description: 'Data storage and app information', icon: Shield },
 ];
 
+type Theme = 'dark' | 'light' | 'system';
+
 export default function Settings() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = searchParams.get('tab') as TabId;
   const [activeTab, setActiveTab] = useState<TabId>(
-    initialTab && tabs.find(t => t.id === initialTab) ? initialTab : 'owner'
+    initialTab && tabs.find(t => t.id === initialTab) ? initialTab : 'account'
   );
   const [settings, setSettings] = useState<SettingsData>(loadSettings());
-  const [importMessage, setImportMessage] = useState('');
-  const [showQuickSetup, setShowQuickSetup] = useState(false);
+  const [theme, setTheme] = useState<Theme>(() => {
+    return (localStorage.getItem('propertyManager_theme') as Theme) || 'dark';
+  });
 
   useEffect(() => {
-    // Reload settings when tab changes (in case updated elsewhere)
     setSettings(loadSettings());
   }, [activeTab]);
 
-  const handleExport = () => {
-    const jsonData = exportSettings();
-    const blob = new Blob([jsonData], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `property-manager-settings-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
-  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const jsonString = e.target?.result as string;
-        const imported = importSettings(jsonString);
-        setSettings(imported);
-        setImportMessage('✓ Settings imported successfully!');
-        setTimeout(() => setImportMessage(''), 3000);
-      } catch (error) {
-        setImportMessage('✗ Failed to import. Invalid file format.');
-        setTimeout(() => setImportMessage(''), 3000);
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  const handleReset = () => {
-    if (window.confirm('Are you sure you want to reset all settings to defaults? This cannot be undone.')) {
-      const defaults = resetSettings();
-      setSettings(defaults);
-      alert('Settings have been reset to defaults.');
-    }
+  const handleTabChange = (tabId: TabId) => {
+    setActiveTab(tabId);
+    setSearchParams({ tab: tabId });
   };
 
   const handleDataSaved = () => {
-    // Reload settings after any form saves
     setSettings(loadSettings());
+  };
+
+  const handleThemeChange = (newTheme: Theme) => {
+    setTheme(newTheme);
+    localStorage.setItem('propertyManager_theme', newTheme);
+    // In a full implementation, this would update the document class
+    // document.documentElement.classList.toggle('dark', newTheme === 'dark');
+  };
+
+  const formatBytes = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const getStorageSize = () => {
+    const data = localStorage.getItem('propertyManager_settings_v1');
+    return data ? formatBytes(new Blob([data]).size) : '0 Bytes';
   };
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-orange/20 rounded-lg">
-            <SettingsIcon className="text-brand-orange" size={28} />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-brand-light">Settings & Data Management</h1>
-            <p className="text-brand-muted mt-1">
-              Configure your property, mortgage, and financial information
-            </p>
-          </div>
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-brand-orange/20 rounded-lg">
+          <SettingsIcon className="text-brand-orange" size={28} />
         </div>
-
-        {/* Actions */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowQuickSetup(true)}
-            className="btn-primary flex items-center gap-2 text-sm"
-            title="Quick setup wizard"
-          >
-            <Zap size={16} />
-            Quick Setup
-          </button>
-          <button
-            onClick={handleExport}
-            className="btn-secondary flex items-center gap-2 text-sm"
-            title="Export all settings as JSON"
-          >
-            <Download size={16} />
-            Export
-          </button>
-          <label className="btn-secondary flex items-center gap-2 text-sm cursor-pointer">
-            <Upload size={16} />
-            Import
-            <input
-              type="file"
-              accept=".json"
-              onChange={handleImport}
-              className="hidden"
-            />
-          </label>
-          <button
-            onClick={handleReset}
-            className="btn-secondary flex items-center gap-2 text-sm text-red-400 hover:text-red-300"
-            title="Reset to default values"
-          >
-            <RotateCcw size={16} />
-            Reset
-          </button>
+        <div>
+          <h1 className="text-3xl font-bold text-brand-light">Settings</h1>
+          <p className="text-brand-muted mt-1">
+            Manage your account, appearance, and app preferences
+          </p>
         </div>
-      </div>
-
-      {/* Quick Setup Wizard Modal */}
-      {showQuickSetup && (
-        <QuickSetupWizard
-          onComplete={() => {
-            setShowQuickSetup(false);
-            setSettings(loadSettings());
-          }}
-          onCancel={() => setShowQuickSetup(false)}
-        />
-      )}
-
-      {/* Import Message */}
-      {importMessage && (
-        <div className={`p-4 rounded-lg ${importMessage.startsWith('✓') ? 'bg-green-500/10 border border-green-500/30 text-green-400' : 'bg-red-500/10 border border-red-500/30 text-red-400'}`}>
-          {importMessage}
-        </div>
-      )}
-
-      {/* Last Updated */}
-      <div className="text-xs text-brand-muted">
-        Last updated: {new Date(settings.lastUpdated).toLocaleString()}
       </div>
 
       {/* Tabs */}
       <div className="border-b border-slate-700">
         <div className="flex flex-wrap gap-1">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-3 text-sm font-medium transition-colors relative ${
-                activeTab === tab.id
-                  ? 'text-brand-orange'
-                  : 'text-brand-muted hover:text-brand-light'
-              }`}
-            >
-              <div>
-                <div>{tab.label}</div>
-                <div className="text-xs opacity-75">{tab.description}</div>
-              </div>
-              {activeTab === tab.id && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-orange" />
-              )}
-            </button>
-          ))}
+          {tabs.map((tab) => {
+            const Icon = tab.icon as React.ElementType<{ size?: number }>;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => handleTabChange(tab.id)}
+                className={`px-4 py-3 text-sm font-medium transition-colors relative flex items-center gap-2 ${
+                  activeTab === tab.id
+                    ? 'text-brand-orange'
+                    : 'text-brand-muted hover:text-brand-light'
+                }`}
+              >
+                <Icon size={16} />
+                <div className="text-left">
+                  <div>{tab.label}</div>
+                </div>
+                {activeTab === tab.id && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-orange" />
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Tab Content */}
       <div className="card p-6">
-        {activeTab === 'owner' && (
-          <OwnerForm initialData={settings.owner} onSave={handleDataSaved} />
+        {activeTab === 'account' && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <User className="text-brand-orange" size={20} />
+              <h2 className="text-lg font-bold text-brand-light">Account Information</h2>
+            </div>
+            <p className="text-sm text-brand-muted mb-6">
+              Your contact details and business information
+            </p>
+            <OwnerForm initialData={settings.owner} onSave={handleDataSaved} />
+          </div>
         )}
+
         {activeTab === 'pm' && (
-          <PMForm initialData={settings.pm} onSave={handleDataSaved} />
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <Users className="text-brand-orange" size={20} />
+              <h2 className="text-lg font-bold text-brand-light">Property Manager</h2>
+            </div>
+            <p className="text-sm text-brand-muted mb-6">
+              Contact details for your property manager (if applicable)
+            </p>
+            <PMForm initialData={settings.pm} onSave={handleDataSaved} />
+          </div>
         )}
-        {activeTab === 'property' && (
-          <PropertyForm initialData={settings.property} onSave={handleDataSaved} />
+
+        {activeTab === 'appearance' && (
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Palette className="text-brand-orange" size={20} />
+              <h2 className="text-lg font-bold text-brand-light">Appearance</h2>
+            </div>
+            <p className="text-sm text-brand-muted mb-6">
+              Customize the look and feel of your dashboard
+            </p>
+
+            {/* Theme Selection */}
+            <div>
+              <label className="block text-sm font-medium text-brand-light mb-3">Theme</label>
+              <div className="grid grid-cols-3 gap-3">
+                <button
+                  onClick={() => handleThemeChange('dark')}
+                  className={`p-4 rounded-lg border-2 transition-all flex flex-col items-center gap-2 ${
+                    theme === 'dark'
+                      ? 'border-brand-orange bg-brand-orange/10'
+                      : 'border-slate-700 hover:border-slate-600'
+                  }`}
+                >
+                  <Moon className={theme === 'dark' ? 'text-brand-orange' : 'text-brand-muted'} size={24} />
+                  <span className={`text-sm font-medium ${theme === 'dark' ? 'text-brand-orange' : 'text-brand-muted'}`}>
+                    Dark
+                  </span>
+                </button>
+                <button
+                  onClick={() => handleThemeChange('light')}
+                  className={`p-4 rounded-lg border-2 transition-all flex flex-col items-center gap-2 ${
+                    theme === 'light'
+                      ? 'border-brand-orange bg-brand-orange/10'
+                      : 'border-slate-700 hover:border-slate-600'
+                  }`}
+                >
+                  <Sun className={theme === 'light' ? 'text-brand-orange' : 'text-brand-muted'} size={24} />
+                  <span className={`text-sm font-medium ${theme === 'light' ? 'text-brand-orange' : 'text-brand-muted'}`}>
+                    Light
+                  </span>
+                </button>
+                <button
+                  onClick={() => handleThemeChange('system')}
+                  className={`p-4 rounded-lg border-2 transition-all flex flex-col items-center gap-2 ${
+                    theme === 'system'
+                      ? 'border-brand-orange bg-brand-orange/10'
+                      : 'border-slate-700 hover:border-slate-600'
+                  }`}
+                >
+                  <Monitor className={theme === 'system' ? 'text-brand-orange' : 'text-brand-muted'} size={24} />
+                  <span className={`text-sm font-medium ${theme === 'system' ? 'text-brand-orange' : 'text-brand-muted'}`}>
+                    System
+                  </span>
+                </button>
+              </div>
+              <p className="text-xs text-brand-muted mt-2">
+                Note: Light theme is coming soon. Currently optimized for dark mode.
+              </p>
+            </div>
+          </div>
         )}
-        {activeTab === 'mortgage' && (
-          <MortgageForm initialData={settings.mortgage} onSave={handleDataSaved} />
-        )}
-        {activeTab === 'rental' && (
-          <RentalIncomeForm
-            initialData={settings.rentalIncome}
-            mortgageData={settings.mortgage}
-            onSave={handleDataSaved}
-          />
-        )}
-        {activeTab === 'tax' && (
-          <TaxInfoForm initialData={settings.taxInfo} onSave={handleDataSaved} />
-        )}
-        {activeTab === 'tenant' && (
-          <TenantForm initialData={settings.tenant} onSave={handleDataSaved} />
+
+        {activeTab === 'security' && (
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Shield className="text-brand-orange" size={20} />
+              <h2 className="text-lg font-bold text-brand-light">Security & Data</h2>
+            </div>
+            <p className="text-sm text-brand-muted mb-6">
+              Information about your data storage and app security
+            </p>
+
+            {/* Data Storage Info */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium text-brand-light flex items-center gap-2">
+                <Database size={16} className="text-brand-orange" />
+                Data Storage
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-brand-navy/30 rounded-lg p-4">
+                  <div className="text-xs text-brand-muted uppercase mb-1">Storage Location</div>
+                  <div className="text-brand-light font-medium">Local Browser Storage</div>
+                  <p className="text-xs text-brand-muted mt-1">
+                    All data is stored locally on your device
+                  </p>
+                </div>
+                <div className="bg-brand-navy/30 rounded-lg p-4">
+                  <div className="text-xs text-brand-muted uppercase mb-1">Storage Used</div>
+                  <div className="text-brand-light font-medium">{getStorageSize()}</div>
+                  <p className="text-xs text-brand-muted mt-1">
+                    Settings and preferences data
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Last Updated */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium text-brand-light flex items-center gap-2">
+                <Clock size={16} className="text-brand-orange" />
+                Last Updated
+              </h3>
+              <div className="bg-brand-navy/30 rounded-lg p-4">
+                <div className="text-brand-light font-medium">
+                  {new Date(settings.lastUpdated).toLocaleString()}
+                </div>
+                <p className="text-xs text-brand-muted mt-1">
+                  Last time any settings were modified
+                </p>
+              </div>
+            </div>
+
+            {/* Privacy Notice */}
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <Info className="text-blue-400 shrink-0 mt-0.5" size={18} />
+                <div>
+                  <h4 className="text-sm font-medium text-blue-400 mb-1">Privacy Notice</h4>
+                  <p className="text-sm text-brand-muted">
+                    Your data never leaves your device. This app stores all information locally in your
+                    browser and does not transmit any data to external servers. For data backup, use
+                    the Export feature in the Financials section.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Link to Financials for Import/Export */}
+            <div className="bg-brand-navy/30 rounded-lg p-4">
+              <h4 className="text-sm font-medium text-brand-light mb-2">Data Management</h4>
+              <p className="text-sm text-brand-muted mb-3">
+                To import or export your financial data, visit the Financials section where you can
+                backup and restore your property, mortgage, and rental information.
+              </p>
+              <a
+                href="/financials?tab=property"
+                className="text-brand-orange hover:underline text-sm font-medium"
+              >
+                Go to Financials &rarr;
+              </a>
+            </div>
+          </div>
         )}
       </div>
 
-      {/* Info Footer */}
+      {/* Tips Footer */}
       <div className="card bg-brand-navy/30 p-4">
-        <h4 className="text-sm font-bold text-brand-light mb-2">💡 Tips</h4>
+        <h4 className="text-sm font-bold text-brand-light mb-2 flex items-center gap-2">
+          <Info size={14} className="text-brand-orange" />
+          Tips
+        </h4>
         <ul className="text-sm text-brand-muted space-y-1">
-          <li>• All data is saved locally in your browser</li>
-          <li>• Export your settings regularly as a backup</li>
-          <li>• Use the Import feature to restore from a backup or transfer to another device</li>
-          <li>• Financial calculations throughout the app will use this data</li>
+          <li>All data is saved locally in your browser</li>
+          <li>Financial data can be managed in the Financials section</li>
+          <li>Tenant information can be edited from the Tenants page</li>
         </ul>
       </div>
     </div>

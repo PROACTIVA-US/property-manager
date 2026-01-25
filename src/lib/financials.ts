@@ -7,6 +7,8 @@
  * financial and tax planning decisions.
  */
 
+import { loadSettings, calculateYearsOwned } from './settings';
+
 // ============================================================================
 // Types and Interfaces
 // ============================================================================
@@ -586,6 +588,64 @@ export const TAX_MITIGATION_STRATEGIES: TaxStrategy[] = [
     learnMoreUrl: 'https://www.irs.gov/charities-non-profits/charitable-remainder-trusts',
   },
 ];
+
+// ============================================================================
+// Settings Integration - Load Live Data
+// ============================================================================
+
+/**
+ * Get property financials from saved settings
+ */
+export function getPropertyFinancials(): PropertyFinancials {
+  const settings = loadSettings();
+  const yearsOwned = calculateYearsOwned(settings.property.purchaseDate);
+
+  return {
+    purchasePrice: settings.property.purchasePrice,
+    currentMarketValue: settings.property.currentMarketValue,
+    mortgageBalance: settings.mortgage.principal,
+    monthlyMortgagePayment: settings.mortgage.monthlyPAndI,
+    monthlyPropertyTax: settings.rentalIncome.monthlyPropertyTax,
+    monthlyInsurance: settings.rentalIncome.monthlyInsurance,
+    monthlyHOA: settings.rentalIncome.monthlyHOA,
+    monthlyRentalIncome: settings.rentalIncome.monthlyRent,
+    monthlyMaintenanceReserve: settings.rentalIncome.monthlyMaintenanceReserve,
+    monthlyVacancyReserve: settings.rentalIncome.monthlyVacancyReserve,
+    monthlyManagementFee: settings.rentalIncome.monthlyManagementFee,
+    yearsOwned,
+    annualAppreciationRate: 0.03, // Default 3% annual appreciation
+  };
+}
+
+/**
+ * Get personal expenses from saved settings
+ */
+export function getPersonalExpenses(): PersonalExpenses {
+  const settings = loadSettings();
+
+  return {
+    currentRentPayment: settings.personalExpenses.currentRentPayment,
+    currentUtilityCosts: settings.personalExpenses.currentUtilityCosts,
+    currentJobIncome: settings.personalExpenses.currentJobIncome,
+  };
+}
+
+/**
+ * Get tax inputs from saved settings
+ */
+export function getTaxInputs(): TaxInputs {
+  const settings = loadSettings();
+
+  return {
+    filingStatus: settings.taxInfo.filingStatus,
+    annualIncome: settings.taxInfo.annualIncome,
+    depreciableValue: settings.taxInfo.depreciableValue,
+    landValue: settings.property.landValue,
+    improvementsCost: settings.taxInfo.capitalImprovementsCost,
+    sellingCosts: settings.taxInfo.estimatedSellingCosts,
+    stateIncomeTaxRate: settings.taxInfo.stateIncomeTaxRate / 100, // Convert from percentage
+  };
+}
 
 // ============================================================================
 // Formatting Utilities

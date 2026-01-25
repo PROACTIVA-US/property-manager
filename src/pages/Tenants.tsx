@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Users, Mail, Phone, Calendar, DollarSign, Wrench, MessageSquare } from 'lucide-react';
-import { loadSettings } from '../lib/settings';
+import { Users, Mail, Phone, Calendar, DollarSign, Wrench, MessageSquare, Pencil, X, Download, Upload } from 'lucide-react';
+import { loadSettings, exportSettings, importSettings } from '../lib/settings';
 import { getPayments, getLease, getMaintenanceRequests } from '../lib/tenant';
 import type { Payment, MaintenanceRequest } from '../lib/tenant';
+import TenantForm from '../components/settings/TenantForm';
+import { formatCurrency } from '../lib/financials';
 
 type TabId = 'overview' | 'payments' | 'maintenance' | 'lease';
 
@@ -21,7 +23,9 @@ const tabs: Tab[] = [
 
 export default function Tenants() {
   const [activeTab, setActiveTab] = useState<TabId>('overview');
-  const settings = loadSettings();
+  const [settings, setSettings] = useState(loadSettings());
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [importMessage, setImportMessage] = useState('');
   const tenant = settings.tenant;
   const payments = getPayments();
   const lease = getLease();
@@ -30,6 +34,45 @@ export default function Tenants() {
   const daysUntilLeaseEnd = Math.ceil(
     (new Date(tenant.leaseEndDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
   );
+
+  const handleDataSaved = () => {
+    setSettings(loadSettings());
+    setShowEditModal(false);
+  };
+
+  const handleExport = () => {
+    const jsonData = exportSettings();
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `tenant-data-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const jsonString = e.target?.result as string;
+        const imported = importSettings(jsonString);
+        setSettings(imported);
+        setImportMessage('Tenant data imported successfully!');
+        setTimeout(() => setImportMessage(''), 3000);
+      } catch (error) {
+        setImportMessage('Failed to import. Invalid file format.');
+        setTimeout(() => setImportMessage(''), 3000);
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  };
 
   const getStatusColor = (status: Payment['status']) => {
     switch (status) {
@@ -64,18 +107,76 @@ export default function Tenants() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-brand-orange/20 rounded-lg">
-          <Users className="text-brand-orange" size={28} />
+      {/* Edit Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setShowEditModal(false)} />
+          <div className="relative bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-slate-800 border-b border-slate-700 p-4 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-brand-light">Edit Tenant Details</h2>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="p-1 hover:bg-slate-700 rounded transition-colors"
+              >
+                <X size={20} className="text-brand-muted" />
+              </button>
+            </div>
+            <div className="p-6">
+              <TenantForm initialData={tenant} onSave={handleDataSaved} />
+            </div>
+          </div>
         </div>
-        <div>
-          <h1 className="text-3xl font-bold text-brand-light">Tenant Management</h1>
-          <p className="text-brand-muted mt-1">
-            View and manage current tenant information
-          </p>
+      )}
+
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-brand-orange/20 rounded-lg">
+            <Users className="text-brand-orange" size={28} />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-brand-light">Tenant Management</h1>
+            <p className="text-brand-muted mt-1">
+              View and manage current tenant information
+            </p>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowEditModal(true)}
+            className="btn-primary flex items-center gap-2 text-sm"
+          >
+            <Pencil size={14} />
+            Edit Details
+          </button>
+          <button
+            onClick={handleExport}
+            className="btn-secondary flex items-center gap-2 text-sm"
+          >
+            <Download size={14} />
+            Export
+          </button>
+          <label className="btn-secondary flex items-center gap-2 text-sm cursor-pointer">
+            <Upload size={14} />
+            Import
+            <input
+              type="file"
+              accept=".json"
+              onChange={handleImport}
+              className="hidden"
+            />
+          </label>
         </div>
       </div>
+
+      {/* Import Message */}
+      {importMessage && (
+        <div className={`p-3 rounded-lg text-sm ${importMessage.includes('success') ? 'bg-green-500/10 border border-green-500/30 text-green-400' : 'bg-red-500/10 border border-red-500/30 text-red-400'}`}>
+          {importMessage}
+        </div>
+      )}
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -86,7 +187,7 @@ export default function Tenants() {
         <div className="card p-4">
           <div className="text-sm text-brand-muted mb-1">Monthly Rent</div>
           <div className="text-xl font-bold text-brand-light">
-            ${tenant.monthlyRent.toLocaleString()}
+            {formatCurrency(tenant.monthlyRent)}
           </div>
         </div>
         <div className="card p-4">
@@ -98,7 +199,7 @@ export default function Tenants() {
         <div className="card p-4">
           <div className="text-sm text-brand-muted mb-1">Security Deposit</div>
           <div className="text-xl font-bold text-brand-light">
-            ${tenant.securityDeposit.toLocaleString()}
+            {formatCurrency(tenant.securityDeposit)}
           </div>
         </div>
       </div>
@@ -223,7 +324,7 @@ export default function Tenants() {
                     <DollarSign className="text-brand-orange" size={20} />
                     <div>
                       <div className="text-brand-light font-medium">
-                        ${payment.amount.toLocaleString()}
+                        {formatCurrency(payment.amount)}
                       </div>
                       <div className="text-sm text-brand-muted">
                         {new Date(payment.date).toLocaleDateString()}
@@ -306,13 +407,13 @@ export default function Tenants() {
                 <div className="p-4 bg-brand-navy/30 rounded-lg">
                   <div className="text-sm text-brand-muted mb-1">Monthly Rent</div>
                   <div className="text-brand-light font-medium text-xl">
-                    ${lease.monthlyRent.toLocaleString()}
+                    {formatCurrency(lease.monthlyRent)}
                   </div>
                 </div>
                 <div className="p-4 bg-brand-navy/30 rounded-lg">
                   <div className="text-sm text-brand-muted mb-1">Security Deposit</div>
                   <div className="text-brand-light font-medium text-xl">
-                    ${lease.securityDeposit.toLocaleString()}
+                    {formatCurrency(lease.securityDeposit)}
                   </div>
                 </div>
               </div>

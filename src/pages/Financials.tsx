@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   DollarSign,
   FileText,
@@ -6,23 +7,33 @@ import {
   Calculator,
   TrendingUp,
   Building2,
+  Home,
   Info,
-  Pencil,
+  Download,
+  Upload,
+  LayoutDashboard,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import FinancialsOverview from '../components/financials/FinancialsOverview';
 import MortgageCalculator from '../components/MortgageCalculator';
 import FinancialComparison from '../components/FinancialComparison';
 import TaxAnalysis from '../components/TaxAnalysis';
 import KeepVsSell from '../components/KeepVsSell';
+import PropertyForm from '../components/settings/PropertyForm';
+import MortgageForm from '../components/settings/MortgageForm';
+import RentalIncomeForm from '../components/settings/RentalIncomeForm';
+import TaxInfoForm from '../components/settings/TaxInfoForm';
 import {
-  DEFAULT_PROPERTY_FINANCIALS,
-  DEFAULT_PERSONAL_EXPENSES,
-  DEFAULT_TAX_INPUTS,
-  calculateCashFlow,
-  formatCurrency,
+  loadSettings,
+  exportSettings,
+  importSettings,
+} from '../lib/settings';
+import {
+  getPropertyFinancials,
+  getPersonalExpenses,
+  getTaxInputs,
 } from '../lib/financials';
 
-type TabId = 'comparison' | 'tax' | 'keepvssell' | 'mortgage';
+type TabId = 'overview' | 'property' | 'rental' | 'tax' | 'projections';
 
 interface Tab {
   id: TabId;
@@ -33,64 +44,277 @@ interface Tab {
 
 const tabs: Tab[] = [
   {
-    id: 'comparison',
-    label: 'Cash Flow Analysis',
-    icon: DollarSign,
-    description: 'Compare rental income against your personal living expenses',
+    id: 'overview',
+    label: 'Overview',
+    icon: LayoutDashboard,
+    description: 'Income vs expenses snapshot and key metrics',
+  },
+  {
+    id: 'property',
+    label: 'Property & Mortgage',
+    icon: Building2,
+    description: 'Property details and mortgage information',
+  },
+  {
+    id: 'rental',
+    label: 'Rental Income',
+    icon: Home,
+    description: 'Rental income and operating expenses',
   },
   {
     id: 'tax',
-    label: 'Tax Estimates',
+    label: 'Tax Planning',
     icon: FileText,
-    description: 'Estimated capital gains, depreciation recapture, and mitigation strategies',
+    description: 'Tax information and analysis tools',
   },
   {
-    id: 'keepvssell',
-    label: 'Keep vs Sell',
-    icon: Scale,
-    description: 'Compare long-term wealth building: keep the property or sell and invest',
-  },
-  {
-    id: 'mortgage',
-    label: 'Mortgage Payoff',
-    icon: Calculator,
-    description: 'Visualize how extra payments can accelerate your loan payoff',
+    id: 'projections',
+    label: 'Projections',
+    icon: TrendingUp,
+    description: 'Keep vs sell analysis and mortgage payoff calculator',
   },
 ];
 
 export default function Financials() {
-  const [activeTab, setActiveTab] = useState<TabId>('comparison');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') as TabId;
+  const [activeTab, setActiveTab] = useState<TabId>(
+    initialTab && tabs.find(t => t.id === initialTab) ? initialTab : 'overview'
+  );
+  const [settings, setSettings] = useState(loadSettings());
+  const [importMessage, setImportMessage] = useState('');
+  const [projectionsSubTab, setProjectionsSubTab] = useState<'keepvssell' | 'mortgage'>('keepvssell');
 
-  // Calculate quick stats
-  const cashFlow = calculateCashFlow(DEFAULT_PROPERTY_FINANCIALS);
-  const monthlyCashFlow = cashFlow.cashFlowBeforeTax / 12;
-  const equity = DEFAULT_PROPERTY_FINANCIALS.currentMarketValue - DEFAULT_PROPERTY_FINANCIALS.mortgageBalance;
+  // Reload settings when tab changes
+  useEffect(() => {
+    setSettings(loadSettings());
+  }, [activeTab]);
+
+  // Update URL when tab changes
+  const handleTabChange = (tabId: TabId) => {
+    setActiveTab(tabId);
+    setSearchParams({ tab: tabId });
+  };
+
+  const handleDataSaved = () => {
+    setSettings(loadSettings());
+  };
+
+  // Import/Export handlers for each section
+  const handleExport = (section: string) => {
+    const jsonData = exportSettings();
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `property-manager-${section}-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const jsonString = e.target?.result as string;
+        const imported = importSettings(jsonString);
+        setSettings(imported);
+        setImportMessage('Settings imported successfully!');
+        setTimeout(() => setImportMessage(''), 3000);
+      } catch (error) {
+        setImportMessage('Failed to import. Invalid file format.');
+        setTimeout(() => setImportMessage(''), 3000);
+      }
+    };
+    reader.readAsText(file);
+    // Reset input
+    event.target.value = '';
+  };
+
+  const ImportExportButtons = ({ section }: { section: string }) => (
+    <div className="flex items-center gap-2 mb-4">
+      <button
+        onClick={() => handleExport(section)}
+        className="btn-secondary flex items-center gap-2 text-xs"
+        title="Export settings"
+      >
+        <Download size={14} />
+        Export
+      </button>
+      <label className="btn-secondary flex items-center gap-2 text-xs cursor-pointer">
+        <Upload size={14} />
+        Import
+        <input
+          type="file"
+          accept=".json"
+          onChange={handleImport}
+          className="hidden"
+        />
+      </label>
+    </div>
+  );
+
+  // Get live financial data
+  const property = getPropertyFinancials();
+  const personal = getPersonalExpenses();
+  const taxInputs = getTaxInputs();
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'comparison':
+      case 'overview':
+        return <FinancialsOverview />;
+
+      case 'property':
         return (
-          <FinancialComparison
-            initialProperty={DEFAULT_PROPERTY_FINANCIALS}
-            initialPersonal={DEFAULT_PERSONAL_EXPENSES}
-          />
+          <div className="p-6 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-brand-light">Property & Mortgage Details</h2>
+              <ImportExportButtons section="property-mortgage" />
+            </div>
+
+            {importMessage && (
+              <div className={`p-3 rounded-lg text-sm ${importMessage.includes('success') ? 'bg-green-500/10 border border-green-500/30 text-green-400' : 'bg-red-500/10 border border-red-500/30 text-red-400'}`}>
+                {importMessage}
+              </div>
+            )}
+
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium text-brand-light mb-4 flex items-center gap-2">
+                  <Building2 className="text-brand-orange" size={18} />
+                  Property Information
+                </h3>
+                <PropertyForm initialData={settings.property} onSave={handleDataSaved} />
+              </div>
+
+              <div className="border-t border-slate-700 pt-6">
+                <h3 className="text-lg font-medium text-brand-light mb-4 flex items-center gap-2">
+                  <DollarSign className="text-brand-orange" size={18} />
+                  Mortgage Details
+                </h3>
+                <MortgageForm initialData={settings.mortgage} onSave={handleDataSaved} />
+              </div>
+            </div>
+          </div>
         );
+
+      case 'rental':
+        return (
+          <div className="p-6 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-brand-light">Rental Income & Expenses</h2>
+              <ImportExportButtons section="rental" />
+            </div>
+
+            {importMessage && (
+              <div className={`p-3 rounded-lg text-sm ${importMessage.includes('success') ? 'bg-green-500/10 border border-green-500/30 text-green-400' : 'bg-red-500/10 border border-red-500/30 text-red-400'}`}>
+                {importMessage}
+              </div>
+            )}
+
+            <RentalIncomeForm
+              initialData={settings.rentalIncome}
+              mortgageData={settings.mortgage}
+              onSave={handleDataSaved}
+            />
+
+            {/* Cash Flow Analysis */}
+            <div className="border-t border-slate-700 pt-6">
+              <h3 className="text-lg font-medium text-brand-light mb-4">Cash Flow Analysis</h3>
+              <FinancialComparison
+                initialProperty={property}
+                initialPersonal={personal}
+              />
+            </div>
+          </div>
+        );
+
       case 'tax':
         return (
-          <TaxAnalysis
-            initialProperty={DEFAULT_PROPERTY_FINANCIALS}
-            initialTaxInputs={DEFAULT_TAX_INPUTS}
-          />
+          <div className="p-6 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-brand-light">Tax Planning</h2>
+              <ImportExportButtons section="tax" />
+            </div>
+
+            {importMessage && (
+              <div className={`p-3 rounded-lg text-sm ${importMessage.includes('success') ? 'bg-green-500/10 border border-green-500/30 text-green-400' : 'bg-red-500/10 border border-red-500/30 text-red-400'}`}>
+                {importMessage}
+              </div>
+            )}
+
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium text-brand-light mb-4 flex items-center gap-2">
+                  <FileText className="text-brand-orange" size={18} />
+                  Tax Information
+                </h3>
+                <TaxInfoForm initialData={settings.taxInfo} onSave={handleDataSaved} />
+              </div>
+
+              <div className="border-t border-slate-700 pt-6">
+                <h3 className="text-lg font-medium text-brand-light mb-4">Tax Analysis & Estimates</h3>
+                <TaxAnalysis
+                  initialProperty={property}
+                  initialTaxInputs={taxInputs}
+                />
+              </div>
+            </div>
+          </div>
         );
-      case 'keepvssell':
+
+      case 'projections':
         return (
-          <KeepVsSell
-            initialProperty={DEFAULT_PROPERTY_FINANCIALS}
-            initialTaxInputs={DEFAULT_TAX_INPUTS}
-          />
+          <div className="p-6 space-y-6">
+            <div>
+              <h2 className="text-xl font-bold text-brand-light">Financial Projections</h2>
+              <p className="text-sm text-brand-muted mt-1">
+                Long-term analysis tools to help with investment decisions
+              </p>
+            </div>
+
+            {/* Sub-tabs for projections */}
+            <div className="flex gap-2 border-b border-slate-700 pb-2">
+              <button
+                onClick={() => setProjectionsSubTab('keepvssell')}
+                className={`px-4 py-2 text-sm font-medium rounded-t transition-colors ${
+                  projectionsSubTab === 'keepvssell'
+                    ? 'bg-slate-700 text-brand-light'
+                    : 'text-brand-muted hover:text-brand-light'
+                }`}
+              >
+                <Scale size={16} className="inline mr-2" />
+                Keep vs Sell
+              </button>
+              <button
+                onClick={() => setProjectionsSubTab('mortgage')}
+                className={`px-4 py-2 text-sm font-medium rounded-t transition-colors ${
+                  projectionsSubTab === 'mortgage'
+                    ? 'bg-slate-700 text-brand-light'
+                    : 'text-brand-muted hover:text-brand-light'
+                }`}
+              >
+                <Calculator size={16} className="inline mr-2" />
+                Mortgage Payoff
+              </button>
+            </div>
+
+            {projectionsSubTab === 'keepvssell' ? (
+              <KeepVsSell
+                initialProperty={property}
+                initialTaxInputs={taxInputs}
+              />
+            ) : (
+              <MortgageCalculator />
+            )}
+          </div>
         );
-      case 'mortgage':
-        return <MortgageCalculator />;
+
       default:
         return null;
     }
@@ -104,80 +328,8 @@ export default function Financials() {
       <div>
         <h1 className="text-3xl font-bold text-brand-light">Financial Analysis Suite</h1>
         <p className="text-brand-muted mt-1">
-          Comprehensive tools to analyze your rental property investment
+          Manage your property finances and analyze investment performance
         </p>
-      </div>
-
-      {/* Quick Stats Bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="card !p-4 flex items-center gap-3 group relative">
-          <Link
-            to="/settings?tab=property"
-            className="absolute top-2 right-2 p-1 bg-slate-700/50 rounded text-brand-muted hover:text-brand-orange hover:bg-slate-700 transition-all opacity-0 group-hover:opacity-100"
-            title="Edit market value"
-          >
-            <Pencil size={12} />
-          </Link>
-          <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
-            <Building2 size={20} />
-          </div>
-          <div>
-            <p className="text-[10px] text-brand-muted uppercase">Market Value</p>
-            <p className="text-lg font-bold text-brand-light">
-              {formatCurrency(DEFAULT_PROPERTY_FINANCIALS.currentMarketValue)}
-            </p>
-          </div>
-        </div>
-        <div className="card !p-4 flex items-center gap-3 group relative">
-          <Link
-            to="/settings?tab=property"
-            className="absolute top-2 right-2 p-1 bg-slate-700/50 rounded text-brand-muted hover:text-brand-orange hover:bg-slate-700 transition-all opacity-0 group-hover:opacity-100"
-            title="Edit property value and mortgage"
-          >
-            <Pencil size={12} />
-          </Link>
-          <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400">
-            <TrendingUp size={20} />
-          </div>
-          <div>
-            <p className="text-[10px] text-brand-muted uppercase">Equity</p>
-            <p className="text-lg font-bold text-brand-light">{formatCurrency(equity)}</p>
-          </div>
-        </div>
-        <div className="card !p-4 flex items-center gap-3 group relative">
-          <Link
-            to="/settings?tab=rental"
-            className="absolute top-2 right-2 p-1 bg-slate-700/50 rounded text-brand-muted hover:text-brand-orange hover:bg-slate-700 transition-all opacity-0 group-hover:opacity-100"
-            title="Edit rental income and expenses"
-          >
-            <Pencil size={12} />
-          </Link>
-          <div className={`p-2 rounded-lg ${monthlyCashFlow >= 0 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-            <DollarSign size={20} />
-          </div>
-          <div>
-            <p className="text-[10px] text-brand-muted uppercase">Cash Flow</p>
-            <p className={`text-lg font-bold ${monthlyCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-              {formatCurrency(monthlyCashFlow)}/mo
-            </p>
-          </div>
-        </div>
-        <div className="card !p-4 flex items-center gap-3 group relative">
-          <Link
-            to="/settings?tab=rental"
-            className="absolute top-2 right-2 p-1 bg-slate-700/50 rounded text-brand-muted hover:text-brand-orange hover:bg-slate-700 transition-all opacity-0 group-hover:opacity-100"
-            title="Edit rental income for cap rate"
-          >
-            <Pencil size={12} />
-          </Link>
-          <div className="p-2 bg-brand-orange/20 rounded-lg text-brand-orange">
-            <Calculator size={20} />
-          </div>
-          <div>
-            <p className="text-[10px] text-brand-muted uppercase">Cap Rate</p>
-            <p className="text-lg font-bold text-brand-light">{cashFlow.capRate.toFixed(1)}%</p>
-          </div>
-        </div>
       </div>
 
       {/* Tab Navigation */}
@@ -189,7 +341,7 @@ export default function Financials() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
                 className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                   isActive
                     ? 'border-brand-orange text-brand-orange'
