@@ -29,6 +29,7 @@ These features are already implemented:
 | Phase | Focus | Duration | Complexity |
 |-------|-------|----------|------------|
 | **Phase 1** | Welcome Hub & Tenant Responsibilities | 1-2 weeks | Medium |
+| **Phase 1B** | Issue Tracking System | 1-2 weeks | Medium |
 | **Phase 2** | Enhanced Project System & Kanban | 1-2 weeks | Medium |
 | **Phase 3** | 3D Viewer Integration | 2-3 weeks | High |
 | **Phase 4** | AI Project Creation & BOM | 2-3 weeks | High |
@@ -124,6 +125,359 @@ Tenants see ONLY:
 - [ ] Create `ResponsibilityChecklist` with lease-based items
 - [ ] Add notification aggregation from all sources
 - [ ] Update routing to use WelcomeHub as default
+
+---
+
+## Phase 1B: Issue Tracking System
+
+### Goals
+- Create a dedicated issue tracking system distinct from messages and projects
+- Enable tenants to easily report problems with photo documentation
+- Give PM tools to triage, assign, and resolve issues efficiently
+- Provide owner visibility into property issues and resolution metrics
+
+### Why Issues ≠ Messages ≠ Projects
+
+| Aspect | Messages | Issues | Projects |
+|--------|----------|--------|----------|
+| **Purpose** | Communication threads | Track problems to resolution | Plan & execute improvements |
+| **Lifecycle** | Ongoing conversation | Open → Resolved → Closed | Draft → Approved → Completed |
+| **Scope** | Any topic | Specific problem/request | Major work with phases |
+| **Assignment** | N/A | Single responsible party | Vendor + stakeholders |
+| **Duration** | Indefinite | Days to weeks | Weeks to months |
+| **Cost** | N/A | Optional (minor repairs) | Required (budgeted) |
+| **Example** | "When is rent due?" | "Kitchen faucet leaking" | "Renovate master bath" |
+
+### Features
+
+#### 1B.1 Issue List View (Kanban + List Toggle)
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Issues                           [+ New Issue] [🔍 Filter] │
+├─────────────────────────────────────────────────────────────┤
+│  [Kanban View] [List View]                                  │
+│                                                             │
+│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌───────┐ │
+│  │  Open   │ │ Triaged │ │Assigned │ │In Prog  │ │Resolved│ │
+│  │   (3)   │ │   (2)   │ │   (4)   │ │   (2)   │ │  (12) │ │
+│  ├─────────┤ ├─────────┤ ├─────────┤ ├─────────┤ ├───────┤ │
+│  │┌───────┐│ │┌───────┐│ │┌───────┐│ │┌───────┐│ │       │ │
+│  ││🔴 Leak││ ││🟡 Door││ ││🟢 Light││ ││🔴 HVAC││ │       │ │
+│  ││Kitchen││ ││Squeaks││ ││Fixture││ ││Filter ││ │       │ │
+│  │└───────┘│ │└───────┘│ │└───────┘│ │└───────┘│ │       │ │
+│  │┌───────┐│ │         │ │┌───────┐│ │         │ │       │ │
+│  ││🟡 Pest││ │         │ ││🟡 Yard││ │         │ │       │ │
+│  ││Concern││ │         │ ││Maint. ││ │         │ │       │ │
+│  │└───────┘│ │         │ │└───────┘│ │         │ │       │ │
+│  └─────────┘ └─────────┘ └─────────┘ └─────────┘ └───────┘ │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### 1B.2 Issue Creation Form (All Roles)
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Report an Issue                                       [X]  │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  What's the issue? *                                        │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ Kitchen faucet is leaking constantly                │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  Describe the problem:                                      │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ The kitchen faucet has been dripping for 2 days.    │   │
+│  │ Getting worse - now a steady stream when off.       │   │
+│  │ Water pooling under sink.                           │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  Category:        [Maintenance ▼]                           │
+│  Priority:        [High ▼]        (🔴 = urgent, affects    │
+│                                    habitability)            │
+│  Location:        [Kitchen ▼]                               │
+│                                                             │
+│  📷 Add Photos:                                             │
+│  ┌──────┐ ┌──────┐ ┌──────────────────────────────────┐   │
+│  │ 📸   │ │ 📸   │ │  + Add Photo                     │   │
+│  │photo1│ │photo2│ │  (helps us understand the issue) │   │
+│  └──────┘ └──────┘ └──────────────────────────────────┘   │
+│                                                             │
+│  [Cancel]                              [Submit Issue]       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### 1B.3 Issue Detail View (PM/Owner)
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Issue #42: Kitchen Faucet Leaking             [Edit] [X]   │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Status: [In Progress ▼]        Priority: 🔴 High           │
+│  Category: Maintenance          Location: Kitchen           │
+│  Reported: Jan 24, 2026         By: Gregg Marshall (Tenant) │
+│  SLA: ⚠️ 18 hours (high priority = 24hr target)            │
+│                                                             │
+│  ─────────────────────────────────────────────────────────  │
+│                                                             │
+│  📝 Description:                                            │
+│  The kitchen faucet has been dripping for 2 days. Getting   │
+│  worse - now a steady stream when off. Water pooling under  │
+│  sink.                                                      │
+│                                                             │
+│  📷 Photos (2):                                             │
+│  ┌──────────┐ ┌──────────┐                                 │
+│  │ [Photo1] │ │ [Photo2] │                                 │
+│  │  Faucet  │ │  Under   │                                 │
+│  │  drip    │ │  sink    │                                 │
+│  └──────────┘ └──────────┘                                 │
+│                                                             │
+│  ─────────────────────────────────────────────────────────  │
+│                                                             │
+│  👤 Assignment:                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ Assigned to: ProPlumb LLC (Vendor)                  │   │
+│  │ Contact: Mike - (555) 123-4567                      │   │
+│  │ Assigned: Jan 24, 2026 by Dan (PM)                  │   │
+│  │ Scheduled: Jan 25, 2026 @ 2:00 PM                   │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  💰 Cost Estimate: $150-200 (faucet cartridge replacement)  │
+│                                                             │
+│  ─────────────────────────────────────────────────────────  │
+│                                                             │
+│  📋 Activity Timeline:                                      │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ Jan 24, 4:30 PM - Scheduled vendor visit for 1/25   │   │
+│  │ Jan 24, 3:15 PM - Assigned to ProPlumb LLC          │   │
+│  │ Jan 24, 2:00 PM - Triaged: High priority (water)    │   │
+│  │ Jan 24, 1:45 PM - Issue created by Gregg Marshall   │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  💬 Add Note: [________________________________] [Add]      │
+│                                                             │
+│  ─────────────────────────────────────────────────────────  │
+│                                                             │
+│  Actions:                                                   │
+│  [Reassign] [Escalate to Owner] [Convert to Project]       │
+│  [Mark Resolved]                                            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### 1B.4 Issue Resolution Flow
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Resolve Issue #42                                     [X]  │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Resolution Summary: *                                      │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ Replaced faucet cartridge. Leak stopped. Tested     │   │
+│  │ for 10 minutes, no drips. Cleaned up water damage   │   │
+│  │ under sink - no mold detected.                      │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  📷 After Photos:                                           │
+│  ┌──────┐ ┌──────────────────────────────────────────┐     │
+│  │ 📸   │ │  + Add completion photo                  │     │
+│  │after1│ │  (shows issue resolved)                  │     │
+│  └──────┘ └──────────────────────────────────────────┘     │
+│                                                             │
+│  Final Cost: [$175.00_______]                               │
+│  Paid By:    [Owner expense ▼]                              │
+│                                                             │
+│  Vendor Rating (optional):                                  │
+│  ★ ★ ★ ★ ☆  (4/5)                                          │
+│  Quick response, professional work.                         │
+│                                                             │
+│  [Cancel]                              [Mark Resolved]      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### 1B.5 Tenant Issue View (Simplified)
+```
+┌─────────────────────────────────────────────────────────────┐
+│  My Issues                               [+ Report Issue]   │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Active Issues (2)                                          │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ 🔴 Kitchen Faucet Leaking                           │   │
+│  │ Status: In Progress • Vendor scheduled 1/25 @ 2 PM  │   │
+│  │ [View Details]                                      │   │
+│  ├─────────────────────────────────────────────────────┤   │
+│  │ 🟡 Bedroom Door Squeaks                             │   │
+│  │ Status: Assigned to PM • Est. fix this week        │   │
+│  │ [View Details]                                      │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ▼ Resolved Issues (5) - Click to expand                   │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Technical Implementation
+
+#### Data Types
+```typescript
+// Issue Status Workflow
+type IssueStatus =
+  | 'open'              // Just reported
+  | 'triaged'           // PM reviewed, priority set
+  | 'assigned'          // Assigned to party
+  | 'in_progress'       // Work started
+  | 'pending_approval'  // Work done, needs verification
+  | 'resolved'          // Successfully resolved
+  | 'closed'            // Closed (resolved or won't fix)
+  | 'escalated';        // Escalated to owner
+
+type IssuePriority = 'low' | 'medium' | 'high' | 'urgent';
+
+type IssueCategory =
+  | 'maintenance'       // Repairs, fixes
+  | 'safety'            // Safety concerns
+  | 'pest'              // Pest issues
+  | 'noise'             // Noise complaints
+  | 'appliance'         // Appliance problems
+  | 'plumbing'          // Plumbing specific
+  | 'electrical'        // Electrical specific
+  | 'hvac'              // HVAC specific
+  | 'exterior'          // Exterior/yard
+  | 'lease'             // Lease questions
+  | 'billing'           // Payment issues
+  | 'other';
+
+interface Issue {
+  id: string;
+  title: string;
+  description: string;
+  category: IssueCategory;
+  priority: IssuePriority;
+  status: IssueStatus;
+  location?: string;           // Area of property
+
+  // Reporting
+  reportedBy: string;          // User ID
+  reportedByName: string;
+  reportedByRole: UserRole;
+  reportedAt: string;          // ISO date
+
+  // Assignment
+  assignedTo?: string;         // User ID or Vendor ID
+  assignedToName?: string;
+  assignedToType?: 'pm' | 'vendor' | 'tenant';
+  assignedAt?: string;
+  assignedBy?: string;
+  scheduledDate?: string;      // When work is scheduled
+
+  // Resolution
+  resolvedAt?: string;
+  resolvedBy?: string;
+  resolutionNotes?: string;
+  closedAt?: string;
+  closeReason?: 'resolved' | 'duplicate' | 'wont_fix' | 'invalid';
+
+  // Media
+  images: IssueImage[];
+
+  // Cost
+  estimatedCost?: number;
+  actualCost?: number;
+  costPaidBy?: 'owner' | 'tenant' | 'insurance' | 'warranty';
+
+  // Linking
+  linkedVendorId?: string;
+  linkedProjectId?: string;    // If converted to project
+
+  // Activity
+  activities: IssueActivity[];
+
+  // SLA
+  slaTargetHours?: number;     // Based on priority
+  slaBreach?: boolean;
+
+  // Metadata
+  createdAt: string;
+  updatedAt: string;
+  tags?: string[];
+}
+
+interface IssueImage {
+  id: string;
+  url: string;                 // Data URL or file path
+  caption?: string;
+  type: 'before' | 'during' | 'after';
+  uploadedAt: string;
+  uploadedBy: string;
+}
+
+interface IssueActivity {
+  id: string;
+  issueId: string;
+  type: 'created' | 'status_change' | 'assigned' | 'comment' |
+        'image_added' | 'scheduled' | 'escalated' | 'resolved';
+  description: string;
+  performedBy: string;
+  performedByName: string;
+  performedAt: string;
+  metadata?: Record<string, unknown>;
+}
+
+// SLA Configuration
+const SLA_TARGETS: Record<IssuePriority, number> = {
+  urgent: 4,    // 4 hours
+  high: 24,     // 24 hours
+  medium: 72,   // 3 days
+  low: 168      // 7 days
+};
+```
+
+#### File Structure
+```
+src/
+├── components/
+│   └── issues/
+│       ├── IssueList.tsx          # List/Kanban view toggle
+│       ├── IssueKanban.tsx        # Kanban board view
+│       ├── IssueCard.tsx          # Issue card component
+│       ├── IssueCreateForm.tsx    # Create new issue
+│       ├── IssueDetailModal.tsx   # Full issue details
+│       ├── IssueTimeline.tsx      # Activity timeline
+│       ├── IssueAssignment.tsx    # Assignment UI
+│       ├── IssueResolution.tsx    # Resolution form
+│       ├── IssueImageUpload.tsx   # Photo upload
+│       └── TenantIssueView.tsx    # Simplified tenant view
+├── lib/
+│   └── issues.ts                  # CRUD operations
+├── types/
+│   └── issues.types.ts            # Type definitions
+└── pages/
+    └── Issues.tsx                 # Issues page
+```
+
+### Technical Tasks
+- [ ] Create `src/types/issues.types.ts` with all type definitions
+- [ ] Create `src/lib/issues.ts` for CRUD and localStorage
+- [ ] Build `IssueList` component with Kanban/List toggle
+- [ ] Build `IssueKanban` component with drag-and-drop
+- [ ] Build `IssueCard` component for both views
+- [ ] Build `IssueCreateForm` with image upload
+- [ ] Build `IssueDetailModal` with all sections
+- [ ] Build `IssueTimeline` component
+- [ ] Build `IssueAssignment` component (PM only)
+- [ ] Build `IssueResolution` form
+- [ ] Build `TenantIssueView` (simplified for tenants)
+- [ ] Create `Issues.tsx` page and add route
+- [ ] Add issue notifications to NotificationCenter
+- [ ] Add issue metrics to PM dashboard
+- [ ] Add "Convert to Project" functionality
+
+### Success Criteria
+- [ ] Tenants can create issues with photos in < 1 minute
+- [ ] PM can triage and assign issues in < 30 seconds
+- [ ] Issue status updates notify relevant parties
+- [ ] SLA tracking shows overdue issues
+- [ ] Issues can be converted to projects when scope grows
+- [ ] Owner can view issue history and resolution metrics
 
 ---
 
@@ -887,6 +1241,17 @@ src/
 │   │   ├── PropertyGallery.tsx         # Phase 1
 │   │   ├── QuickLinks.tsx              # Phase 1
 │   │   └── ImageCarousel.tsx           # Phase 1
+│   ├── issues/
+│   │   ├── IssueList.tsx               # Phase 1B - List/Kanban toggle
+│   │   ├── IssueKanban.tsx             # Phase 1B - Kanban board
+│   │   ├── IssueCard.tsx               # Phase 1B - Issue card
+│   │   ├── IssueCreateForm.tsx         # Phase 1B - Create issue form
+│   │   ├── IssueDetailModal.tsx        # Phase 1B - Issue details
+│   │   ├── IssueTimeline.tsx           # Phase 1B - Activity timeline
+│   │   ├── IssueAssignment.tsx         # Phase 1B - Assignment (PM)
+│   │   ├── IssueResolution.tsx         # Phase 1B - Resolution form
+│   │   ├── IssueImageUpload.tsx        # Phase 1B - Photo upload
+│   │   └── TenantIssueView.tsx         # Phase 1B - Tenant view
 │   ├── tenant/
 │   │   ├── TenantResponsibilities.tsx  # Phase 1
 │   │   ├── ResponsibilityChecklist.tsx # Phase 1
@@ -917,6 +1282,7 @@ src/
 │   └── ... (existing components)
 ├── lib/
 │   ├── projects.ts                     # Created
+│   ├── issues.ts                       # Phase 1B - Issue CRUD
 │   ├── notifications.ts                # Phase 1
 │   ├── property-gallery.ts             # Phase 1
 │   ├── tenant-responsibilities.ts      # Phase 1
@@ -930,9 +1296,11 @@ src/
 │   └── useAI.ts                        # Phase 4
 ├── pages/
 │   ├── Dashboard.tsx                   # Update for WelcomeHub
+│   ├── Issues.tsx                      # Phase 1B - Issues page
 │   └── Projects.tsx                    # Phase 2 - new page
 └── types/
     ├── project.types.ts
+    ├── issues.types.ts                 # Phase 1B - Issue types
     ├── bom.types.ts
     └── viewer3d.types.ts
 ```
@@ -988,6 +1356,16 @@ src/
 - [ ] Notifications aggregate from projects, messages, payments
 - [ ] Tenants see only their lease responsibilities
 - [ ] Responsibility checklist is functional
+
+### Phase 1B Complete
+- [ ] Issues page accessible from navigation
+- [ ] Tenants can create issues with photos in < 1 minute
+- [ ] Issues display in both Kanban and List views
+- [ ] PM can triage, assign, and resolve issues
+- [ ] SLA tracking shows time since reported
+- [ ] Issue status updates trigger notifications
+- [ ] Issues can be converted to projects
+- [ ] Owner can view all issues and metrics
 
 ### Phase 2 Complete
 - [ ] Projects can be created via form

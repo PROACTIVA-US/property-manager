@@ -44,6 +44,44 @@
     *   "Are all repairs up to date?"
     *   "Does it make more sense for me to move in or keep renting?"
 
+### 3.6. Issue Tracking System
+
+*   **Issue Management:** A dedicated system for tracking property issues, maintenance requests, and concerns that is distinct from general messaging and larger projects.
+*   **Issue Creation:** All parties can create issues with:
+    *   Title and detailed description
+    *   Category (maintenance, safety, noise, lease, billing, other)
+    *   Priority level (low, medium, high, urgent/emergency)
+    *   Photo/image attachments to document the issue
+    *   Location within the property
+*   **Issue Assignment:** PM assigns issues to:
+    *   Self (PM handles directly)
+    *   Vendor (from vendor directory)
+    *   Tenant (if tenant responsibility per lease)
+*   **Issue Status Workflow:**
+    *   `open` → Issue reported, awaiting review
+    *   `triaged` → PM has reviewed, assessed priority
+    *   `assigned` → Assigned to responsible party
+    *   `in_progress` → Work has begun
+    *   `pending_approval` → Work complete, awaiting verification
+    *   `resolved` → Issue successfully resolved
+    *   `closed` → Issue closed (resolved or won't fix)
+    *   `escalated` → Escalated to owner for decision
+*   **Issue Tracking Features:**
+    *   Timeline/activity log for each issue
+    *   Resolution notes and before/after photos
+    *   Estimated vs actual completion dates
+    *   Cost tracking (if applicable)
+    *   Link to vendor if vendor-resolved
+    *   Option to convert to full Project if scope grows
+*   **Role-Based Issue Views:**
+    *   **Tenant:** Create issues, view own issues and status updates
+    *   **PM:** Full issue management, assignment, resolution
+    *   **Owner:** View all issues, see metrics, approve escalations
+*   **Issue Notifications:**
+    *   Automatic notifications on status changes
+    *   SLA tracking (time since issue reported)
+    *   Overdue issue alerts
+
 ### 3.4. Property and Document Management
 
 *   **Vendor Directory:** A comprehensive list showing all current vendors.

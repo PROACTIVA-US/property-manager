@@ -19,6 +19,21 @@ Based on CC4 patterns analysis
 - [ ] `src/components/welcome/RecentActivitySection.tsx` - Activity stream
 - [ ] `src/components/welcome/FeatureOverview.tsx` - Feature showcase
 
+### Issue Tracking Components (Phase 1B)
+- [ ] `src/pages/Issues.tsx` - Issues page with routing
+- [ ] `src/components/issues/IssueList.tsx` - List/Kanban view toggle
+- [ ] `src/components/issues/IssueKanban.tsx` - Kanban board view
+- [ ] `src/components/issues/IssueCard.tsx` - Issue card component
+- [ ] `src/components/issues/IssueCreateForm.tsx` - Create issue form (all roles)
+- [ ] `src/components/issues/IssueDetailModal.tsx` - Full issue detail view
+- [ ] `src/components/issues/IssueTimeline.tsx` - Activity timeline
+- [ ] `src/components/issues/IssueAssignment.tsx` - Assignment UI (PM only)
+- [ ] `src/components/issues/IssueResolution.tsx` - Resolution form
+- [ ] `src/components/issues/IssueImageUpload.tsx` - Photo upload with preview
+- [ ] `src/components/issues/TenantIssueView.tsx` - Simplified tenant view
+- [ ] `src/components/issues/IssueMetrics.tsx` - SLA and resolution metrics
+- [ ] `src/lib/issues.ts` - CRUD operations and localStorage
+
 ### Help Center Components
 - [ ] `src/components/help/HelpCenter.tsx` - Main help panel (3 views)
 - [ ] `src/components/help/ContextualTip.tsx` - Floating help tips
@@ -69,6 +84,18 @@ src/
 │   │   ├── QuickStartSection.tsx
 │   │   ├── RecentActivitySection.tsx
 │   │   └── FeatureOverview.tsx
+│   ├── issues/
+│   │   ├── IssueList.tsx
+│   │   ├── IssueKanban.tsx
+│   │   ├── IssueCard.tsx
+│   │   ├── IssueCreateForm.tsx
+│   │   ├── IssueDetailModal.tsx
+│   │   ├── IssueTimeline.tsx
+│   │   ├── IssueAssignment.tsx
+│   │   ├── IssueResolution.tsx
+│   │   ├── IssueImageUpload.tsx
+│   │   ├── TenantIssueView.tsx
+│   │   └── IssueMetrics.tsx
 │   ├── help/
 │   │   ├── HelpCenter.tsx
 │   │   └── ContextualTip.tsx
@@ -78,7 +105,12 @@ src/
 │   └── ui/
 │       └── Tooltip.tsx
 ├── pages/
-│   └── WelcomePage.tsx
+│   ├── WelcomePage.tsx
+│   └── Issues.tsx
+├── lib/
+│   └── issues.ts
+├── types/
+│   └── issues.types.ts ✅
 ├── stores/
 │   ├── helpStore.ts ✅
 │   └── aiAssistantStore.ts ✅
@@ -99,12 +131,30 @@ src/
 - 6 quick action cards:
   1. Create Project with AI
   2. View Properties
-  3. Add Property
+  3. Report Issue (all roles)
   4. Review Projects
   5. View 3D Model
   6. Check Notifications
-- Recent activity stream (last 8 items)
+- Recent activity stream (last 8 items, includes issues)
 - Feature overview for new users
+
+### Issue Tracking (Phase 1B)
+- **All Roles**: Report issues with photo upload
+- **PM Features**:
+  - Kanban and list view toggle
+  - Drag-and-drop status changes
+  - Assign to self, vendor, or tenant
+  - SLA tracking with breach alerts
+  - Resolution workflow with cost tracking
+  - Convert to Project capability
+- **Tenant Features**:
+  - Simple issue creation form
+  - View own issues and status
+  - See scheduled work dates
+- **Owner Features**:
+  - Read-only view of all issues
+  - Approve escalated issues
+  - View resolution metrics
 
 ### Help Center
 - Searchable documentation

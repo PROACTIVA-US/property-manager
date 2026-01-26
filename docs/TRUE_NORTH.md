@@ -55,7 +55,15 @@ Home
 ├── Image gallery of MY property
 ├── Cash flow status (immediately visible chart)
 ├── Active projects with progress
+├── Open issues summary
 └── Recent important updates
+
+Issues (READ-ONLY + ESCALATIONS)
+├── View all issues at MY property
+├── Issue resolution metrics
+├── Average time to resolution
+├── Approve/decide on escalated issues
+└── Cost summary for issue resolutions
 
 Projects & Maintenance
 ├── All projects affecting MY property
@@ -72,6 +80,7 @@ Financials
 ├── Immediate visual: Cash flow chart
 ├── Property value trend
 ├── Income vs expenses breakdown
+├── Issue-related costs tracking
 ├── Mortgage payoff tools
 └── AI-powered insights
 ```
@@ -103,6 +112,16 @@ Dashboard
 ├── Vendor availability
 └── Satisfaction metrics
 
+Issues (FULL ACCESS)
+├── All open/active issues
+├── Kanban + list views
+├── Triage and prioritization
+├── Assignment to self/vendor/tenant
+├── SLA tracking and breach alerts
+├── Resolution workflow
+├── Convert to Project capability
+└── Issue metrics and history
+
 Projects & Maintenance
 ├── Full project CRUD capabilities
 ├── Kanban workflow management
@@ -121,7 +140,7 @@ Vendors (FULL ACCESS)
 Tenants
 ├── Tenant information
 ├── Lease management
-├── Request handling
+├── Issue history per tenant
 └── Communication history
 
 Messages
@@ -148,14 +167,16 @@ Messages
 Dashboard
 ├── Days until rent due
 ├── Lease status
-├── Active maintenance requests
+├── Active issues (my reported)
 └── Recent messages
 
-Maintenance
-├── Submit new request
-├── Track existing requests
-├── Scheduled work notifications
-└── Request history
+Issues (MY ISSUES)
+├── Report new issue (with photos)
+├── View my active issues
+├── Track status updates
+├── See scheduled work dates
+├── View resolution history
+└── No access to other tenant issues
 
 Messages
 ├── PM communication
@@ -274,22 +295,41 @@ Property
 ├── Owner (displayed prominently)
 ├── Property Manager
 ├── Tenant(s)
-├── Projects[] ─────────────────────────┐
-│   ├── Tasks/Checklists               │
-│   ├── Costs/Expenses                 │ Everything
-│   ├── Documents (contextual)         │ tied to
-│   ├── Images (before/during/after)   │ projects
-│   ├── Vendors (assigned)             │
-│   ├── Stakeholder Input              │
-│   └── Messages (project-specific)    │
+├── Issues[] ───────────────────────────┐
+│   ├── Status workflow                 │ Quick problems
+│   ├── Assignment (PM/Vendor/Tenant)   │ needing
+│   ├── Photos (before/after)           │ resolution
+│   ├── Resolution notes                │
+│   ├── Cost tracking                   │
+│   ├── SLA tracking                    │
+│   └── → Can escalate to Project ──────┼─┐
+├── Projects[] ─────────────────────────┤ │
+│   ├── Tasks/Checklists               │ │
+│   ├── Costs/Expenses                 │ │ Everything
+│   ├── Documents (contextual)         │ │ connected
+│   ├── Images (before/during/after)   │ │
+│   ├── Vendors (assigned)             │ │
+│   ├── Stakeholder Input              │ │
+│   ├── Messages (project-specific)    │ │
+│   └── ← Can originate from Issue ────┼─┘
 ├── Vendors[] (available pool)          │
 ├── Financial Data                      │
 │   ├── Mortgage                        │
 │   ├── Rental Income                   │
-│   ├── Expenses → linked to projects ──┘
+│   ├── Expenses → linked to projects/issues
 │   └── Tax Info
 └── Documents[] (searchable archive)
 ```
+
+### Issues vs Projects vs Messages
+
+| Concept | Purpose | Lifecycle | Example |
+|---------|---------|-----------|---------|
+| **Message** | Communication | Ongoing thread | "When is rent due?" |
+| **Issue** | Problem tracking | Open → Resolved | "Kitchen faucet leaking" |
+| **Project** | Major work | Draft → Complete | "Renovate master bath" |
+
+**Issue → Project escalation**: When an issue reveals larger scope (e.g., "leaky faucet" becomes "replumb entire kitchen"), the PM can convert it to a full project while preserving the issue history.
 
 ---
 
