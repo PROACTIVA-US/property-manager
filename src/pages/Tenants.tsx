@@ -99,7 +99,7 @@ export default function Tenants() {
       case 'emergency': return 'text-red-400';
       case 'high': return 'text-orange-400';
       case 'medium': return 'text-yellow-400';
-      case 'low': return 'text-green-400';
+      case 'low': return 'text-blue-400';
       default: return 'text-brand-muted';
     }
   };

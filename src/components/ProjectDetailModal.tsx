@@ -60,7 +60,7 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
 
   const getPriorityColor = (priority: string) => {
     const colors = {
-      low: 'bg-green-500/20 text-green-400',
+      low: 'bg-blue-500/20 text-blue-400',
       medium: 'bg-yellow-500/20 text-yellow-400',
       high: 'bg-orange-500/20 text-orange-400',
       urgent: 'bg-red-500/20 text-red-400',

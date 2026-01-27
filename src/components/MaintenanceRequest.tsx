@@ -136,7 +136,7 @@ export default function MaintenanceRequest({ onBack }: MaintenanceRequestProps) 
       case 'medium':
         return 'bg-yellow-500/20 text-yellow-400';
       case 'low':
-        return 'bg-green-500/20 text-green-400';
+        return 'bg-blue-500/20 text-blue-400';
     }
   };
 
