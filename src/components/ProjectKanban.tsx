@@ -115,16 +115,26 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
     return transitions[currentStatus];
   };
 
+  const closeAllModals = () => {
+    setIsDetailOpen(false);
+    setSelectedProject(null);
+    setIsFormOpen(false);
+    setEditingProject(null);
+    setIsAICreatorOpen(false);
+  };
+
   const handleProjectClick = (project: Project) => {
     if (onProjectSelect) {
       onProjectSelect(project);
     } else {
+      closeAllModals();
       setSelectedProject(project);
       setIsDetailOpen(true);
     }
   };
 
   const handleEdit = (project: Project) => {
+    closeAllModals();
     setEditingProject(project);
     setIsFormOpen(true);
     setMenuOpenId(null);
@@ -138,23 +148,24 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
   };
 
   const handleAddProject = () => {
+    closeAllModals();
     setEditingProject(null);
     setIsFormOpen(true);
   };
 
   const handleFormSave = () => {
     loadProjects();
-    setIsFormOpen(false);
-    setEditingProject(null);
+    closeAllModals();
   };
 
   const handleAICreatorOpen = () => {
+    closeAllModals();
     setIsAICreatorOpen(true);
   };
 
   const handleAICreatorSave = () => {
     loadProjects();
-    setIsAICreatorOpen(false);
+    closeAllModals();
   };
 
   const getPriorityColor = (priority: string) => {
