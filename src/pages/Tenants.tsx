@@ -1,31 +1,18 @@
 import { useState } from 'react';
-import { Users, Mail, Phone, Calendar, DollarSign, Wrench, MessageSquare, Pencil, X, Download, Upload } from 'lucide-react';
+import { Users, Mail, Phone, Calendar, DollarSign, Wrench, MessageSquare, Pencil, X, Download, Upload, ChevronDown, ChevronRight } from 'lucide-react';
 import { loadSettings, exportSettings, importSettings } from '../lib/settings';
 import { getPayments, getLease, getMaintenanceRequests } from '../lib/tenant';
 import type { Payment, MaintenanceRequest } from '../lib/tenant';
 import TenantForm from '../components/settings/TenantForm';
 import { formatCurrency } from '../lib/financials';
 
-type TabId = 'overview' | 'payments' | 'maintenance' | 'lease';
-
-interface Tab {
-  id: TabId;
-  label: string;
-  icon: typeof Users;
-}
-
-const tabs: Tab[] = [
-  { id: 'overview', label: 'Overview', icon: Users },
-  { id: 'payments', label: 'Payments', icon: DollarSign },
-  { id: 'maintenance', label: 'Maintenance', icon: Wrench },
-  { id: 'lease', label: 'Lease Details', icon: Calendar },
-];
+type SectionId = 'payments' | 'maintenance' | 'lease';
 
 export default function Tenants() {
-  const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [settings, setSettings] = useState(loadSettings());
   const [showEditModal, setShowEditModal] = useState(false);
   const [importMessage, setImportMessage] = useState('');
+  const [expandedSections, setExpandedSections] = useState<Set<SectionId>>(new Set());
   const tenant = settings.tenant;
   const payments = getPayments();
   const lease = getLease();
@@ -93,6 +80,18 @@ export default function Tenants() {
       case 'cancelled': return 'bg-slate-500/20 text-slate-400';
       default: return 'bg-slate-500/20 text-slate-400';
     }
+  };
+
+  const toggleSection = (id: SectionId) => {
+    setExpandedSections(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   };
 
   const getUrgencyColor = (urgency: MaintenanceRequest['urgency']) => {
@@ -204,116 +203,110 @@ export default function Tenants() {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-slate-700">
-        <div className="flex flex-wrap gap-1">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-3 text-sm font-medium transition-colors relative flex items-center gap-2 ${
-                activeTab === tab.id
-                  ? 'text-brand-orange'
-                  : 'text-brand-muted hover:text-brand-light'
-              }`}
-            >
-              <tab.icon size={16} />
-              {tab.label}
-              {activeTab === tab.id && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-orange" />
-              )}
-            </button>
-          ))}
+      {/* Tenant Information - always visible */}
+      <div className="card p-6 space-y-6">
+        <div>
+          <h2 className="text-xl font-bold text-brand-light mb-4">Tenant Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-center gap-3 p-4 bg-brand-navy/30 rounded-lg">
+              <Users className="text-brand-orange" size={20} />
+              <div>
+                <div className="text-sm text-brand-muted">Name</div>
+                <div className="text-brand-light font-medium">{tenant.name}</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-4 bg-brand-navy/30 rounded-lg">
+              <Mail className="text-brand-orange" size={20} />
+              <div>
+                <div className="text-sm text-brand-muted">Email</div>
+                <div className="text-brand-light font-medium">{tenant.email}</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-4 bg-brand-navy/30 rounded-lg">
+              <Phone className="text-brand-orange" size={20} />
+              <div>
+                <div className="text-sm text-brand-muted">Phone</div>
+                <div className="text-brand-light font-medium">{tenant.phone}</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-4 bg-brand-navy/30 rounded-lg">
+              <Calendar className="text-brand-orange" size={20} />
+              <div>
+                <div className="text-sm text-brand-muted">Move-In Date</div>
+                <div className="text-brand-light font-medium">
+                  {tenant.moveInDate ? new Date(tenant.moveInDate).toLocaleDateString() : 'N/A'}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Tab Content */}
-      <div className="card p-6">
-        {activeTab === 'overview' && (
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-xl font-bold text-brand-light mb-4">Tenant Information</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center gap-3 p-4 bg-brand-navy/30 rounded-lg">
-                  <Users className="text-brand-orange" size={20} />
-                  <div>
-                    <div className="text-sm text-brand-muted">Name</div>
-                    <div className="text-brand-light font-medium">{tenant.name}</div>
-                  </div>
+        {tenant.emergencyContact && (
+          <div>
+            <h3 className="text-lg font-bold text-brand-light mb-3">Emergency Contact</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center gap-3 p-4 bg-brand-navy/30 rounded-lg">
+                <Users className="text-brand-orange" size={20} />
+                <div>
+                  <div className="text-sm text-brand-muted">Name</div>
+                  <div className="text-brand-light font-medium">{tenant.emergencyContact}</div>
                 </div>
-                <div className="flex items-center gap-3 p-4 bg-brand-navy/30 rounded-lg">
-                  <Mail className="text-brand-orange" size={20} />
-                  <div>
-                    <div className="text-sm text-brand-muted">Email</div>
-                    <div className="text-brand-light font-medium">{tenant.email}</div>
-                  </div>
-                </div>
+              </div>
+              {tenant.emergencyContactPhone && (
                 <div className="flex items-center gap-3 p-4 bg-brand-navy/30 rounded-lg">
                   <Phone className="text-brand-orange" size={20} />
                   <div>
                     <div className="text-sm text-brand-muted">Phone</div>
-                    <div className="text-brand-light font-medium">{tenant.phone}</div>
+                    <div className="text-brand-light font-medium">{tenant.emergencyContactPhone}</div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-4 bg-brand-navy/30 rounded-lg">
-                  <Calendar className="text-brand-orange" size={20} />
-                  <div>
-                    <div className="text-sm text-brand-muted">Move-In Date</div>
-                    <div className="text-brand-light font-medium">
-                      {tenant.moveInDate ? new Date(tenant.moveInDate).toLocaleDateString() : 'N/A'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {tenant.emergencyContact && (
-              <div>
-                <h3 className="text-lg font-bold text-brand-light mb-3">Emergency Contact</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center gap-3 p-4 bg-brand-navy/30 rounded-lg">
-                    <Users className="text-brand-orange" size={20} />
-                    <div>
-                      <div className="text-sm text-brand-muted">Name</div>
-                      <div className="text-brand-light font-medium">{tenant.emergencyContact}</div>
-                    </div>
-                  </div>
-                  {tenant.emergencyContactPhone && (
-                    <div className="flex items-center gap-3 p-4 bg-brand-navy/30 rounded-lg">
-                      <Phone className="text-brand-orange" size={20} />
-                      <div>
-                        <div className="text-sm text-brand-muted">Phone</div>
-                        <div className="text-brand-light font-medium">{tenant.emergencyContactPhone}</div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div>
-              <h3 className="text-lg font-bold text-brand-light mb-3">Quick Actions</h3>
-              <div className="flex flex-wrap gap-3">
-                <button className="btn-secondary flex items-center gap-2">
-                  <MessageSquare size={16} />
-                  Send Message
-                </button>
-                <button className="btn-secondary flex items-center gap-2">
-                  <Calendar size={16} />
-                  Schedule Inspection
-                </button>
-                <button className="btn-secondary flex items-center gap-2">
-                  <Wrench size={16} />
-                  View Maintenance Requests
-                </button>
-              </div>
+              )}
             </div>
           </div>
         )}
 
-        {activeTab === 'payments' && (
-          <div>
-            <h2 className="text-xl font-bold text-brand-light mb-4">Payment History</h2>
+        <div>
+          <h3 className="text-lg font-bold text-brand-light mb-3">Quick Actions</h3>
+          <div className="flex flex-wrap gap-3">
+            <button className="btn-secondary flex items-center gap-2">
+              <MessageSquare size={16} />
+              Send Message
+            </button>
+            <button className="btn-secondary flex items-center gap-2">
+              <Calendar size={16} />
+              Schedule Inspection
+            </button>
+            <button className="btn-secondary flex items-center gap-2" onClick={() => toggleSection('maintenance')}>
+              <Wrench size={16} />
+              View Maintenance Requests
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Expandable Sections */}
+      {/* Payments Section */}
+      <div className="card bg-slate-800/50 overflow-hidden">
+        <button
+          onClick={() => toggleSection('payments')}
+          className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-700/30 transition-colors"
+          aria-expanded={expandedSections.has('payments')}
+        >
+          <div className="flex items-center gap-3">
+            <DollarSign size={20} className="text-brand-orange" />
+            <div>
+              <h2 className="text-lg font-semibold text-brand-light">Payment History</h2>
+              <p className="text-sm text-brand-muted">{payments.length} payments recorded</p>
+            </div>
+          </div>
+          {expandedSections.has('payments') ? (
+            <ChevronDown size={20} className="text-brand-muted" />
+          ) : (
+            <ChevronRight size={20} className="text-brand-muted" />
+          )}
+        </button>
+        {expandedSections.has('payments') && (
+          <div className="border-t border-slate-700/50 p-6">
             <div className="space-y-3">
               {payments.map((payment) => (
                 <div
@@ -347,10 +340,30 @@ export default function Tenants() {
             </div>
           </div>
         )}
+      </div>
 
-        {activeTab === 'maintenance' && (
-          <div>
-            <h2 className="text-xl font-bold text-brand-light mb-4">Maintenance Requests</h2>
+      {/* Maintenance Section */}
+      <div className="card bg-slate-800/50 overflow-hidden">
+        <button
+          onClick={() => toggleSection('maintenance')}
+          className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-700/30 transition-colors"
+          aria-expanded={expandedSections.has('maintenance')}
+        >
+          <div className="flex items-center gap-3">
+            <Wrench size={20} className="text-brand-orange" />
+            <div>
+              <h2 className="text-lg font-semibold text-brand-light">Maintenance Requests</h2>
+              <p className="text-sm text-brand-muted">{maintenanceRequests.length} requests</p>
+            </div>
+          </div>
+          {expandedSections.has('maintenance') ? (
+            <ChevronDown size={20} className="text-brand-muted" />
+          ) : (
+            <ChevronRight size={20} className="text-brand-muted" />
+          )}
+        </button>
+        {expandedSections.has('maintenance') && (
+          <div className="border-t border-slate-700/50 p-6">
             <div className="space-y-3">
               {maintenanceRequests.map((request) => (
                 <div
@@ -387,10 +400,32 @@ export default function Tenants() {
             </div>
           </div>
         )}
+      </div>
 
-        {activeTab === 'lease' && (
-          <div>
-            <h2 className="text-xl font-bold text-brand-light mb-4">Lease Details</h2>
+      {/* Lease Details Section */}
+      <div className="card bg-slate-800/50 overflow-hidden">
+        <button
+          onClick={() => toggleSection('lease')}
+          className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-700/30 transition-colors"
+          aria-expanded={expandedSections.has('lease')}
+        >
+          <div className="flex items-center gap-3">
+            <Calendar size={20} className="text-brand-orange" />
+            <div>
+              <h2 className="text-lg font-semibold text-brand-light">Lease Details</h2>
+              <p className="text-sm text-brand-muted">
+                {daysUntilLeaseEnd > 0 ? `${daysUntilLeaseEnd} days remaining` : 'Lease expired'}
+              </p>
+            </div>
+          </div>
+          {expandedSections.has('lease') ? (
+            <ChevronDown size={20} className="text-brand-muted" />
+          ) : (
+            <ChevronRight size={20} className="text-brand-muted" />
+          )}
+        </button>
+        {expandedSections.has('lease') && (
+          <div className="border-t border-slate-700/50 p-6">
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-4 bg-brand-navy/30 rounded-lg">

@@ -33,7 +33,7 @@ export default function PMDashboard() {
           </h1>
           <p className="text-brand-muted">Welcome back, {user?.displayName}</p>
         </div>
-        <Link to="/messages?tab=inspections" className="btn-primary flex items-center gap-2">
+        <Link to="/messages?tab=activity" className="btn-primary flex items-center gap-2">
           <Calendar size={18} />
           Schedule Inspection
         </Link>
@@ -69,7 +69,7 @@ export default function PMDashboard() {
               </p>
             </Link>
 
-            <Link to="/messages?tab=inspections" className="card hover:bg-brand-navy/70 transition-colors">
+            <Link to="/messages?tab=activity" className="card hover:bg-brand-navy/70 transition-colors">
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 bg-green-500/20 rounded-lg text-green-400">
                   <Calendar size={20} />
@@ -82,7 +82,7 @@ export default function PMDashboard() {
               </p>
             </Link>
 
-            <Link to="/messages?tab=satisfaction" className="card hover:bg-brand-navy/70 transition-colors">
+            <Link to="/messages?tab=activity" className="card hover:bg-brand-navy/70 transition-colors">
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 bg-yellow-500/20 rounded-lg text-yellow-400">
                   <Star size={20} />
