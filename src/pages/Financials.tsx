@@ -81,6 +81,7 @@ export default function Financials() {
   );
   const [settings, setSettings] = useState(loadSettings());
   const [importMessage, setImportMessage] = useState('');
+  const [isImporting, setIsImporting] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     keepvssell: true,
     mortgage: false,
@@ -115,6 +116,7 @@ export default function Financials() {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    setIsImporting(true);
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
@@ -126,6 +128,8 @@ export default function Financials() {
       } catch (error) {
         setImportMessage('Failed to import. Invalid file format.');
         setTimeout(() => setImportMessage(''), 3000);
+      } finally {
+        setIsImporting(false);
       }
     };
     reader.readAsText(file);
@@ -143,14 +147,15 @@ export default function Financials() {
         <Download size={14} />
         Export
       </button>
-      <label className="btn-secondary flex items-center gap-2 text-xs cursor-pointer">
-        <Upload size={14} />
-        Import
+      <label className={`btn-secondary flex items-center gap-2 text-xs cursor-pointer ${isImporting ? 'opacity-50 pointer-events-none' : ''}`}>
+        <Upload size={14} className={isImporting ? 'animate-spin' : ''} />
+        {isImporting ? 'Importing...' : 'Import'}
         <input
           type="file"
           accept=".json"
           onChange={handleImport}
           className="hidden"
+          disabled={isImporting}
         />
       </label>
     </div>

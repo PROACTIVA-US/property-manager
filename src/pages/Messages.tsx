@@ -39,6 +39,7 @@ import {
 import { cn } from '../lib/utils';
 import type { UserRole } from '../contexts/AuthContext';
 import { loadSettings } from '../lib/settings';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 type TabType = 'messages' | 'activity';
 
@@ -72,6 +73,7 @@ export default function MessagesPage() {
   const [showNewThread, setShowNewThread] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<Thread['category'] | 'all'>('all');
+  const [isLoading, setIsLoading] = useState(true);
 
   // Current user info
   const currentUser = {
@@ -90,6 +92,7 @@ export default function MessagesPage() {
 
   useEffect(() => {
     loadData();
+    setIsLoading(false);
   }, [loadData]);
 
   // Update URL params
@@ -213,6 +216,14 @@ export default function MessagesPage() {
     { id: 'messages' as TabType, label: 'Messages', icon: MessageSquare, count: unreadMessages },
     { id: 'activity' as TabType, label: 'Activity & Scheduling', icon: Bell, count: activityCount },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <LoadingSpinner message="Loading messages..." />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

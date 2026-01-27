@@ -42,6 +42,7 @@ export default function Documents() {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
   const [previewDoc, setPreviewDoc] = useState<DocumentFile | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
   const [projectFilter, setProjectFilter] = useState<string>('all');
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
   const [projects, setProjectsList] = useState<Project[]>([]);
@@ -111,6 +112,7 @@ export default function Documents() {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    setIsImporting(true);
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
@@ -120,6 +122,8 @@ export default function Documents() {
         showMessage('✓ Documents imported successfully!');
       } catch (error) {
         showMessage(`✗ Import failed: ${(error as Error).message}`);
+      } finally {
+        setIsImporting(false);
       }
     };
     reader.readAsText(file);
@@ -177,14 +181,15 @@ export default function Documents() {
             <Download size={16} />
             Export
           </button>
-          <label className="btn-secondary flex items-center gap-2 text-sm cursor-pointer">
-            <Upload size={16} />
-            Import
+          <label className={`btn-secondary flex items-center gap-2 text-sm cursor-pointer ${isImporting ? 'opacity-50 pointer-events-none' : ''}`}>
+            <Upload size={16} className={isImporting ? 'animate-spin' : ''} />
+            {isImporting ? 'Importing...' : 'Import'}
             <input
               type="file"
               accept=".json"
               onChange={handleImport}
               className="hidden"
+              disabled={isImporting}
             />
           </label>
         </div>

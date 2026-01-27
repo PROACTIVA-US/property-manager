@@ -11,6 +11,7 @@ type SectionId = 'payments' | 'maintenance' | 'lease';
 export default function Tenants() {
   const [settings, setSettings] = useState(loadSettings());
   const [importMessage, setImportMessage] = useState('');
+  const [isImporting, setIsImporting] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Set<SectionId>>(new Set());
   const tenant = settings.tenant;
   const payments = getPayments();
@@ -38,6 +39,7 @@ export default function Tenants() {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    setIsImporting(true);
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
@@ -49,6 +51,8 @@ export default function Tenants() {
       } catch (error) {
         setImportMessage('Failed to import. Invalid file format.');
         setTimeout(() => setImportMessage(''), 3000);
+      } finally {
+        setIsImporting(false);
       }
     };
     reader.readAsText(file);
@@ -130,14 +134,15 @@ export default function Tenants() {
             <Download size={14} />
             Export
           </button>
-          <label className="btn-secondary flex items-center gap-2 text-sm cursor-pointer">
-            <Upload size={14} />
-            Import
+          <label className={`btn-secondary flex items-center gap-2 text-sm cursor-pointer ${isImporting ? 'opacity-50 pointer-events-none' : ''}`}>
+            <Upload size={14} className={isImporting ? 'animate-spin' : ''} />
+            {isImporting ? 'Importing...' : 'Import'}
             <input
               type="file"
               accept=".json"
               onChange={handleImport}
               className="hidden"
+              disabled={isImporting}
             />
           </label>
         </div>

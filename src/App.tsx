@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Layout from './components/Layout';
+import LoadingSpinner from './components/ui/LoadingSpinner';
 import LoginPage from './pages/Login';
 import WelcomePage from './pages/WelcomePage';
 import Dashboard from './pages/Dashboard';
@@ -27,7 +28,7 @@ import { useAIAssistantStore } from './stores/aiAssistantStore';
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  if (loading) return <LoadingSpinner fullPage message="Loading..." />;
 
   if (!user) {
     return <Navigate to="/login" />;
