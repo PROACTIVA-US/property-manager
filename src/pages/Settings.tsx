@@ -285,7 +285,7 @@ export default function Settings() {
                 backup and restore your property, mortgage, and rental information.
               </p>
               <a
-                href="/financials?tab=property"
+                href="/financials"
                 className="text-brand-orange hover:underline text-sm font-medium"
               >
                 Go to Financials &rarr;

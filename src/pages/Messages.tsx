@@ -40,7 +40,7 @@ import { cn } from '../lib/utils';
 import type { UserRole } from '../contexts/AuthContext';
 import { loadSettings } from '../lib/settings';
 
-type TabType = 'messages' | 'inspections' | 'satisfaction' | 'notifications';
+type TabType = 'messages' | 'activity';
 
 // Get real names from settings
 const getParticipants = () => {
@@ -60,7 +60,7 @@ export default function MessagesPage() {
 
   // State
   const [activeTab, setActiveTab] = useState<TabType>(
-    (searchParams.get('tab') as TabType) || 'messages'
+    (searchParams.get('tab') === 'activity' ? 'activity' : 'messages')
   );
   const [threads, setThreads] = useState<Thread[]>([]);
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(
@@ -208,11 +208,10 @@ export default function MessagesPage() {
   // Other participants for new thread
   const availableParticipants = ALL_PARTICIPANTS.filter(p => p.id !== currentUser.id);
 
+  const activityCount = pendingInspections + unreadNotifications;
   const tabs = [
     { id: 'messages' as TabType, label: 'Messages', icon: MessageSquare, count: unreadMessages },
-    { id: 'inspections' as TabType, label: 'Inspections', icon: Calendar, count: pendingInspections },
-    { id: 'satisfaction' as TabType, label: 'Satisfaction', icon: Star, count: 0 },
-    { id: 'notifications' as TabType, label: 'Activity', icon: Bell, count: unreadNotifications },
+    { id: 'activity' as TabType, label: 'Activity & Scheduling', icon: Bell, count: activityCount },
   ];
 
   return (
@@ -350,35 +349,35 @@ export default function MessagesPage() {
           </div>
         )}
 
-        {/* Inspections Tab */}
-        {activeTab === 'inspections' && (
-          <InspectionScheduler
-            inspections={inspections}
-            currentUser={currentUser}
-            onCreateInspection={handleCreateInspection}
-            onProposeTime={handleProposeTime}
-            onVoteForTime={handleVoteForTime}
-            onConfirmTime={handleConfirmTime}
-          />
-        )}
+        {/* Activity Tab - combines inspections, satisfaction, and notifications */}
+        {activeTab === 'activity' && (
+          <div className="space-y-8">
+            <NotificationsList
+              notifications={notifications}
+              onMarkRead={handleMarkNotificationRead}
+            />
 
-        {/* Satisfaction Tab */}
-        {activeTab === 'satisfaction' && (
-          <SatisfactionSurvey
-            entries={satisfactionEntries}
-            averageRating={getAverageSatisfaction()}
-            currentTenantId={currentUser.id}
-            onSubmit={handleSubmitSatisfaction}
-            isReadOnly={user?.role !== 'tenant'}
-          />
-        )}
+            <div className="border-t border-slate-700/50 pt-8">
+              <InspectionScheduler
+                inspections={inspections}
+                currentUser={currentUser}
+                onCreateInspection={handleCreateInspection}
+                onProposeTime={handleProposeTime}
+                onVoteForTime={handleVoteForTime}
+                onConfirmTime={handleConfirmTime}
+              />
+            </div>
 
-        {/* Notifications Tab */}
-        {activeTab === 'notifications' && (
-          <NotificationsList
-            notifications={notifications}
-            onMarkRead={handleMarkNotificationRead}
-          />
+            <div className="border-t border-slate-700/50 pt-8">
+              <SatisfactionSurvey
+                entries={satisfactionEntries}
+                averageRating={getAverageSatisfaction()}
+                currentTenantId={currentUser.id}
+                onSubmit={handleSubmitSatisfaction}
+                isReadOnly={user?.role !== 'tenant'}
+              />
+            </div>
+          </div>
         )}
       </div>
 
