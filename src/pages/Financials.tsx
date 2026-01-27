@@ -12,6 +12,8 @@ import {
   Download,
   Upload,
   LayoutDashboard,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
 import FinancialsOverview from '../components/financials/FinancialsOverview';
 import MortgageCalculator from '../components/MortgageCalculator';
@@ -83,7 +85,10 @@ export default function Financials() {
   );
   const [settings, setSettings] = useState(loadSettings());
   const [importMessage, setImportMessage] = useState('');
-  const [projectionsSubTab, setProjectionsSubTab] = useState<'keepvssell' | 'mortgage'>('keepvssell');
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    keepvssell: true,
+    mortgage: false,
+  });
 
   // Reload settings when tab changes
   useEffect(() => {
@@ -278,40 +283,54 @@ export default function Financials() {
               </p>
             </div>
 
-            {/* Sub-tabs for projections */}
-            <div className="flex gap-2 border-b border-slate-700 pb-2">
+            {/* Keep vs Sell - Expandable Section */}
+            <div className="border border-slate-700 rounded-lg overflow-hidden">
               <button
-                onClick={() => setProjectionsSubTab('keepvssell')}
-                className={`px-4 py-2 text-sm font-medium rounded-t transition-colors ${
-                  projectionsSubTab === 'keepvssell'
-                    ? 'bg-slate-700 text-brand-light'
-                    : 'text-brand-muted hover:text-brand-light'
-                }`}
+                onClick={() => setExpandedSections(prev => ({ ...prev, keepvssell: !prev.keepvssell }))}
+                className="w-full flex items-center justify-between px-4 py-3 bg-slate-700/50 hover:bg-slate-700 transition-colors"
               >
-                <Scale size={16} className="inline mr-2" />
-                Keep vs Sell
+                <span className="flex items-center gap-2 text-sm font-medium text-brand-light">
+                  <Scale size={16} className="text-brand-orange" />
+                  Keep vs Sell Analysis
+                </span>
+                {expandedSections.keepvssell ? (
+                  <ChevronDown size={16} className="text-brand-muted" />
+                ) : (
+                  <ChevronRight size={16} className="text-brand-muted" />
+                )}
               </button>
-              <button
-                onClick={() => setProjectionsSubTab('mortgage')}
-                className={`px-4 py-2 text-sm font-medium rounded-t transition-colors ${
-                  projectionsSubTab === 'mortgage'
-                    ? 'bg-slate-700 text-brand-light'
-                    : 'text-brand-muted hover:text-brand-light'
-                }`}
-              >
-                <Calculator size={16} className="inline mr-2" />
-                Mortgage Payoff
-              </button>
+              {expandedSections.keepvssell && (
+                <div className="p-4">
+                  <KeepVsSell
+                    initialProperty={property}
+                    initialTaxInputs={taxInputs}
+                  />
+                </div>
+              )}
             </div>
 
-            {projectionsSubTab === 'keepvssell' ? (
-              <KeepVsSell
-                initialProperty={property}
-                initialTaxInputs={taxInputs}
-              />
-            ) : (
-              <MortgageCalculator />
-            )}
+            {/* Mortgage Payoff - Expandable Section */}
+            <div className="border border-slate-700 rounded-lg overflow-hidden">
+              <button
+                onClick={() => setExpandedSections(prev => ({ ...prev, mortgage: !prev.mortgage }))}
+                className="w-full flex items-center justify-between px-4 py-3 bg-slate-700/50 hover:bg-slate-700 transition-colors"
+              >
+                <span className="flex items-center gap-2 text-sm font-medium text-brand-light">
+                  <Calculator size={16} className="text-brand-orange" />
+                  Mortgage Payoff Calculator
+                </span>
+                {expandedSections.mortgage ? (
+                  <ChevronDown size={16} className="text-brand-muted" />
+                ) : (
+                  <ChevronRight size={16} className="text-brand-muted" />
+                )}
+              </button>
+              {expandedSections.mortgage && (
+                <div className="p-4">
+                  <MortgageCalculator />
+                </div>
+              )}
+            </div>
           </div>
         );
 
