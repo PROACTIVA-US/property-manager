@@ -12,26 +12,41 @@ import {
   Monitor,
   Database,
   Clock,
+  Building2,
+  DollarSign,
+  Home,
+  FileText,
 } from 'lucide-react';
 import type { SettingsData } from '../lib/settings';
 import { loadSettings } from '../lib/settings';
 import OwnerForm from '../components/settings/OwnerForm';
 import PMForm from '../components/settings/PMForm';
+import PropertyForm from '../components/settings/PropertyForm';
+import MortgageForm from '../components/settings/MortgageForm';
+import RentalIncomeForm from '../components/settings/RentalIncomeForm';
+import TaxInfoForm from '../components/settings/TaxInfoForm';
+import TenantForm from '../components/settings/TenantForm';
 
-type TabId = 'account' | 'pm' | 'appearance' | 'security';
+type TabId = 'account' | 'pm' | 'property' | 'mortgage' | 'rental' | 'tax' | 'tenant' | 'appearance' | 'security';
 
 interface Tab {
   id: TabId;
   label: string;
   description: string;
   icon: React.ElementType;
+  group: 'people' | 'property' | 'preferences';
 }
 
 const tabs: Tab[] = [
-  { id: 'account', label: 'Account', description: 'Your contact and business information', icon: User },
-  { id: 'pm', label: 'Property Manager', description: 'Property manager contact details', icon: Users },
-  { id: 'appearance', label: 'Appearance', description: 'Theme and display preferences', icon: Palette },
-  { id: 'security', label: 'Security & Data', description: 'Data storage and app information', icon: Shield },
+  { id: 'account', label: 'Account', description: 'Your contact and business information', icon: User, group: 'people' },
+  { id: 'pm', label: 'Property Manager', description: 'Property manager contact details', icon: Users, group: 'people' },
+  { id: 'tenant', label: 'Tenant', description: 'Current tenant contact and lease details', icon: Users, group: 'people' },
+  { id: 'property', label: 'Property', description: 'Property address, value, and details', icon: Building2, group: 'property' },
+  { id: 'mortgage', label: 'Mortgage', description: 'Mortgage and loan information', icon: DollarSign, group: 'property' },
+  { id: 'rental', label: 'Rental Income', description: 'Rental income and operating expenses', icon: Home, group: 'property' },
+  { id: 'tax', label: 'Tax Info', description: 'Tax planning information', icon: FileText, group: 'property' },
+  { id: 'appearance', label: 'Appearance', description: 'Theme and display preferences', icon: Palette, group: 'preferences' },
+  { id: 'security', label: 'Security & Data', description: 'Data storage and app information', icon: Shield, group: 'preferences' },
 ];
 
 type Theme = 'dark' | 'light' | 'system';
@@ -95,31 +110,34 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs - grouped */}
       <div className="border-b border-slate-700">
-        <div className="flex flex-wrap gap-1">
-          {tabs.map((tab) => {
-            const Icon = tab.icon as React.ElementType<{ size?: number }>;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => handleTabChange(tab.id)}
-                className={`px-4 py-3 text-sm font-medium transition-colors relative flex items-center gap-2 ${
-                  activeTab === tab.id
-                    ? 'text-brand-orange'
-                    : 'text-brand-muted hover:text-brand-light'
-                }`}
-              >
-                <Icon size={16} />
-                <div className="text-left">
-                  <div>{tab.label}</div>
-                </div>
-                {activeTab === tab.id && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-orange" />
-                )}
-              </button>
-            );
-          })}
+        <div className="flex flex-wrap gap-1 items-center">
+          {(['people', 'property', 'preferences'] as const).map((group, gi) => (
+            <div key={group} className="flex items-center">
+              {gi > 0 && <div className="w-px h-6 bg-slate-700 mx-1" />}
+              {tabs.filter(t => t.group === group).map((tab) => {
+                const Icon = tab.icon as React.ElementType<{ size?: number }>;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => handleTabChange(tab.id)}
+                    className={`px-3 py-3 text-sm font-medium transition-colors relative flex items-center gap-1.5 ${
+                      activeTab === tab.id
+                        ? 'text-brand-orange'
+                        : 'text-brand-muted hover:text-brand-light'
+                    }`}
+                  >
+                    <Icon size={14} />
+                    <span>{tab.label}</span>
+                    {activeTab === tab.id && (
+                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-orange" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
         </div>
       </div>
 
@@ -148,6 +166,71 @@ export default function Settings() {
               Contact details for your property manager (if applicable)
             </p>
             <PMForm initialData={settings.pm} onSave={handleDataSaved} />
+          </div>
+        )}
+
+        {activeTab === 'tenant' && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <Users className="text-brand-orange" size={20} />
+              <h2 className="text-lg font-bold text-brand-light">Tenant Details</h2>
+            </div>
+            <p className="text-sm text-brand-muted mb-6">
+              Current tenant contact information and lease details
+            </p>
+            <TenantForm initialData={settings.tenant} onSave={handleDataSaved} />
+          </div>
+        )}
+
+        {activeTab === 'property' && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <Building2 className="text-brand-orange" size={20} />
+              <h2 className="text-lg font-bold text-brand-light">Property Information</h2>
+            </div>
+            <p className="text-sm text-brand-muted mb-6">
+              Property address, value, and physical details
+            </p>
+            <PropertyForm initialData={settings.property} onSave={handleDataSaved} />
+          </div>
+        )}
+
+        {activeTab === 'mortgage' && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <DollarSign className="text-brand-orange" size={20} />
+              <h2 className="text-lg font-bold text-brand-light">Mortgage Details</h2>
+            </div>
+            <p className="text-sm text-brand-muted mb-6">
+              Loan balance, interest rate, and payment information
+            </p>
+            <MortgageForm initialData={settings.mortgage} onSave={handleDataSaved} />
+          </div>
+        )}
+
+        {activeTab === 'rental' && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <Home className="text-brand-orange" size={20} />
+              <h2 className="text-lg font-bold text-brand-light">Rental Income & Expenses</h2>
+            </div>
+            <p className="text-sm text-brand-muted mb-6">
+              Monthly rent, operating costs, and reserve allocations
+            </p>
+            <RentalIncomeForm initialData={settings.rentalIncome} mortgageData={settings.mortgage} onSave={handleDataSaved} />
+          </div>
+        )}
+
+        {activeTab === 'tax' && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <FileText className="text-brand-orange" size={20} />
+              <h2 className="text-lg font-bold text-brand-light">Tax Information</h2>
+            </div>
+            <p className="text-sm text-brand-muted mb-6">
+              Filing status, income, and property depreciation details
+            </p>
+            <TaxInfoForm initialData={settings.taxInfo} onSave={handleDataSaved} />
           </div>
         )}
 
@@ -303,8 +386,8 @@ export default function Settings() {
         </h4>
         <ul className="text-sm text-brand-muted space-y-1">
           <li>All data is saved locally in your browser</li>
-          <li>Financial data can be managed in the Financials section</li>
-          <li>Tenant information can be edited from the Tenants page</li>
+          <li>All property, financial, and contact data can be managed from this page</li>
+          <li>Changes are reflected across the Financials and Tenants pages automatically</li>
         </ul>
       </div>
     </div>

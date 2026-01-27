@@ -1,16 +1,15 @@
 import { useState } from 'react';
-import { Users, Mail, Phone, Calendar, DollarSign, Wrench, MessageSquare, Pencil, X, Download, Upload, ChevronDown, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Users, Mail, Phone, Calendar, DollarSign, Wrench, MessageSquare, Pencil, Download, Upload, ChevronDown, ChevronRight } from 'lucide-react';
 import { loadSettings, exportSettings, importSettings } from '../lib/settings';
 import { getPayments, getLease, getMaintenanceRequests } from '../lib/tenant';
 import type { Payment, MaintenanceRequest } from '../lib/tenant';
-import TenantForm from '../components/settings/TenantForm';
 import { formatCurrency } from '../lib/financials';
 
 type SectionId = 'payments' | 'maintenance' | 'lease';
 
 export default function Tenants() {
   const [settings, setSettings] = useState(loadSettings());
-  const [showEditModal, setShowEditModal] = useState(false);
   const [importMessage, setImportMessage] = useState('');
   const [expandedSections, setExpandedSections] = useState<Set<SectionId>>(new Set());
   const tenant = settings.tenant;
@@ -21,11 +20,6 @@ export default function Tenants() {
   const daysUntilLeaseEnd = Math.ceil(
     (new Date(tenant.leaseEndDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
   );
-
-  const handleDataSaved = () => {
-    setSettings(loadSettings());
-    setShowEditModal(false);
-  };
 
   const handleExport = () => {
     const jsonData = exportSettings();
@@ -106,27 +100,6 @@ export default function Tenants() {
 
   return (
     <div className="space-y-6">
-      {/* Edit Modal */}
-      {showEditModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setShowEditModal(false)} />
-          <div className="relative bg-slate-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-slate-800 border-b border-slate-700 p-4 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-brand-light">Edit Tenant Details</h2>
-              <button
-                onClick={() => setShowEditModal(false)}
-                className="p-1 hover:bg-slate-700 rounded transition-colors"
-              >
-                <X size={20} className="text-brand-muted" />
-              </button>
-            </div>
-            <div className="p-6">
-              <TenantForm initialData={tenant} onSave={handleDataSaved} />
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -143,13 +116,13 @@ export default function Tenants() {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowEditModal(true)}
+          <Link
+            to="/settings?tab=tenant"
             className="btn-primary flex items-center gap-2 text-sm"
           >
             <Pencil size={14} />
             Edit Details
-          </button>
+          </Link>
           <button
             onClick={handleExport}
             className="btn-secondary flex items-center gap-2 text-sm"

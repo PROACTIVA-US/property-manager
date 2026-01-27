@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import {
   DollarSign,
   FileText,
@@ -20,10 +20,6 @@ import MortgageCalculator from '../components/MortgageCalculator';
 import FinancialComparison from '../components/FinancialComparison';
 import TaxAnalysis from '../components/TaxAnalysis';
 import KeepVsSell from '../components/KeepVsSell';
-import PropertyForm from '../components/settings/PropertyForm';
-import MortgageForm from '../components/settings/MortgageForm';
-import RentalIncomeForm from '../components/settings/RentalIncomeForm';
-import TaxInfoForm from '../components/settings/TaxInfoForm';
 import {
   loadSettings,
   exportSettings,
@@ -99,10 +95,6 @@ export default function Financials() {
   const handleTabChange = (tabId: TabId) => {
     setActiveTab(tabId);
     setSearchParams({ tab: tabId });
-  };
-
-  const handleDataSaved = () => {
-    setSettings(loadSettings());
   };
 
   // Import/Export handlers for each section
@@ -189,12 +181,25 @@ export default function Financials() {
             )}
 
             <div className="space-y-6">
+              {/* Property Summary */}
               <div>
                 <h3 className="text-lg font-medium text-brand-light mb-4 flex items-center gap-2">
                   <Building2 className="text-brand-orange" size={18} />
                   Property Information
                 </h3>
-                <PropertyForm initialData={settings.property} onSave={handleDataSaved} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-brand-navy/30 rounded-lg p-4">
+                    <div className="text-xs text-brand-muted uppercase mb-1">Address</div>
+                    <div className="text-brand-light font-medium">{settings.property.address || 'Not set'}</div>
+                  </div>
+                  <div className="bg-brand-navy/30 rounded-lg p-4">
+                    <div className="text-xs text-brand-muted uppercase mb-1">Current Market Value</div>
+                    <div className="text-brand-light font-medium">{settings.property.currentMarketValue ? `$${settings.property.currentMarketValue.toLocaleString()}` : 'Not set'}</div>
+                  </div>
+                </div>
+                <Link to="/settings?tab=property" className="inline-flex items-center gap-1 text-brand-orange hover:underline text-sm font-medium mt-3">
+                  Edit Property Details &rarr;
+                </Link>
               </div>
 
               <div className="border-t border-slate-700 pt-6">
@@ -202,7 +207,19 @@ export default function Financials() {
                   <DollarSign className="text-brand-orange" size={18} />
                   Mortgage Details
                 </h3>
-                <MortgageForm initialData={settings.mortgage} onSave={handleDataSaved} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-brand-navy/30 rounded-lg p-4">
+                    <div className="text-xs text-brand-muted uppercase mb-1">Principal</div>
+                    <div className="text-brand-light font-medium">{settings.mortgage.principal ? `$${settings.mortgage.principal.toLocaleString()}` : 'Not set'}</div>
+                  </div>
+                  <div className="bg-brand-navy/30 rounded-lg p-4">
+                    <div className="text-xs text-brand-muted uppercase mb-1">Interest Rate</div>
+                    <div className="text-brand-light font-medium">{settings.mortgage.interestRate ? `${settings.mortgage.interestRate}%` : 'Not set'}</div>
+                  </div>
+                </div>
+                <Link to="/settings?tab=mortgage" className="inline-flex items-center gap-1 text-brand-orange hover:underline text-sm font-medium mt-3">
+                  Edit Mortgage Details &rarr;
+                </Link>
               </div>
             </div>
           </div>
@@ -222,11 +239,24 @@ export default function Financials() {
               </div>
             )}
 
-            <RentalIncomeForm
-              initialData={settings.rentalIncome}
-              mortgageData={settings.mortgage}
-              onSave={handleDataSaved}
-            />
+            {/* Rental Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-brand-navy/30 rounded-lg p-4">
+                <div className="text-xs text-brand-muted uppercase mb-1">Monthly Rent</div>
+                <div className="text-brand-light font-medium">{settings.rentalIncome.monthlyRent ? `$${settings.rentalIncome.monthlyRent.toLocaleString()}` : 'Not set'}</div>
+              </div>
+              <div className="bg-brand-navy/30 rounded-lg p-4">
+                <div className="text-xs text-brand-muted uppercase mb-1">Monthly Property Tax</div>
+                <div className="text-brand-light font-medium">{settings.rentalIncome.monthlyPropertyTax ? `$${settings.rentalIncome.monthlyPropertyTax.toLocaleString()}/mo` : 'Not set'}</div>
+              </div>
+              <div className="bg-brand-navy/30 rounded-lg p-4">
+                <div className="text-xs text-brand-muted uppercase mb-1">Monthly Insurance</div>
+                <div className="text-brand-light font-medium">{settings.rentalIncome.monthlyInsurance ? `$${settings.rentalIncome.monthlyInsurance.toLocaleString()}/mo` : 'Not set'}</div>
+              </div>
+            </div>
+            <Link to="/settings?tab=rental" className="inline-flex items-center gap-1 text-brand-orange hover:underline text-sm font-medium">
+              Edit Rental Details &rarr;
+            </Link>
 
             {/* Cash Flow Analysis */}
             <div className="border-t border-slate-700 pt-6">
@@ -259,7 +289,19 @@ export default function Financials() {
                   <FileText className="text-brand-orange" size={18} />
                   Tax Information
                 </h3>
-                <TaxInfoForm initialData={settings.taxInfo} onSave={handleDataSaved} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-brand-navy/30 rounded-lg p-4">
+                    <div className="text-xs text-brand-muted uppercase mb-1">Filing Status</div>
+                    <div className="text-brand-light font-medium capitalize">{settings.taxInfo.filingStatus || 'Not set'}</div>
+                  </div>
+                  <div className="bg-brand-navy/30 rounded-lg p-4">
+                    <div className="text-xs text-brand-muted uppercase mb-1">Annual Income</div>
+                    <div className="text-brand-light font-medium">{settings.taxInfo.annualIncome ? `$${settings.taxInfo.annualIncome.toLocaleString()}` : 'Not set'}</div>
+                  </div>
+                </div>
+                <Link to="/settings?tab=tax" className="inline-flex items-center gap-1 text-brand-orange hover:underline text-sm font-medium mt-3">
+                  Edit Tax Information &rarr;
+                </Link>
               </div>
 
               <div className="border-t border-slate-700 pt-6">
