@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import MaintenanceChecklist from '../MaintenanceChecklist';
 import VendorDirectory from '../VendorDirectory';
-import { AlertTriangle, Calendar, MessageSquare, Star } from 'lucide-react';
+import { AlertTriangle, Calendar, Loader2, MessageSquare, Star } from 'lucide-react';
 import { getVendors } from '../../lib/vendors';
 import { getThreads, getInspections, getAverageSatisfaction, type Thread, type Inspection } from '../../lib/messages';
 
@@ -15,14 +15,25 @@ export default function PMDashboard() {
   const [threads, setThreads] = useState<Thread[]>([]);
   const [inspections, setInspections] = useState<Inspection[]>([]);
   const [satisfaction, setSatisfaction] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setThreads(getThreads());
     setInspections(getInspections().filter(i => i.status === 'pending'));
     setSatisfaction(getAverageSatisfaction());
+    setLoading(false);
   }, []);
 
   const unreadCount = threads.reduce((acc, t) => acc + t.unreadCount, 0);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="animate-spin text-brand-muted" size={24} />
+        <span className="ml-2 text-brand-muted text-sm">Loading dashboard...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

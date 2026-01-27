@@ -8,6 +8,7 @@ import {
   Calculator,
   ChevronDown,
   ChevronUp,
+  Loader2,
 } from 'lucide-react';
 import {
   XAxis,
@@ -71,10 +72,12 @@ export default function FinancialsOverview() {
   const [settings, setSettings] = useState<SettingsData>(loadSettings());
   const [showMortgageDetails, setShowMortgageDetails] = useState(true);
   const [extraPayment, setExtraPayment] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   // Reload settings on mount
   useEffect(() => {
     setSettings(loadSettings());
+    setLoading(false);
   }, []);
 
   // Save settings when values change
@@ -159,6 +162,15 @@ export default function FinancialsOverview() {
   // Format helpers
   const fmtCurrency = (val: number) => formatCurrency(val, 0);
   const fmtDate = (date: Date | null) => date ? date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '-';
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="animate-spin text-brand-muted" size={24} />
+        <span className="ml-2 text-brand-muted text-sm">Loading financials...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 p-6">

@@ -12,6 +12,7 @@ import {
   ChevronUp,
   X,
   Upload,
+  Loader2,
 } from 'lucide-react';
 import {
   type Vendor,
@@ -49,6 +50,7 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
 
   // Delete confirmation
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const loadVendors = () => {
     const loaded = getVendors();
@@ -58,6 +60,7 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
 
   useEffect(() => {
     loadVendors();
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -160,6 +163,15 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
   };
 
   const hasActiveFilters = searchQuery || statusFilter !== 'all' || specialtyFilter !== 'all';
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="animate-spin text-brand-muted" size={24} />
+        <span className="ml-2 text-brand-muted text-sm">Loading vendors...</span>
+      </div>
+    );
+  }
 
   if (compact) {
     // Compact view for dashboard widget
