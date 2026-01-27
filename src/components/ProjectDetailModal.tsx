@@ -1,9 +1,13 @@
 import { useState } from 'react';
-import { X, Calendar, DollarSign, User, AlertCircle, CheckCircle, Clock, FileText, MessageSquare, Users, Sparkles, Paperclip, Receipt } from 'lucide-react';
+import { X, Calendar, DollarSign, User, AlertCircle, CheckCircle, Clock, FileText, MessageSquare, Users, Sparkles, Paperclip, Receipt, Download, Eye as EyeIcon } from 'lucide-react';
 import type { Project } from '../lib/projects';
 import { STATUS_LABELS, PRIORITY_LABELS, CATEGORY_LABELS } from '../lib/projects';
 import { getVendorById } from '../lib/vendors';
 import { getBOMByProjectId } from '../lib/bom';
+import { getExpensesByProject } from '../pages/Maintenance';
+import type { Expense } from '../pages/Maintenance';
+import { getDocumentsByProject, formatFileSize, getFileIcon, CATEGORY_LABELS as DOC_CATEGORY_LABELS } from '../lib/documents';
+import type { DocumentFile } from '../lib/documents';
 import ProjectPhases from './ProjectPhases';
 import ProjectMessageCenter from './ProjectMessageCenter';
 import StakeholderManager from './StakeholderManager';
@@ -17,7 +21,7 @@ interface ProjectDetailModalProps {
   onUpdate: () => void;
 }
 
-type Tab = 'overview' | 'milestones' | 'messages' | 'stakeholders' | 'bom' | 'impact' | 'attachments';
+type Tab = 'overview' | 'milestones' | 'expenses' | 'documents' | 'messages' | 'stakeholders' | 'bom' | 'impact' | 'attachments';
 
 export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate }: ProjectDetailModalProps) {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
@@ -26,10 +30,14 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
 
   const vendor = project.primaryVendorId ? getVendorById(project.primaryVendorId) : null;
   const bom = getBOMByProjectId(project.id);
+  const projectExpenses = getExpensesByProject(project.id);
+  const projectDocuments = getDocumentsByProject(project.id);
 
   const tabs = [
     { id: 'overview' as Tab, label: 'Overview', icon: FileText },
     { id: 'milestones' as Tab, label: 'Milestones', icon: CheckCircle, count: project.phases.length },
+    { id: 'expenses' as Tab, label: 'Expenses', icon: DollarSign, count: projectExpenses.length },
+    { id: 'documents' as Tab, label: 'Documents', icon: Paperclip, count: projectDocuments.length },
     { id: 'messages' as Tab, label: 'Messages', icon: MessageSquare },
     { id: 'stakeholders' as Tab, label: 'Stakeholders', icon: Users, count: project.stakeholders.length },
     { id: 'bom' as Tab, label: 'Bill of Materials', icon: Receipt, show: !!bom },
@@ -275,6 +283,107 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
 
           {activeTab === 'impact' && project.impactAnalysis && (
             <ImpactAnalysisView analysis={project.impactAnalysis} />
+          )}
+
+          {activeTab === 'documents' && (
+            <div className="space-y-4">
+              {projectDocuments.length === 0 ? (
+                <div className="text-center py-12">
+                  <Paperclip size={48} className="mx-auto text-brand-muted mb-4" />
+                  <p className="text-brand-muted">No documents linked to this project</p>
+                  <p className="text-sm text-brand-muted mt-1">
+                    Link documents from the Documents page when uploading
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {projectDocuments.map((doc: DocumentFile) => (
+                    <div key={doc.id} className="bg-brand-dark rounded-lg p-3 border border-white/10 flex items-center gap-4">
+                      <div className="text-2xl">{getFileIcon(doc.mimeType)}</div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-medium text-brand-light truncate">{doc.name}</h4>
+                        <div className="flex items-center gap-3 mt-0.5 text-xs text-brand-muted">
+                          <span>{formatFileSize(doc.fileSize)}</span>
+                          <span>{new Date(doc.uploadDate).toLocaleDateString()}</span>
+                          <span className="px-1.5 py-0.5 rounded bg-white/10">
+                            {DOC_CATEGORY_LABELS[doc.category]}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {doc.mimeType.startsWith('image/') && (
+                          <a href={doc.dataUrl} target="_blank" rel="noopener noreferrer" className="p-1.5 hover:bg-white/10 rounded text-brand-muted hover:text-brand-light">
+                            <EyeIcon size={16} />
+                          </a>
+                        )}
+                        <a href={doc.dataUrl} download={doc.name} className="p-1.5 hover:bg-white/10 rounded text-brand-muted hover:text-brand-light">
+                          <Download size={16} />
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'expenses' && (
+            <div className="space-y-4">
+              {projectExpenses.length === 0 ? (
+                <div className="text-center py-12">
+                  <DollarSign size={48} className="mx-auto text-brand-muted mb-4" />
+                  <p className="text-brand-muted">No expenses linked to this project</p>
+                  <p className="text-sm text-brand-muted mt-1">
+                    Link expenses from the Maintenance &gt; Costs tab
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="bg-brand-dark rounded-lg p-4 border border-white/10">
+                      <p className="text-xs text-brand-muted uppercase mb-1">Total Expenses</p>
+                      <p className="text-xl font-bold text-brand-light">
+                        ${projectExpenses.reduce((sum: number, e: Expense) => sum + e.amount, 0).toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="bg-brand-dark rounded-lg p-4 border border-white/10">
+                      <p className="text-xs text-brand-muted uppercase mb-1">vs Estimated</p>
+                      <p className="text-xl font-bold text-brand-light">
+                        {project.estimatedCost
+                          ? `$${project.estimatedCost.toLocaleString()}`
+                          : 'No estimate'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {projectExpenses.map((expense: Expense) => (
+                      <div key={expense.id} className="bg-brand-dark rounded-lg p-3 border border-white/10 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <DollarSign size={16} className="text-brand-orange" />
+                          <div>
+                            <p className="text-sm font-medium text-brand-light">{expense.description}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-xs text-brand-muted">
+                                {new Date(expense.date).toLocaleDateString()}
+                              </span>
+                              <span className="text-xs px-1.5 py-0.5 rounded bg-white/10 text-brand-muted">
+                                {expense.category}
+                              </span>
+                              {expense.isCapitalImprovement && (
+                                <span className="text-xs px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400">
+                                  Capital
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-sm font-bold text-brand-light">${expense.amount.toLocaleString()}</p>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           )}
 
           {activeTab === 'attachments' && (

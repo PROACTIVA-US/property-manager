@@ -1,17 +1,20 @@
 import { useState, useEffect } from 'react';
-import { Wrench, DollarSign, ClipboardList, Plus, Trash2, Calendar, Tag } from 'lucide-react';
+import { Wrench, DollarSign, ClipboardList, Plus, Trash2, Calendar, Tag, FolderKanban, Filter } from 'lucide-react';
 import MaintenanceChecklist from '../components/MaintenanceChecklist';
 import CSVImport from '../components/CSVImport';
 import { useAuth } from '../contexts/AuthContext';
+import { getProjects } from '../lib/projects';
+import type { Project } from '../lib/projects';
 
 // Expense types (moved from Expenses.tsx)
-interface Expense {
+export interface Expense {
   id: string;
   date: string;
   description: string;
   category: string;
   amount: number;
   isCapitalImprovement: boolean;
+  projectId?: string;
 }
 
 const STORAGE_KEY = 'property_expenses';
@@ -28,9 +31,13 @@ const EXPENSE_CATEGORIES = [
   'Other',
 ];
 
-function loadExpenses(): Expense[] {
+export function loadExpenses(): Expense[] {
   const data = localStorage.getItem(STORAGE_KEY);
   return data ? JSON.parse(data) : [];
+}
+
+export function getExpensesByProject(projectId: string): Expense[] {
+  return loadExpenses().filter(e => e.projectId === projectId);
 }
 
 function saveExpenses(expenses: Expense[]) {
@@ -47,13 +54,20 @@ export default function Maintenance() {
   // Expense state
   const [expenses, setExpenses] = useState<Expense[]>(loadExpenses());
   const [showAddForm, setShowAddForm] = useState(false);
+  const [projectFilter, setProjectFilter] = useState<string>('all');
+  const [projects, setProjectsList] = useState<Project[]>([]);
   const [newExpense, setNewExpense] = useState({
     date: new Date().toISOString().split('T')[0],
     description: '',
     category: 'Repairs',
     amount: 0,
     isCapitalImprovement: false,
+    projectId: '',
   });
+
+  useEffect(() => {
+    setProjectsList(getProjects());
+  }, []);
 
   useEffect(() => {
     saveExpenses(expenses);
@@ -63,6 +77,7 @@ export default function Maintenance() {
     const expense: Expense = {
       id: `exp-${Date.now()}`,
       ...newExpense,
+      projectId: newExpense.projectId || undefined,
     };
     setExpenses([expense, ...expenses]);
     setNewExpense({
@@ -71,6 +86,7 @@ export default function Maintenance() {
       category: 'Repairs',
       amount: 0,
       isCapitalImprovement: false,
+      projectId: '',
     });
     setShowAddForm(false);
   };
@@ -93,8 +109,14 @@ export default function Maintenance() {
     setExpenses([...newExpenses, ...expenses]);
   };
 
-  const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
-  const capitalImprovements = expenses.filter(e => e.isCapitalImprovement).reduce((sum, e) => sum + e.amount, 0);
+  const filteredExpenses = projectFilter === 'all'
+    ? expenses
+    : projectFilter === 'unlinked'
+      ? expenses.filter(e => !e.projectId)
+      : expenses.filter(e => e.projectId === projectFilter);
+
+  const totalExpenses = filteredExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+  const capitalImprovements = filteredExpenses.filter(e => e.isCapitalImprovement).reduce((sum, e) => sum + e.amount, 0);
 
   return (
     <div className="space-y-6">
@@ -183,16 +205,32 @@ export default function Maintenance() {
             </div>
           </div>
 
-          {/* Add Expense Button */}
-          <div className="flex items-center justify-between">
+          {/* Add Expense Button & Project Filter */}
+          <div className="flex items-center justify-between flex-wrap gap-3">
             <h2 className="text-lg font-bold text-brand-light">Expense Tracking</h2>
-            <button
-              onClick={() => setShowAddForm(!showAddForm)}
-              className="btn-primary flex items-center gap-2"
-            >
-              <Plus size={18} />
-              Add Expense
-            </button>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Filter size={16} className="text-brand-muted" />
+                <select
+                  value={projectFilter}
+                  onChange={(e) => setProjectFilter(e.target.value)}
+                  className="input text-sm py-1.5"
+                >
+                  <option value="all">All Expenses</option>
+                  <option value="unlinked">Unlinked to Project</option>
+                  {projects.map(p => (
+                    <option key={p.id} value={p.id}>{p.title}</option>
+                  ))}
+                </select>
+              </div>
+              <button
+                onClick={() => setShowAddForm(!showAddForm)}
+                className="btn-primary flex items-center gap-2"
+              >
+                <Plus size={18} />
+                Add Expense
+              </button>
+            </div>
           </div>
 
           {/* CSV Import */}
@@ -259,6 +297,24 @@ export default function Maintenance() {
                 </div>
               </div>
               <div className="mt-4">
+                <label className="block text-sm font-medium text-brand-light mb-2">
+                  <span className="flex items-center gap-2">
+                    <FolderKanban size={14} />
+                    Link to Project (optional)
+                  </span>
+                </label>
+                <select
+                  value={newExpense.projectId}
+                  onChange={(e) => setNewExpense({ ...newExpense, projectId: e.target.value })}
+                  className="input w-full"
+                >
+                  <option value="">No project</option>
+                  {projects.map(p => (
+                    <option key={p.id} value={p.id}>{p.title}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="mt-4">
                 <label className="flex items-center gap-2 text-sm text-brand-light">
                   <input
                     type="checkbox"
@@ -284,10 +340,10 @@ export default function Maintenance() {
           <div className="card">
             <h3 className="text-lg font-bold text-brand-light mb-4 flex items-center gap-2">
               <DollarSign size={20} className="text-brand-orange" />
-              Expense History ({expenses.length})
+              Expense History ({filteredExpenses.length})
             </h3>
 
-            {expenses.length === 0 ? (
+            {filteredExpenses.length === 0 ? (
               <div className="text-center py-12 text-brand-muted">
                 <DollarSign size={48} className="mx-auto mb-4 opacity-50" />
                 <p>No expenses recorded yet</p>
@@ -295,7 +351,7 @@ export default function Maintenance() {
               </div>
             ) : (
               <div className="space-y-3 max-h-[500px] overflow-y-auto">
-                {expenses.map((expense) => (
+                {filteredExpenses.map((expense) => (
                   <div
                     key={expense.id}
                     className="p-4 bg-brand-dark/50 border border-slate-700/50 rounded-lg flex items-center justify-between hover:border-slate-600 transition-colors"
@@ -313,6 +369,12 @@ export default function Maintenance() {
                           {expense.isCapitalImprovement && (
                             <span className="text-xs px-2 py-0.5 rounded bg-purple-500/20 text-purple-400">
                               Capital Improvement
+                            </span>
+                          )}
+                          {expense.projectId && (
+                            <span className="text-xs px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 flex items-center gap-1">
+                              <FolderKanban size={10} />
+                              {projects.find(p => p.id === expense.projectId)?.title || 'Project'}
                             </span>
                           )}
                         </div>

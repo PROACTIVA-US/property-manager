@@ -18,6 +18,7 @@ export interface DocumentFile {
   mimeType: string;
   description?: string;
   tags?: string[];
+  projectId?: string;
   // For small files, we store base64 data directly
   // For larger files, we'd need a different storage strategy
   dataUrl: string; // base64 encoded data URL
@@ -91,7 +92,7 @@ function saveDocuments(data: DocumentsData): void {
 // File Management Functions
 // ============================================================================
 
-export function addDocument(file: File, category: DocumentCategory, description?: string, tags?: string[]): Promise<DocumentFile> {
+export function addDocument(file: File, category: DocumentCategory, description?: string, tags?: string[], projectId?: string): Promise<DocumentFile> {
   return new Promise((resolve, reject) => {
     if (file.size > MAX_FILE_SIZE) {
       reject(new Error(`File size exceeds ${MAX_FILE_SIZE / 1024 / 1024}MB limit`));
@@ -113,6 +114,7 @@ export function addDocument(file: File, category: DocumentCategory, description?
           mimeType: file.type,
           description,
           tags,
+          projectId,
           dataUrl,
         };
 
@@ -159,6 +161,11 @@ export function updateDocument(id: string, updates: Partial<Pick<DocumentFile, '
 export function getDocumentsByCategory(category: DocumentCategory): DocumentFile[] {
   const data = loadDocuments();
   return data.files.filter(f => f.category === category);
+}
+
+export function getDocumentsByProject(projectId: string): DocumentFile[] {
+  const data = loadDocuments();
+  return data.files.filter(f => f.projectId === projectId);
 }
 
 export function getDocument(id: string): DocumentFile | undefined {
