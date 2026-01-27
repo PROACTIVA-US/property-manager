@@ -166,7 +166,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
       case 'medium':
         return 'text-yellow-400 bg-yellow-500/20';
       case 'low':
-        return 'text-green-400 bg-green-500/20';
+        return 'text-blue-400 bg-blue-500/20';
       default:
         return 'text-slate-400 bg-slate-500/20';
     }
