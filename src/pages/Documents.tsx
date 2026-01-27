@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import { FileText, Upload, Download, Trash2, Search, Eye } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { FileText, Upload, Download, Trash2, Search, Eye, FolderKanban, Filter } from 'lucide-react';
 import type { DocumentFile, DocumentCategory } from '../lib/documents';
 import {
   loadDocuments,
@@ -8,6 +8,7 @@ import {
   exportDocuments,
   importDocuments,
   getDocumentsByCategory,
+  getDocumentsByProject,
   searchDocuments,
   formatFileSize,
   getFileIcon,
@@ -17,6 +18,8 @@ import {
   CATEGORY_DESCRIPTIONS,
   ACCEPTED_FILE_TYPES,
 } from '../lib/documents';
+import { getProjects } from '../lib/projects';
+import type { Project } from '../lib/projects';
 
 type TabId = DocumentCategory;
 
@@ -39,15 +42,28 @@ export default function Documents() {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
   const [previewDoc, setPreviewDoc] = useState<DocumentFile | null>(null);
+  const [projectFilter, setProjectFilter] = useState<string>('all');
+  const [selectedProjectId, setSelectedProjectId] = useState<string>('');
+  const [projects, setProjectsList] = useState<Project[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setProjectsList(getProjects());
+  }, []);
 
   const refreshDocuments = () => {
     setDocuments(loadDocuments());
   };
 
-  const displayedDocs = searchQuery
+  const allDisplayedDocs = searchQuery
     ? searchDocuments(searchQuery)
     : getDocumentsByCategory(activeTab);
+
+  const displayedDocs = projectFilter === 'all'
+    ? allDisplayedDocs
+    : projectFilter === 'unlinked'
+      ? allDisplayedDocs.filter(d => !d.projectId)
+      : allDisplayedDocs.filter(d => d.projectId === projectFilter);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -56,7 +72,7 @@ export default function Documents() {
     setUploading(true);
     try {
       for (const file of Array.from(files)) {
-        await addDocument(file, activeTab);
+        await addDocument(file, activeTab, undefined, undefined, selectedProjectId || undefined);
       }
       refreshDocuments();
       showMessage(`✓ ${files.length} file(s) uploaded successfully!`);
@@ -203,16 +219,32 @@ export default function Documents() {
         </div>
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-muted" size={20} />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search documents by name, description, or tags..."
-          className="input pl-10 w-full"
-        />
+      {/* Search & Project Filter */}
+      <div className="flex gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-muted" size={20} />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search documents by name, description, or tags..."
+            className="input pl-10 w-full"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <Filter size={16} className="text-brand-muted" />
+          <select
+            value={projectFilter}
+            onChange={(e) => setProjectFilter(e.target.value)}
+            className="input text-sm py-1.5"
+          >
+            <option value="all">All Projects</option>
+            <option value="unlinked">Unlinked</option>
+            {projects.map(p => (
+              <option key={p.id} value={p.id}>{p.title}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -252,9 +284,24 @@ export default function Documents() {
 
       {/* Upload Area */}
       <div className="card p-6">
-        <h3 className="text-lg font-bold text-brand-light mb-4">
-          Upload {CATEGORY_LABELS[activeTab]}
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold text-brand-light">
+            Upload {CATEGORY_LABELS[activeTab]}
+          </h3>
+          <div className="flex items-center gap-2">
+            <FolderKanban size={16} className="text-brand-muted" />
+            <select
+              value={selectedProjectId}
+              onChange={(e) => setSelectedProjectId(e.target.value)}
+              className="input text-sm py-1.5"
+            >
+              <option value="">No project</option>
+              {projects.map(p => (
+                <option key={p.id} value={p.id}>{p.title}</option>
+              ))}
+            </select>
+          </div>
+        </div>
         <div className="border-2 border-dashed border-slate-600 rounded-lg p-8 text-center hover:border-brand-orange/50 transition-colors">
           <input
             ref={fileInputRef}
@@ -312,6 +359,12 @@ export default function Documents() {
                     {searchQuery && (
                       <span className="px-2 py-0.5 rounded-full text-xs bg-slate-700 text-brand-light">
                         {CATEGORY_LABELS[doc.category]}
+                      </span>
+                    )}
+                    {doc.projectId && (
+                      <span className="px-2 py-0.5 rounded-full text-xs bg-blue-500/20 text-blue-400 flex items-center gap-1">
+                        <FolderKanban size={10} />
+                        {projects.find(p => p.id === doc.projectId)?.title || 'Project'}
                       </span>
                     )}
                   </div>
