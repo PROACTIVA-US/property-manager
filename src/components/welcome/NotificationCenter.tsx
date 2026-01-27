@@ -28,12 +28,15 @@ export function NotificationCenter({ isOpen, onClose, maxHeight = '500px' }: Not
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filter, setFilter] = useState<NotificationType | 'all'>('all');
   const [showArchived, setShowArchived] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isOpen && userRole) {
+      setLoading(true);
       // Aggregate new notifications from all sources
       const aggregated = aggregateNotifications(userRole);
       setNotifications(aggregated);
+      setLoading(false);
     }
   }, [isOpen, userRole]);
 
@@ -145,7 +148,15 @@ export function NotificationCenter({ isOpen, onClose, maxHeight = '500px' }: Not
 
           {/* Notifications List */}
           <div className="flex-1 overflow-y-auto" style={{ maxHeight }}>
-            {filteredNotifications.length === 0 ? (
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <svg className="animate-spin h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                <span className="ml-2 text-gray-500 text-sm">Loading notifications...</span>
+              </div>
+            ) : filteredNotifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
                 <div className="text-5xl mb-3">🔔</div>
                 <h3 className="text-lg font-medium text-gray-900 mb-1">No notifications</h3>

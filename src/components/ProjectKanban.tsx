@@ -13,6 +13,7 @@ import {
   Trash2,
   // MessageSquare,
   Sparkles,
+  Loader2,
 } from 'lucide-react';
 import {
   type Project,
@@ -47,6 +48,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [isAICreatorOpen, setIsAICreatorOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Which stages to show in compact mode
   const compactStages: ProjectStatus[] = ['pending_approval', 'approved', 'in_progress'];
@@ -60,6 +62,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
 
   useEffect(() => {
     loadProjects();
+    setLoading(false);
   }, []);
 
   const getProjectsByStage = (status: ProjectStatus) => {
@@ -199,6 +202,15 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
   };
 
   const stats = getProjectStats();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="animate-spin text-brand-muted" size={24} />
+        <span className="ml-2 text-brand-muted text-sm">Loading projects...</span>
+      </div>
+    );
+  }
 
   if (compact) {
     // Compact horizontal card view for dashboard
