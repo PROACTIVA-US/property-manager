@@ -416,9 +416,9 @@ function ThreadItem({ thread, isSelected, onClick }: ThreadItemProps) {
   const getCategoryColor = (category: Thread['category']) => {
     const colors = {
       general: 'bg-slate-600/50',
-      maintenance: 'bg-yellow-500/20',
+      maintenance: 'bg-orange-500/20',
       lease: 'bg-purple-500/20',
-      inspection: 'bg-green-500/20',
+      inspection: 'bg-blue-500/20',
     };
     return colors[category] || colors.general;
   };
@@ -464,9 +464,9 @@ function NotificationsList({ notifications, onMarkRead }: NotificationsListProps
       case 'message':
         return <MessageSquare size={20} className="text-blue-400" />;
       case 'inspection':
-        return <Calendar size={20} className="text-green-400" />;
+        return <Calendar size={20} className="text-blue-400" />;
       case 'payment':
-        return <Star size={20} className="text-yellow-400" />;
+        return <Star size={20} className="text-orange-400" />;
       default:
         return <Bell size={20} className="text-brand-muted" />;
     }

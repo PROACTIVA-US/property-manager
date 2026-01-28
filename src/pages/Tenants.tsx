@@ -62,7 +62,7 @@ export default function Tenants() {
   const getStatusColor = (status: Payment['status']) => {
     switch (status) {
       case 'paid': return 'text-green-400';
-      case 'pending': return 'text-yellow-400';
+      case 'pending': return 'text-orange-400';
       case 'overdue': return 'text-red-400';
       case 'processing': return 'text-blue-400';
       default: return 'text-brand-muted';
@@ -74,7 +74,7 @@ export default function Tenants() {
       case 'completed': return 'bg-green-500/20 text-green-400';
       case 'in_progress': return 'bg-blue-500/20 text-blue-400';
       case 'scheduled': return 'bg-purple-500/20 text-purple-400';
-      case 'submitted': return 'bg-yellow-500/20 text-yellow-400';
+      case 'submitted': return 'bg-orange-500/20 text-orange-400';
       case 'cancelled': return 'bg-slate-500/20 text-slate-400';
       default: return 'bg-slate-500/20 text-slate-400';
     }

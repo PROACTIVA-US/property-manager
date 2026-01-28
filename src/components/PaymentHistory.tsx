@@ -40,7 +40,7 @@ export default function PaymentHistory({ onBack, compact = false }: PaymentHisto
       case 'paid':
         return <Check size={16} className="text-green-400" />;
       case 'pending':
-        return <Clock size={16} className="text-yellow-400" />;
+        return <Clock size={16} className="text-orange-400" />;
       case 'overdue':
         return <AlertTriangle size={16} className="text-red-400" />;
       case 'processing':
@@ -54,7 +54,7 @@ export default function PaymentHistory({ onBack, compact = false }: PaymentHisto
       case 'paid':
         return <span className={`${baseClasses} bg-green-500/20 text-green-400`}>Paid</span>;
       case 'pending':
-        return <span className={`${baseClasses} bg-yellow-500/20 text-yellow-400`}>Pending</span>;
+        return <span className={`${baseClasses} bg-orange-500/20 text-orange-400`}>Pending</span>;
       case 'overdue':
         return <span className={`${baseClasses} bg-red-500/20 text-red-400`}>Overdue</span>;
       case 'processing':
