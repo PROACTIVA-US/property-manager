@@ -412,7 +412,13 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
                         <button
                           onClick={e => {
                             e.stopPropagation();
-                            setMenuOpenId(menuOpenId === project.id ? null : project.id);
+                            if (menuOpenId === project.id) {
+                              setMenuOpenId(null);
+                              setDeleteConfirmId(null);
+                            } else {
+                              setMenuOpenId(project.id);
+                              setDeleteConfirmId(null);
+                            }
                           }}
                           className="p-1 text-brand-muted hover:text-brand-light rounded"
                         >
@@ -435,34 +441,33 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
                               <Edit2 size={14} />
                               Edit
                             </button>
-                            <button
-                              onClick={() => setDeleteConfirmId(project.id)}
-                              className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2"
-                            >
-                              <Trash2 size={14} />
-                              Delete
-                            </button>
-                          </div>
-                        )}
-
-                        {/* Delete Confirmation */}
-                        {deleteConfirmId === project.id && (
-                          <div className="absolute right-0 top-6 z-50 bg-brand-dark border border-red-500/30 rounded-lg shadow-xl p-3 min-w-[200px]">
-                            <p className="text-sm text-red-400 mb-2">Delete this project?</p>
-                            <div className="flex gap-2">
+                            {deleteConfirmId === project.id ? (
+                              <div className="px-3 py-2 border-t border-red-500/30">
+                                <p className="text-xs text-red-400 mb-2">Delete this project?</p>
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => handleDelete(project.id)}
+                                    className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+                                  >
+                                    Delete
+                                  </button>
+                                  <button
+                                    onClick={() => setDeleteConfirmId(null)}
+                                    className="px-2 py-1 bg-slate-600 text-white text-xs rounded hover:bg-slate-500"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
                               <button
-                                onClick={() => handleDelete(project.id)}
-                                className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+                                onClick={() => setDeleteConfirmId(project.id)}
+                                className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2"
                               >
+                                <Trash2 size={14} />
                                 Delete
                               </button>
-                              <button
-                                onClick={() => setDeleteConfirmId(null)}
-                                className="px-2 py-1 bg-slate-600 text-white text-xs rounded hover:bg-slate-500"
-                              >
-                                Cancel
-                              </button>
-                            </div>
+                            )}
                           </div>
                         )}
                       </div>
@@ -537,7 +542,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
 
       {/* Click outside to close menu */}
       {menuOpenId && (
-        <div className="fixed inset-0 z-40" onClick={() => setMenuOpenId(null)} />
+        <div className="fixed inset-0 z-40" onClick={() => { setMenuOpenId(null); setDeleteConfirmId(null); }} />
       )}
 
       {/* Modals */}
