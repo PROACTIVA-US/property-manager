@@ -8,7 +8,6 @@ import {
   exportDocuments,
   importDocuments,
   getDocumentsByCategory,
-  getDocumentsByProject,
   searchDocuments,
   formatFileSize,
   getFileIcon,

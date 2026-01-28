@@ -7,7 +7,7 @@
  * - Projects: Major work with phases, BOMs, multiple vendors (weeks to months)
  */
 
-import { UserRole } from '../contexts/AuthContext';
+import type { UserRole } from '../contexts/AuthContext';
 
 // ============================================================================
 // Status & Enums

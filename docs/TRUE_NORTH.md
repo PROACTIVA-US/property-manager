@@ -39,7 +39,7 @@ AI enhances decision-making through contextual suggestions, not through complex 
 
 ### Owner (e.g., Shanie Holman)
 
-**Primary Goal**: Understand how my investment is performing and what's happening at my property.
+**Primary Goal**: See what's happening at my property and understand what my current financial situation regarding this property is.
 
 **True North Values**:
 - **Financial Transparency**: At a glance, I should know if my property is making or losing money. Clear charts, not confusing numbers.
