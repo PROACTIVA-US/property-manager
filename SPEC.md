@@ -857,6 +857,175 @@ PropertyManager/
 
 ---
 
+## Project Status - What's Already Built
+
+This section provides a comprehensive inventory of all implemented functionality.
+
+### Working Pages (16 Total)
+
+| Page | File | Status | Description |
+|------|------|--------|-------------|
+| Dashboard | `Dashboard.tsx` | ✅ Complete | Role-based dashboard with dev mode role switcher |
+| Welcome | `WelcomePage.tsx` | ✅ Complete | Hero, quick start, recent activity, feature overview |
+| Login | `Login.tsx` | ✅ Complete | Role-based login simulation (mock auth) |
+| Settings | `Settings.tsx` | ✅ Complete | 9 tabs: Account, PM, Tenant, Property, Mortgage, Rental, Tax, Appearance, Security |
+| Financials | `Financials.tsx` | ✅ Complete | 5 tabs: Overview, Property & Mortgage, Rental Income, Tax Planning, Projections |
+| Documents | `Documents.tsx` | ✅ Complete | Categories, upload/download, import/export, project linking |
+| Expenses | `Expenses.tsx` | ✅ Complete | CSV import, categories, capital improvements, analytics |
+| Maintenance | `Maintenance.tsx` | ✅ Complete | Tasks & Checklist tab, Costs & Expenses tab |
+| Projects | `Projects.tsx` | ✅ Complete | Project Kanban board wrapper |
+| Vendors | `Vendors.tsx` | ✅ Complete | Vendor directory (PM/Owner only) |
+| Gallery | `Gallery.tsx` | ✅ Complete | Property photo gallery with upload |
+| 3D View | `View3D.tsx` | ✅ Complete | 3D property viewer with annotation support |
+| Messages | `Messages.tsx` | ✅ Complete | Threads, search, filtering, inspections, surveys |
+| Tenants | `Tenants.tsx` | ✅ Complete | Payment history, requests, lease details, edit/export/import |
+| Tenant Portal | `TenantPortal.tsx` | ✅ Complete | Payment, lease, maintenance request forms |
+| Responsibilities | `Responsibilities.tsx` | ✅ Complete | Tenant responsibilities management |
+
+### Working Components (47 Total)
+
+**Role-Based Dashboards:**
+- `OwnerDashboard.tsx` - Property snapshot, financials, active projects
+- `PMDashboard.tsx` - Issues, inspections, messages, quick actions
+- `TenantDashboard.tsx` - Rent due, lease status, issues, messages
+
+**Settings Forms (7 forms):**
+- `OwnerForm.tsx`, `PMForm.tsx`, `TenantForm.tsx`
+- `PropertyForm.tsx`, `MortgageForm.tsx`, `RentalIncomeForm.tsx`, `TaxInfoForm.tsx`
+
+**Project Management:**
+- `ProjectKanban.tsx` - Drag-and-drop board (Draft → Completed/Cancelled)
+- `ProjectDetailModal.tsx` - Attachments, messages, timeline
+- `ProjectFormModal.tsx` - Create/edit with BOM integration
+- `ProjectPhases.tsx` - Milestones management
+- `ProjectMessageCenter.tsx` - Project-specific messaging
+- `StakeholderManager.tsx` - Stakeholder assignments
+
+**BOM (Bill of Materials):**
+- `SmartProjectCreator.tsx` - AI-assisted project generation
+- `BOMDetailView.tsx` - Detailed BOM display
+- `BOMCategoryExpander.tsx` - Expandable category view
+- `BOMExport.tsx` - CSV export functionality
+
+**Messaging & Communication:**
+- `MessageThread.tsx` - Thread display with history
+- `MessageComposer.tsx` - New thread/message creation
+- `InspectionScheduler.tsx` - Time voting system
+- `SatisfactionSurvey.tsx` - Rating collection
+
+**Maintenance & Responsibilities:**
+- `MaintenanceChecklist.tsx` - Full task management with categories
+- `MaintenanceRequest.tsx` - Tenant submission form
+- `ResponsibilityChecklist.tsx` - Tenant responsibility tracking
+
+**Tenant Management:**
+- `PaymentHistory.tsx` - Payment records and status
+- `LeaseDetails.tsx` - Lease terms and renewal info
+- `TenantResponsibilities.tsx` - Responsibilities overview
+
+**Vendor Management:**
+- `VendorDirectory.tsx` - List with search/filter
+- `VendorForm.tsx` - Create/edit vendors
+
+**3D Viewer (6 components):**
+- `Property3DViewer.tsx` - Full 3D view with controls
+- `ModelViewer.tsx` - Model display and interaction
+- `ModelUploader.tsx` - Upload 3D models
+- `ModelLibrary.tsx` - 187 built-in models
+- `AnnotationMarker.tsx` - 3D annotations
+- `SceneControls.tsx` - Camera and lighting
+
+**Welcome Hub (7 components):**
+- `WelcomeHero.tsx`, `QuickStartSection.tsx`, `RecentActivitySection.tsx`
+- `FeatureOverview.tsx`, `PropertyGallery.tsx`, `ImageCarousel.tsx`, `NotificationCenter.tsx`
+
+**Financial Analysis (4 components):**
+- `MortgageCalculator.tsx` - Amortization and payoff analysis
+- `FinancialComparison.tsx` - Rental vs personal comparison
+- `TaxAnalysis.tsx` - Tax impact estimates
+- `KeepVsSell.tsx` - Decision analysis with projections
+
+**Utilities:**
+- `Layout.tsx` - Main layout with role-based navigation
+- `QuickSetupWizard.tsx` - Initial setup flow
+- `PropertyValueWidget.tsx` - Zillow integration widget
+- `AIAssistant.tsx` - AI suggestion panel (Cmd+.)
+- `HelpCenter.tsx` - Help documentation (Cmd+/)
+- `ContextualTip.tsx` - Route-based tooltips
+- `CSVImport.tsx` - CSV import utility
+- `LoadingSpinner.tsx`, `Tooltip.tsx` - UI utilities
+
+### Working Libraries (16 Total)
+
+| Library | Purpose | Status |
+|---------|---------|--------|
+| `settings.ts` | Owner, PM, Tenant, Property, Mortgage, Rental, Tax data management | ✅ Complete |
+| `projects.ts` | Project CRUD, status workflow, stakeholders, attachments, BOM integration | ✅ Complete |
+| `maintenance.ts` | Task categories, frequency scheduling, status tracking | ✅ Complete |
+| `tenant.ts` | Payments, lease details, maintenance requests, emergency contacts | ✅ Complete |
+| `vendors.ts` | Vendor profiles, estimates, job history, favorites | ✅ Complete |
+| `financials.ts` | Cash flow, tax estimates, keep vs sell projections | ✅ Complete |
+| `mortgage.ts` | Amortization schedules, extra payment analysis | ✅ Complete |
+| `messages.ts` | Threads, messages, inspections, surveys, notifications | ✅ Complete |
+| `notifications.ts` | 13 notification types, priority levels, read/archive | ✅ Complete |
+| `tenant-responsibilities.ts` | Responsibility tracking, frequency, completion records | ✅ Complete |
+| `documents.ts` | Upload/download, categories, search, project linking | ✅ Complete |
+| `bom.ts` | BOM creation, category organization, item status | ✅ Complete |
+| `model-library.ts` | 187 built-in 3D assets, upload, favorites | ✅ Complete |
+| `zillow.ts` | Property estimate caching (mock data) | ⚠️ Mock only |
+| `ai-generator.ts` | Claude API integration for project/BOM generation | ✅ Complete (needs API key) |
+| `ai-mock.ts` | Mock AI with 5 project templates | ✅ Complete |
+
+### State Management
+
+| Store | File | Purpose |
+|-------|------|---------|
+| AI Assistant | `aiAssistantStore.ts` | Panel state, suggestions, route tracking |
+| Help Center | `helpStore.ts` | Search, categories, article selection (persisted) |
+
+### Hooks & Services
+
+| Name | File | Purpose |
+|------|------|---------|
+| useRecentActivity | `useRecentActivity.ts` | Aggregates activity across projects, BOMs, vendors |
+| suggestionEngine | `suggestionEngine.ts` | AI suggestions based on route and actions |
+
+### Feature Completeness Summary
+
+**✅ Fully Functional:**
+- Role-based access control (Owner, PM, Tenant)
+- Complete settings management (all 9 tabs)
+- Document management with project linking
+- Maintenance checklist system
+- Project Kanban with full workflow
+- Vendor directory with estimates/history
+- Tenant management (payments, lease, requests)
+- Messaging system with threads and notifications
+- Inspection scheduling with time voting
+- Satisfaction surveys
+- Expense tracking with CSV import
+- Financial analysis suite
+- 3D property viewer with 187 models
+- localStorage persistence with import/export
+- Keyboard shortcuts (Cmd+/, Cmd+.)
+- Responsive dark theme
+
+**⚠️ Partial/Mock:**
+- AI Assistant - UI present, suggestion engine is basic
+- AI Project Generation - Works with API key, mock fallback available
+- Zillow Integration - Returns mock values only
+- Light theme - Controls exist but not fully styled
+- Quick Setup Wizard - Component exists but not actively used
+
+**❌ Not Started:**
+- Issue Tracking System (Phase 1B)
+- OAuth authentication
+- PWA conversion with IndexedDB
+- Property Value API (ATTOM)
+- Backend integration
+
+---
+
 ## Known Issues & Technical Debt
 
 ### Data Inconsistencies
