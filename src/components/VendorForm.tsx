@@ -124,15 +124,15 @@ export default function VendorForm({ vendor, isOpen, onClose, onSave }: VendorFo
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-lg mx-4 card bg-brand-navy border-slate-600">
+      <div className="relative w-full max-w-lg mx-4 card bg-cc-surface border-cc-border">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-700/50">
-          <h2 className="text-xl font-bold text-brand-light">
+        <div className="flex items-center justify-between pb-4 border-b border-cc-border/50">
+          <h2 className="text-xl font-bold text-cc-text">
             {isEditing ? 'Edit Vendor' : 'Add New Vendor'}
           </h2>
           <button
             onClick={onClose}
-            className="p-1 text-brand-muted hover:text-brand-light transition-colors rounded-lg hover:bg-white/5"
+            className="p-1 text-cc-muted hover:text-cc-text transition-colors rounded-lg hover:bg-white/5"
           >
             <X size={20} />
           </button>
@@ -142,7 +142,7 @@ export default function VendorForm({ vendor, isOpen, onClose, onSave }: VendorFo
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           {/* Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-brand-light mb-1">
+            <label htmlFor="name" className="block text-sm font-medium text-cc-text mb-1">
               Vendor Name *
             </label>
             <input
@@ -161,7 +161,7 @@ export default function VendorForm({ vendor, isOpen, onClose, onSave }: VendorFo
 
           {/* Specialty */}
           <div>
-            <label htmlFor="specialty" className="block text-sm font-medium text-brand-light mb-1">
+            <label htmlFor="specialty" className="block text-sm font-medium text-cc-text mb-1">
               Specialty / Trade *
             </label>
             <select
@@ -182,7 +182,7 @@ export default function VendorForm({ vendor, isOpen, onClose, onSave }: VendorFo
           {/* Phone and Email Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-brand-light mb-1">
+              <label htmlFor="phone" className="block text-sm font-medium text-cc-text mb-1">
                 Phone *
               </label>
               <input
@@ -200,7 +200,7 @@ export default function VendorForm({ vendor, isOpen, onClose, onSave }: VendorFo
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-brand-light mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-cc-text mb-1">
                 Email *
               </label>
               <input
@@ -220,7 +220,7 @@ export default function VendorForm({ vendor, isOpen, onClose, onSave }: VendorFo
 
           {/* Status */}
           <div>
-            <label htmlFor="status" className="block text-sm font-medium text-brand-light mb-1">
+            <label htmlFor="status" className="block text-sm font-medium text-cc-text mb-1">
               Status
             </label>
             <select
@@ -240,7 +240,7 @@ export default function VendorForm({ vendor, isOpen, onClose, onSave }: VendorFo
 
           {/* Notes */}
           <div>
-            <label htmlFor="notes" className="block text-sm font-medium text-brand-light mb-1">
+            <label htmlFor="notes" className="block text-sm font-medium text-cc-text mb-1">
               Notes
             </label>
             <textarea
@@ -255,7 +255,7 @@ export default function VendorForm({ vendor, isOpen, onClose, onSave }: VendorFo
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-700/50">
+          <div className="flex justify-end gap-3 pt-4 border-t border-cc-border/50">
             <button
               type="button"
               onClick={onClose}

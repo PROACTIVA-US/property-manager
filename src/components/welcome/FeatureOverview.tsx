@@ -42,8 +42,8 @@ export default function FeatureOverview() {
       description:
         'Track repairs, improvements, and routine maintenance. Never miss a scheduled task or warranty expiration.',
       icon: Wrench,
-      iconColor: 'text-orange-400',
-      bgColor: 'bg-orange-500/10',
+      iconColor: 'text-indigo-300',
+      bgColor: 'bg-indigo-400/10',
     },
     {
       id: 'financial-reports',

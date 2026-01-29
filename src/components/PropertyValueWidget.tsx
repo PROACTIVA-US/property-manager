@@ -71,20 +71,20 @@ export default function PropertyValueWidget() {
   const settings = loadSettings();
 
   return (
-    <div className="card bg-gradient-to-br from-brand-navy to-slate-800">
+    <div className="card bg-gradient-to-br from-cc-surface to-slate-800">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
             <TrendingUp size={24} />
           </div>
           <div>
-            <h3 className="font-semibold text-brand-light">Property Value</h3>
-            <p className="text-xs text-brand-muted">Zillow Zestimate</p>
+            <h3 className="font-semibold text-cc-text">Property Value</h3>
+            <p className="text-xs text-cc-muted">Zillow Zestimate</p>
           </div>
         </div>
         <button
           onClick={handleOpenZillow}
-          className="p-2 hover:bg-slate-700 rounded-lg text-brand-muted hover:text-brand-orange transition-all"
+          className="p-2 hover:bg-cc-border rounded-lg text-cc-muted hover:text-cc-accent transition-all"
           title="Open Zillow"
         >
           <ExternalLink size={16} />
@@ -94,10 +94,10 @@ export default function PropertyValueWidget() {
       {estimate ? (
         <>
           <div className="mb-4">
-            <p className="text-3xl font-bold text-brand-light mb-1">
+            <p className="text-3xl font-bold text-cc-text mb-1">
               {formatZillowEstimate(estimate)}
             </p>
-            <p className="text-xs text-brand-muted">
+            <p className="text-xs text-cc-muted">
               Last updated: {new Date(estimate.lastUpdated).toLocaleDateString()}
               {!isFresh && (
                 <span className="ml-2 text-yellow-400 flex items-center gap-1 mt-1">
@@ -121,24 +121,24 @@ export default function PropertyValueWidget() {
         </>
       ) : (
         <div className="mb-4">
-          <p className="text-sm text-brand-muted mb-2">No estimate available yet</p>
+          <p className="text-sm text-cc-muted mb-2">No estimate available yet</p>
         </div>
       )}
 
       {/* Manual Update Form */}
-      <div className="pt-4 border-t border-slate-700">
-        <label className="block text-xs font-medium text-brand-light mb-2">
+      <div className="pt-4 border-t border-cc-border">
+        <label className="block text-xs font-medium text-cc-text mb-2">
           Update Manually
         </label>
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-muted">$</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-cc-muted">$</span>
             <input
               type="text"
               value={manualValue}
               onChange={(e) => setManualValue(e.target.value)}
               placeholder="1,089,100"
-              className="w-full pl-8 pr-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light text-sm focus:outline-none focus:border-brand-orange"
+              className="w-full pl-8 pr-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text text-sm focus:outline-none focus:border-cc-accent"
             />
           </div>
           <button
@@ -160,8 +160,8 @@ export default function PropertyValueWidget() {
       </div>
 
       {/* Instructions */}
-      <div className="mt-4 pt-4 border-t border-slate-700">
-        <p className="text-xs text-brand-muted">
+      <div className="mt-4 pt-4 border-t border-cc-border">
+        <p className="text-xs text-cc-muted">
           💡 Click the external link icon to get the latest Zestimate from Zillow, then enter it above.
         </p>
       </div>

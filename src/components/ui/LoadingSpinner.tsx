@@ -10,14 +10,14 @@ interface LoadingSpinnerProps {
 export default function LoadingSpinner({ size = 32, message, className = '', fullPage = false }: LoadingSpinnerProps) {
   const content = (
     <div className={`flex flex-col items-center justify-center gap-3 ${className}`}>
-      <Loader2 size={size} className="text-brand-orange animate-spin" />
-      {message && <p className="text-brand-muted text-sm">{message}</p>}
+      <Loader2 size={size} className="text-cc-accent animate-spin" />
+      {message && <p className="text-cc-muted text-sm">{message}</p>}
     </div>
   );
 
   if (fullPage) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-brand-dark">
+      <div className="min-h-screen flex items-center justify-center bg-cc-bg">
         {content}
       </div>
     );

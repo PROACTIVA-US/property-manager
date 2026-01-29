@@ -105,8 +105,8 @@ export default function TaxAnalysis({
       {/* Header with Warning */}
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div>
-          <h3 className="text-xl font-bold text-brand-light">Tax Liability Analysis</h3>
-          <p className="text-sm text-brand-muted">Estimated taxes if sold as non-primary residence</p>
+          <h3 className="text-xl font-bold text-cc-text">Tax Liability Analysis</h3>
+          <p className="text-sm text-cc-muted">Estimated taxes if sold as non-primary residence</p>
         </div>
         <button
           onClick={() => setShowInputs(!showInputs)}
@@ -121,7 +121,7 @@ export default function TaxAnalysis({
         <AlertTriangle className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
         <div className="text-sm">
           <p className="text-yellow-500 font-medium">Important Disclaimer</p>
-          <p className="text-brand-muted mt-1">
+          <p className="text-cc-muted mt-1">
             These are simplified estimates for educational purposes only. Tax laws are complex
             and change frequently. Always consult with a qualified tax professional or CPA
             for accurate tax planning and advice specific to your situation.
@@ -134,13 +134,13 @@ export default function TaxAnalysis({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Property Values */}
           <div className="card">
-            <h4 className="font-semibold text-brand-orange mb-4 flex items-center gap-2">
+            <h4 className="font-semibold text-cc-accent mb-4 flex items-center gap-2">
               <Building2 size={18} />
               Property Values
             </h4>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Purchase Price
                 </label>
                 <input
@@ -151,7 +151,7 @@ export default function TaxAnalysis({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Current Market Value
                 </label>
                 <input
@@ -162,7 +162,7 @@ export default function TaxAnalysis({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Years Owned
                 </label>
                 <input
@@ -173,7 +173,7 @@ export default function TaxAnalysis({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Improvements Cost
                 </label>
                 <input
@@ -188,13 +188,13 @@ export default function TaxAnalysis({
 
           {/* Tax Inputs */}
           <div className="card">
-            <h4 className="font-semibold text-brand-orange mb-4 flex items-center gap-2">
+            <h4 className="font-semibold text-cc-accent mb-4 flex items-center gap-2">
               <Calculator size={18} />
               Tax Information
             </h4>
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Filing Status
                 </label>
                 <select
@@ -209,7 +209,7 @@ export default function TaxAnalysis({
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Annual Income
                 </label>
                 <input
@@ -220,7 +220,7 @@ export default function TaxAnalysis({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Land Value
                 </label>
                 <input
@@ -231,7 +231,7 @@ export default function TaxAnalysis({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Selling Costs
                 </label>
                 <input
@@ -242,7 +242,7 @@ export default function TaxAnalysis({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   State Tax Rate (%)
                 </label>
                 <input
@@ -261,21 +261,21 @@ export default function TaxAnalysis({
       {/* Key Tax Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="card !p-4">
-          <p className="text-[10px] text-brand-muted uppercase mb-1">Capital Gain</p>
-          <p className="text-xl font-bold text-brand-light">{formatCurrency(taxEstimate.capitalGain)}</p>
+          <p className="text-[10px] text-cc-muted uppercase mb-1">Capital Gain</p>
+          <p className="text-xl font-bold text-cc-text">{formatCurrency(taxEstimate.capitalGain)}</p>
         </div>
         <div className="card !p-4">
-          <p className="text-[10px] text-brand-muted uppercase mb-1">Depreciation Taken</p>
-          <p className="text-xl font-bold text-brand-light">{formatCurrency(taxEstimate.depreciationTaken)}</p>
+          <p className="text-[10px] text-cc-muted uppercase mb-1">Depreciation Taken</p>
+          <p className="text-xl font-bold text-cc-text">{formatCurrency(taxEstimate.depreciationTaken)}</p>
         </div>
         <div className="card !p-4">
-          <p className="text-[10px] text-brand-muted uppercase mb-1">Total Tax Estimate</p>
+          <p className="text-[10px] text-cc-muted uppercase mb-1">Total Tax Estimate</p>
           <p className="text-xl font-bold text-red-400">
             {formatCurrency(taxEstimate.estimatedTotalTax + taxEstimate.estimatedStateTax)}
           </p>
         </div>
         <div className="card !p-4">
-          <p className="text-[10px] text-brand-muted uppercase mb-1">Net After Tax</p>
+          <p className="text-[10px] text-cc-muted uppercase mb-1">Net After Tax</p>
           <p className="text-xl font-bold text-green-400">{formatCurrency(taxEstimate.netProceedsAfterTax)}</p>
         </div>
       </div>
@@ -284,7 +284,7 @@ export default function TaxAnalysis({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Tax Breakdown */}
         <div className="card">
-          <h4 className="font-semibold text-brand-orange mb-4">Estimated Tax Breakdown</h4>
+          <h4 className="font-semibold text-cc-accent mb-4">Estimated Tax Breakdown</h4>
           {taxBreakdownData.length > 0 ? (
             <div className="h-[200px] w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -322,25 +322,25 @@ export default function TaxAnalysis({
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-[200px] flex items-center justify-center text-brand-muted">
+            <div className="h-[200px] flex items-center justify-center text-cc-muted">
               No significant tax liability estimated
             </div>
           )}
-          <div className="mt-4 pt-4 border-t border-slate-700/50 grid grid-cols-2 gap-4 text-sm">
+          <div className="mt-4 pt-4 border-t border-cc-border/50 grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="text-brand-muted text-xs">Marginal Tax Bracket</p>
-              <p className="font-medium text-brand-light">{formatPercent(marginalRate * 100)}</p>
+              <p className="text-cc-muted text-xs">Marginal Tax Bracket</p>
+              <p className="font-medium text-cc-text">{formatPercent(marginalRate * 100)}</p>
             </div>
             <div>
-              <p className="text-brand-muted text-xs">Adjusted Basis</p>
-              <p className="font-medium text-brand-light">{formatCurrency(taxEstimate.adjustedBasis)}</p>
+              <p className="text-cc-muted text-xs">Adjusted Basis</p>
+              <p className="font-medium text-cc-text">{formatCurrency(taxEstimate.adjustedBasis)}</p>
             </div>
           </div>
         </div>
 
         {/* Proceeds Breakdown */}
         <div className="card">
-          <h4 className="font-semibold text-brand-orange mb-4">Sale Proceeds Distribution</h4>
+          <h4 className="font-semibold text-cc-accent mb-4">Sale Proceeds Distribution</h4>
           <div className="h-[200px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
@@ -376,17 +376,17 @@ export default function TaxAnalysis({
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="mt-4 pt-4 border-t border-slate-700/50">
+          <div className="mt-4 pt-4 border-t border-cc-border/50">
             <div className="flex justify-between items-center">
-              <span className="text-brand-muted text-sm">Market Value</span>
-              <span className="font-bold text-brand-light">{formatCurrency(property.currentMarketValue)}</span>
+              <span className="text-cc-muted text-sm">Market Value</span>
+              <span className="font-bold text-cc-text">{formatCurrency(property.currentMarketValue)}</span>
             </div>
             <div className="flex justify-between items-center mt-2">
-              <span className="text-brand-muted text-sm">You Keep</span>
+              <span className="text-cc-muted text-sm">You Keep</span>
               <span className="font-bold text-green-400">{formatCurrency(taxEstimate.netProceedsAfterTax)}</span>
             </div>
             <div className="flex justify-between items-center mt-1 text-xs">
-              <span className="text-brand-muted">Effective tax rate on proceeds</span>
+              <span className="text-cc-muted">Effective tax rate on proceeds</span>
               <span className="text-red-400">
                 {formatPercent(((taxEstimate.estimatedTotalTax + taxEstimate.estimatedStateTax) / property.currentMarketValue) * 100)}
               </span>
@@ -398,10 +398,10 @@ export default function TaxAnalysis({
       {/* Tax Mitigation Strategies */}
       <div className="card">
         <div className="flex items-center gap-2 mb-4">
-          <Shield className="w-5 h-5 text-brand-orange" />
-          <h4 className="font-semibold text-brand-light">Tax Mitigation Strategies</h4>
+          <Shield className="w-5 h-5 text-cc-accent" />
+          <h4 className="font-semibold text-cc-text">Tax Mitigation Strategies</h4>
         </div>
-        <p className="text-sm text-brand-muted mb-4">
+        <p className="text-sm text-cc-muted mb-4">
           Educational information about legal strategies that may help reduce or defer taxes.
           Consult with a qualified tax professional before implementing any strategy.
         </p>
@@ -414,41 +414,41 @@ export default function TaxAnalysis({
             return (
               <div
                 key={strategy.id}
-                className="border border-slate-700/50 rounded-lg overflow-hidden"
+                className="border border-cc-border/50 rounded-lg overflow-hidden"
               >
                 <button
                   onClick={() => toggleStrategy(strategy.id)}
-                  className="w-full flex items-center justify-between p-4 hover:bg-brand-navy/30 transition-colors"
+                  className="w-full flex items-center justify-between p-4 hover:bg-cc-surface/30 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-brand-orange/20 rounded-lg text-brand-orange">
+                    <div className="p-2 bg-cc-accent/20 rounded-lg text-cc-accent">
                       <Icon size={18} />
                     </div>
                     <div className="text-left">
-                      <p className="font-medium text-brand-light">{strategy.name}</p>
-                      <p className="text-xs text-brand-muted">{strategy.summary}</p>
+                      <p className="font-medium text-cc-text">{strategy.name}</p>
+                      <p className="text-xs text-cc-muted">{strategy.summary}</p>
                     </div>
                   </div>
                   {isExpanded ? (
-                    <ChevronDown className="w-5 h-5 text-brand-muted" />
+                    <ChevronDown className="w-5 h-5 text-cc-muted" />
                   ) : (
-                    <ChevronRight className="w-5 h-5 text-brand-muted" />
+                    <ChevronRight className="w-5 h-5 text-cc-muted" />
                   )}
                 </button>
 
                 {isExpanded && (
-                  <div className="px-4 pb-4 pt-2 border-t border-slate-700/50 bg-brand-dark/30">
-                    <p className="text-sm text-brand-muted mb-4">{strategy.description}</p>
+                  <div className="px-4 pb-4 pt-2 border-t border-cc-border/50 bg-cc-bg/30">
+                    <p className="text-sm text-cc-muted mb-4">{strategy.description}</p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <div>
-                        <h5 className="text-xs font-medium text-brand-orange uppercase mb-2">
+                        <h5 className="text-xs font-medium text-cc-accent uppercase mb-2">
                           Key Requirements
                         </h5>
-                        <ul className="text-xs text-brand-muted space-y-1">
+                        <ul className="text-xs text-cc-muted space-y-1">
                           {strategy.requirements.slice(0, 4).map((req, i) => (
                             <li key={i} className="flex items-start gap-2">
-                              <span className="text-brand-orange mt-0.5">-</span>
+                              <span className="text-cc-accent mt-0.5">-</span>
                               {req}
                             </li>
                           ))}
@@ -458,7 +458,7 @@ export default function TaxAnalysis({
                         <h5 className="text-xs font-medium text-green-400 uppercase mb-2">
                           Potential Benefits
                         </h5>
-                        <ul className="text-xs text-brand-muted space-y-1">
+                        <ul className="text-xs text-cc-muted space-y-1">
                           {strategy.benefits.slice(0, 4).map((benefit, i) => (
                             <li key={i} className="flex items-start gap-2">
                               <span className="text-green-400 mt-0.5">+</span>
@@ -473,7 +473,7 @@ export default function TaxAnalysis({
                       <h5 className="text-xs font-medium text-yellow-400 uppercase mb-2">
                         Important Considerations
                       </h5>
-                      <ul className="text-xs text-brand-muted space-y-1">
+                      <ul className="text-xs text-cc-muted space-y-1">
                         {strategy.considerations.slice(0, 3).map((consideration, i) => (
                           <li key={i} className="flex items-start gap-2">
                             <span className="text-yellow-400 mt-0.5">!</span>
@@ -503,19 +503,19 @@ export default function TaxAnalysis({
       </div>
 
       {/* Professional Advice Reminder */}
-      <div className="card bg-gradient-to-br from-brand-navy to-slate-800">
+      <div className="card bg-gradient-to-br from-cc-surface to-slate-800">
         <div className="flex items-start gap-3">
           <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400 shrink-0">
             <Info size={20} />
           </div>
           <div className="text-sm">
-            <p className="text-brand-light font-medium mb-1">Professional Guidance Recommended</p>
-            <p className="text-brand-muted">
+            <p className="text-cc-text font-medium mb-1">Professional Guidance Recommended</p>
+            <p className="text-cc-muted">
               Tax planning for real estate involves complex regulations that vary by jurisdiction
               and individual circumstances. The estimates and strategies shown here are
               simplified for educational purposes. Before making any decisions, consult with:
             </p>
-            <ul className="mt-2 space-y-1 text-brand-muted">
+            <ul className="mt-2 space-y-1 text-cc-muted">
               <li>- A Certified Public Accountant (CPA) familiar with real estate</li>
               <li>- A tax attorney for complex situations</li>
               <li>- A qualified financial planner for overall strategy</li>

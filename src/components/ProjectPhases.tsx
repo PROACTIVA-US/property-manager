@@ -61,11 +61,11 @@ export default function ProjectPhases({ project, onUpdate }: ProjectPhasesProps)
       case 'completed':
         return <Check className="text-green-400" size={16} />;
       case 'in_progress':
-        return <Play className="text-orange-400" size={16} />;
+        return <Play className="text-indigo-300" size={16} />;
       case 'skipped':
         return <SkipForward className="text-slate-400" size={16} />;
       default:
-        return <Clock className="text-brand-muted" size={16} />;
+        return <Clock className="text-cc-muted" size={16} />;
     }
   };
 
@@ -74,11 +74,11 @@ export default function ProjectPhases({ project, onUpdate }: ProjectPhasesProps)
       case 'completed':
         return 'bg-green-500/20 text-green-400 border-green-500/30';
       case 'in_progress':
-        return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+        return 'bg-indigo-400/20 text-indigo-300 border-indigo-400/30';
       case 'skipped':
         return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
       default:
-        return 'bg-brand-dark text-brand-muted border-white/10';
+        return 'bg-cc-bg text-cc-muted border-white/10';
     }
   };
 
@@ -88,16 +88,16 @@ export default function ProjectPhases({ project, onUpdate }: ProjectPhasesProps)
   return (
     <div className="space-y-6">
       {/* Progress Bar */}
-      <div className="bg-brand-dark rounded-lg p-4 border border-white/10">
+      <div className="bg-cc-bg rounded-lg p-4 border border-white/10">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-semibold text-brand-light">Overall Progress</span>
-          <span className="text-sm text-brand-muted">
+          <span className="text-sm font-semibold text-cc-text">Overall Progress</span>
+          <span className="text-sm text-cc-muted">
             {completedCount} of {phases.length} completed
           </span>
         </div>
         <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
           <div
-            className="bg-brand-orange h-full transition-all duration-300 rounded-full"
+            className="bg-cc-accent h-full transition-all duration-300 rounded-full"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -115,17 +115,17 @@ export default function ProjectPhases({ project, onUpdate }: ProjectPhasesProps)
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-brand-darker flex items-center justify-center text-xs font-bold text-brand-light">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-cc-bger flex items-center justify-center text-xs font-bold text-cc-text">
                     {index + 1}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       {getStatusIcon(phase.status)}
-                      <h4 className="font-semibold text-brand-light">{phase.name}</h4>
+                      <h4 className="font-semibold text-cc-text">{phase.name}</h4>
                     </div>
-                    <p className="text-sm text-brand-muted mb-2">{phase.description}</p>
+                    <p className="text-sm text-cc-muted mb-2">{phase.description}</p>
 
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-brand-muted">
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-cc-muted">
                       {phase.estimatedDays && (
                         <div className="flex items-center gap-1">
                           <Calendar size={12} />
@@ -134,7 +134,7 @@ export default function ProjectPhases({ project, onUpdate }: ProjectPhasesProps)
                       )}
                       {vendor && (
                         <div>
-                          Assigned to: <span className="text-brand-light">{vendor.name}</span>
+                          Assigned to: <span className="text-cc-text">{vendor.name}</span>
                         </div>
                       )}
                       {phase.startDate && (
@@ -156,7 +156,7 @@ export default function ProjectPhases({ project, onUpdate }: ProjectPhasesProps)
                   {phase.status === 'pending' && (
                     <button
                       onClick={() => handleUpdatePhaseStatus(phase.id, 'in_progress')}
-                      className="px-2 py-1 bg-orange-600 hover:bg-orange-500 text-white rounded text-xs"
+                      className="px-2 py-1 bg-indigo-500 hover:bg-indigo-400 text-white rounded text-xs"
                     >
                       Start
                     </button>
@@ -172,7 +172,7 @@ export default function ProjectPhases({ project, onUpdate }: ProjectPhasesProps)
                   {phase.status === 'pending' && (
                     <button
                       onClick={() => handleUpdatePhaseStatus(phase.id, 'skipped')}
-                      className="px-2 py-1 bg-slate-600 hover:bg-slate-500 text-white rounded text-xs"
+                      className="px-2 py-1 bg-cc-border hover:bg-slate-500 text-white rounded text-xs"
                     >
                       Skip
                     </button>
@@ -190,20 +190,20 @@ export default function ProjectPhases({ project, onUpdate }: ProjectPhasesProps)
         })}
 
         {phases.length === 0 && !isAddingPhase && (
-          <div className="text-center py-8 bg-brand-dark rounded-lg border border-white/10">
-            <Clock size={32} className="mx-auto text-brand-muted mb-2" />
-            <p className="text-brand-muted">No milestones yet</p>
+          <div className="text-center py-8 bg-cc-bg rounded-lg border border-white/10">
+            <Clock size={32} className="mx-auto text-cc-muted mb-2" />
+            <p className="text-cc-muted">No milestones yet</p>
           </div>
         )}
       </div>
 
       {/* Add Phase Form */}
       {isAddingPhase ? (
-        <div className="bg-brand-dark rounded-lg p-4 border border-white/10">
-          <h4 className="font-semibold text-brand-light mb-3">Add New Milestone</h4>
+        <div className="bg-cc-bg rounded-lg p-4 border border-white/10">
+          <h4 className="font-semibold text-cc-text mb-3">Add New Milestone</h4>
           <div className="space-y-3">
             <div>
-              <label className="block text-sm text-brand-muted mb-1">Name</label>
+              <label className="block text-sm text-cc-muted mb-1">Name</label>
               <input
                 type="text"
                 value={formData.name}
@@ -213,7 +213,7 @@ export default function ProjectPhases({ project, onUpdate }: ProjectPhasesProps)
               />
             </div>
             <div>
-              <label className="block text-sm text-brand-muted mb-1">Description</label>
+              <label className="block text-sm text-cc-muted mb-1">Description</label>
               <textarea
                 value={formData.description}
                 onChange={e => setFormData({ ...formData, description: e.target.value })}
@@ -224,7 +224,7 @@ export default function ProjectPhases({ project, onUpdate }: ProjectPhasesProps)
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm text-brand-muted mb-1">Estimated Days</label>
+                <label className="block text-sm text-cc-muted mb-1">Estimated Days</label>
                 <input
                   type="number"
                   value={formData.estimatedDays}
@@ -234,7 +234,7 @@ export default function ProjectPhases({ project, onUpdate }: ProjectPhasesProps)
                 />
               </div>
               <div>
-                <label className="block text-sm text-brand-muted mb-1">Vendor (Optional)</label>
+                <label className="block text-sm text-cc-muted mb-1">Vendor (Optional)</label>
                 <select
                   value={formData.assignedVendorId}
                   onChange={e => setFormData({ ...formData, assignedVendorId: e.target.value })}
@@ -264,7 +264,7 @@ export default function ProjectPhases({ project, onUpdate }: ProjectPhasesProps)
       ) : (
         <button
           onClick={() => setIsAddingPhase(true)}
-          className="w-full py-3 border-2 border-dashed border-white/20 rounded-lg text-brand-muted hover:text-brand-light hover:border-white/40 transition-colors flex items-center justify-center gap-2"
+          className="w-full py-3 border-2 border-dashed border-white/20 rounded-lg text-cc-muted hover:text-cc-text hover:border-white/40 transition-colors flex items-center justify-center gap-2"
         >
           <Plus size={18} />
           Add Milestone

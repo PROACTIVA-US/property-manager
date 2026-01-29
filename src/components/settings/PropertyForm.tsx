@@ -46,26 +46,26 @@ export default function PropertyForm({ initialData, onSave }: PropertyFormProps)
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-brand-orange/20 rounded-lg">
-          <Building2 className="text-brand-orange" size={24} />
+        <div className="p-2 bg-cc-accent/20 rounded-lg">
+          <Building2 className="text-cc-accent" size={24} />
         </div>
         <div>
-          <h3 className="text-xl font-bold text-brand-light">Property Details</h3>
-          <p className="text-sm text-brand-muted">Basic information about your property</p>
+          <h3 className="text-xl font-bold text-cc-text">Property Details</h3>
+          <p className="text-sm text-cc-muted">Basic information about your property</p>
         </div>
       </div>
 
       {/* Address */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Property Address *
           </label>
           <input
             type="text"
             value={formData.address}
             onChange={(e) => handleChange('address', e.target.value)}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             placeholder="123 Main Street"
             required
           />
@@ -75,14 +75,14 @@ export default function PropertyForm({ initialData, onSave }: PropertyFormProps)
             - Conditionally render based on formData.propertyType
         */}
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Unit Number
           </label>
           <input
             type="text"
             value={formData.unitNumber || ''}
             onChange={(e) => handleChange('unitNumber', e.target.value)}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             placeholder="Apt 4B"
           />
         </div>
@@ -91,77 +91,77 @@ export default function PropertyForm({ initialData, onSave }: PropertyFormProps)
       {/* Financial Details */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Purchase Price *
           </label>
           <input
             type="number"
             value={formData.purchasePrice}
             onChange={(e) => handleChange('purchasePrice', parseFloat(e.target.value) || 0)}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             placeholder="350000"
             required
             min="0"
             step="1000"
           />
-          <p className="text-xs text-brand-muted mt-1">{formatCurrency(formData.purchasePrice)}</p>
+          <p className="text-xs text-cc-muted mt-1">{formatCurrency(formData.purchasePrice)}</p>
         </div>
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Purchase Date *
           </label>
           <input
             type="date"
             value={formData.purchaseDate}
             onChange={(e) => handleChange('purchaseDate', e.target.value)}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Current Market Value *
           </label>
           <input
             type="number"
             value={formData.currentMarketValue}
             onChange={(e) => handleChange('currentMarketValue', parseFloat(e.target.value) || 0)}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             placeholder="420000"
             required
             min="0"
             step="1000"
           />
-          <p className="text-xs text-brand-muted mt-1">{formatCurrency(formData.currentMarketValue)}</p>
+          <p className="text-xs text-cc-muted mt-1">{formatCurrency(formData.currentMarketValue)}</p>
         </div>
       </div>
 
       {/* Land Value & Equity Summary */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Land Value *
           </label>
           <input
             type="number"
             value={formData.landValue}
             onChange={(e) => handleChange('landValue', parseFloat(e.target.value) || 0)}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             placeholder="70000"
             required
             min="0"
             step="1000"
           />
-          <p className="text-xs text-brand-muted mt-1">
+          <p className="text-xs text-cc-muted mt-1">
             {formatCurrency(formData.landValue)} ({landPercentage}% of purchase price)
           </p>
         </div>
-        <div className="card bg-brand-navy/50 p-4 flex flex-col justify-center">
-          <p className="text-sm text-brand-muted">Estimated Equity</p>
+        <div className="card bg-cc-surface/50 p-4 flex flex-col justify-center">
+          <p className="text-sm text-cc-muted">Estimated Equity</p>
           <p className="text-2xl font-bold text-green-400">
             {formatCurrency(equity)}
           </p>
-          <p className="text-xs text-brand-muted mt-1">
+          <p className="text-xs text-cc-muted mt-1">
             Market Value - Purchase Price
           </p>
         </div>
@@ -170,55 +170,55 @@ export default function PropertyForm({ initialData, onSave }: PropertyFormProps)
       {/* Property Characteristics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Year Built
           </label>
           <input
             type="number"
             value={formData.yearBuilt || ''}
             onChange={(e) => handleChange('yearBuilt', e.target.value ? parseInt(e.target.value) : '')}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             placeholder="2010"
             min="1800"
             max={new Date().getFullYear()}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Square Footage
           </label>
           <input
             type="number"
             value={formData.squareFootage || ''}
             onChange={(e) => handleChange('squareFootage', e.target.value ? parseInt(e.target.value) : '')}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             placeholder="1200"
             min="0"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Bedrooms
           </label>
           <input
             type="number"
             value={formData.bedrooms || ''}
             onChange={(e) => handleChange('bedrooms', e.target.value ? parseInt(e.target.value) : '')}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             placeholder="2"
             min="0"
             max="20"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Bathrooms
           </label>
           <input
             type="number"
             value={formData.bathrooms || ''}
             onChange={(e) => handleChange('bathrooms', e.target.value ? parseFloat(e.target.value) : '')}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             placeholder="2"
             min="0"
             max="20"
@@ -229,13 +229,13 @@ export default function PropertyForm({ initialData, onSave }: PropertyFormProps)
 
       {/* Property Type */}
       <div>
-        <label className="block text-sm font-medium text-brand-light mb-2">
+        <label className="block text-sm font-medium text-cc-text mb-2">
           Property Type
         </label>
         <select
           value={formData.propertyType || 'single_family'}
           onChange={(e) => handleChange('propertyType', e.target.value)}
-          className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+          className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
         >
           <option value="single_family">Single Family Home</option>
           <option value="condo">Condominium</option>
@@ -246,7 +246,7 @@ export default function PropertyForm({ initialData, onSave }: PropertyFormProps)
       </div>
 
       {/* Save Button */}
-      <div className="flex items-center gap-4 pt-4 border-t border-slate-700">
+      <div className="flex items-center gap-4 pt-4 border-t border-cc-border">
         <button
           type="submit"
           disabled={isSaving}

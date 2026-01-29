@@ -25,7 +25,7 @@ export default function RecentActivitySection() {
   const getActivityColor = (type: ActivityItem['type']) => {
     switch (type) {
       case 'project':
-        return 'text-orange-400 bg-orange-500/10';
+        return 'text-indigo-300 bg-indigo-400/10';
       case 'property':
         return 'text-blue-400 bg-blue-500/10';
       case 'bom':

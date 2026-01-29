@@ -46,7 +46,7 @@ export default function LeaseDetails({ onBack }: LeaseDetailsProps) {
       {onBack && (
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-brand-muted hover:text-brand-light transition-colors"
+          className="flex items-center gap-2 text-cc-muted hover:text-cc-text transition-colors"
         >
           <ArrowLeft size={20} />
           <span>Back to Dashboard</span>
@@ -55,8 +55,8 @@ export default function LeaseDetails({ onBack }: LeaseDetailsProps) {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-brand-light">Lease Details</h1>
-          <p className="text-brand-muted mt-1">View your lease information and documents</p>
+          <h1 className="text-2xl font-bold text-cc-text">Lease Details</h1>
+          <p className="text-cc-muted mt-1">View your lease information and documents</p>
         </div>
       </div>
 
@@ -83,7 +83,7 @@ export default function LeaseDetails({ onBack }: LeaseDetailsProps) {
             <p className={`font-bold ${isExpired ? 'text-red-400' : 'text-yellow-400'}`}>
               {isExpired ? 'Lease Has Expired' : 'Lease Expiring Soon'}
             </p>
-            <p className="text-sm text-brand-muted mt-1">
+            <p className="text-sm text-cc-muted mt-1">
               {isExpired
                 ? 'Your lease has expired. Please contact property management about renewal or move-out procedures.'
                 : `Your lease expires in ${daysUntilEnd} days. Consider expressing your renewal interest below.`
@@ -100,59 +100,59 @@ export default function LeaseDetails({ onBack }: LeaseDetailsProps) {
             <Home size={28} />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-brand-light">{lease.propertyAddress}</h2>
-            <p className="text-brand-muted">{lease.unitNumber}</p>
+            <h2 className="text-xl font-bold text-cc-text">{lease.propertyAddress}</h2>
+            <p className="text-cc-muted">{lease.unitNumber}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Lease Duration */}
-          <div className="p-4 bg-brand-dark/50 rounded-lg border border-slate-700/50">
-            <div className="flex items-center gap-2 text-brand-muted mb-2">
+          <div className="p-4 bg-cc-bg/50 rounded-lg border border-cc-border/50">
+            <div className="flex items-center gap-2 text-cc-muted mb-2">
               <Calendar size={16} />
               <span className="text-xs font-bold uppercase tracking-wider">Lease Period</span>
             </div>
-            <p className="text-brand-light font-medium">
+            <p className="text-cc-text font-medium">
               {formatDate(lease.startDate)} - {formatDate(lease.endDate)}
             </p>
-            <p className="text-sm text-brand-muted mt-1">
+            <p className="text-sm text-cc-muted mt-1">
               {daysUntilEnd > 0 ? `${daysUntilEnd} days remaining` : 'Lease has ended'}
             </p>
           </div>
 
           {/* Monthly Rent */}
-          <div className="p-4 bg-brand-dark/50 rounded-lg border border-slate-700/50">
-            <div className="flex items-center gap-2 text-brand-muted mb-2">
+          <div className="p-4 bg-cc-bg/50 rounded-lg border border-cc-border/50">
+            <div className="flex items-center gap-2 text-cc-muted mb-2">
               <DollarSign size={16} />
               <span className="text-xs font-bold uppercase tracking-wider">Monthly Rent</span>
             </div>
-            <p className="text-2xl font-bold text-brand-light">{formatCurrency(lease.monthlyRent)}</p>
-            <p className="text-sm text-brand-muted mt-1">Due on the 1st of each month</p>
+            <p className="text-2xl font-bold text-cc-text">{formatCurrency(lease.monthlyRent)}</p>
+            <p className="text-sm text-cc-muted mt-1">Due on the 1st of each month</p>
           </div>
 
           {/* Security Deposit */}
-          <div className="p-4 bg-brand-dark/50 rounded-lg border border-slate-700/50">
-            <div className="flex items-center gap-2 text-brand-muted mb-2">
+          <div className="p-4 bg-cc-bg/50 rounded-lg border border-cc-border/50">
+            <div className="flex items-center gap-2 text-cc-muted mb-2">
               <DollarSign size={16} />
               <span className="text-xs font-bold uppercase tracking-wider">Security Deposit</span>
             </div>
-            <p className="text-2xl font-bold text-brand-light">{formatCurrency(lease.securityDeposit)}</p>
-            <p className="text-sm text-brand-muted mt-1">Held in escrow</p>
+            <p className="text-2xl font-bold text-cc-text">{formatCurrency(lease.securityDeposit)}</p>
+            <p className="text-sm text-cc-muted mt-1">Held in escrow</p>
           </div>
         </div>
       </div>
 
       {/* Lease Terms */}
       <div className="card">
-        <h3 className="text-lg font-bold text-brand-light mb-4 flex items-center gap-2">
-          <FileText size={20} className="text-brand-orange" />
+        <h3 className="text-lg font-bold text-cc-text mb-4 flex items-center gap-2">
+          <FileText size={20} className="text-cc-accent" />
           Lease Terms & Rules
         </h3>
         <ul className="space-y-3">
           {lease.terms.map((term, index) => (
-            <li key={index} className="flex items-start gap-3 p-3 bg-brand-dark/30 rounded-lg">
+            <li key={index} className="flex items-start gap-3 p-3 bg-cc-bg/30 rounded-lg">
               <Check size={18} className="text-green-400 mt-0.5 flex-shrink-0" />
-              <span className="text-brand-light">{term}</span>
+              <span className="text-cc-text">{term}</span>
             </li>
           ))}
         </ul>
@@ -160,18 +160,18 @@ export default function LeaseDetails({ onBack }: LeaseDetailsProps) {
 
       {/* Lease Document */}
       <div className="card">
-        <h3 className="text-lg font-bold text-brand-light mb-4 flex items-center gap-2">
-          <FileText size={20} className="text-brand-orange" />
+        <h3 className="text-lg font-bold text-cc-text mb-4 flex items-center gap-2">
+          <FileText size={20} className="text-cc-accent" />
           Lease Document
         </h3>
-        <div className="flex items-center justify-between p-4 bg-brand-dark/50 rounded-lg border border-slate-700/50">
+        <div className="flex items-center justify-between p-4 bg-cc-bg/50 rounded-lg border border-cc-border/50">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-blue-500/20 rounded-lg text-blue-400">
               <FileText size={24} />
             </div>
             <div>
-              <p className="font-medium text-brand-light">Residential Lease Agreement</p>
-              <p className="text-sm text-brand-muted">Signed {formatDate(lease.startDate)}</p>
+              <p className="font-medium text-cc-text">Residential Lease Agreement</p>
+              <p className="text-sm text-cc-muted">Signed {formatDate(lease.startDate)}</p>
             </div>
           </div>
           <button className="btn-secondary flex items-center gap-2">
@@ -183,14 +183,14 @@ export default function LeaseDetails({ onBack }: LeaseDetailsProps) {
 
       {/* Lease Renewal Section */}
       {lease.renewalEligible && (
-        <div className="card bg-gradient-to-br from-purple-900/30 to-brand-navy border-purple-500/30">
+        <div className="card bg-gradient-to-br from-purple-900/30 to-cc-surface border-purple-500/30">
           <div className="flex items-start gap-4">
             <div className="p-3 bg-purple-500/20 rounded-xl text-purple-400">
               <RefreshCw size={28} />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-brand-light">Lease Renewal</h3>
-              <p className="text-brand-muted mt-1">
+              <h3 className="text-lg font-bold text-cc-text">Lease Renewal</h3>
+              <p className="text-cc-muted mt-1">
                 You are eligible for lease renewal. Express your interest below and property management will contact you with renewal terms.
               </p>
 
@@ -200,12 +200,12 @@ export default function LeaseDetails({ onBack }: LeaseDetailsProps) {
                     <Check size={20} />
                     <span className="font-bold">Renewal Interest Recorded</span>
                   </div>
-                  <p className="text-sm text-brand-muted mt-1">
+                  <p className="text-sm text-cc-muted mt-1">
                     Property management has been notified of your interest. They will contact you soon with renewal terms.
                   </p>
                   <button
                     onClick={() => handleRenewalInterest(false)}
-                    className="mt-3 text-sm text-brand-muted hover:text-brand-light transition-colors"
+                    className="mt-3 text-sm text-cc-muted hover:text-cc-text transition-colors"
                   >
                     Changed your mind? Click here to withdraw interest.
                   </button>

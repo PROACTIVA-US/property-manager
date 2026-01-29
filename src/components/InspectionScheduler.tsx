@@ -38,7 +38,7 @@ export default function InspectionScheduler({
       case 'cancelled':
         return 'bg-red-500/20 text-red-400';
       default:
-        return 'bg-slate-600/50 text-slate-300';
+        return 'bg-cc-border/50 text-slate-300';
     }
   };
 
@@ -60,8 +60,8 @@ export default function InspectionScheduler({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-brand-light">Inspections & Scheduling</h2>
-          <p className="text-sm text-brand-muted">Schedule and coordinate property inspections</p>
+          <h2 className="text-lg font-bold text-cc-text">Inspections & Scheduling</h2>
+          <p className="text-sm text-cc-muted">Schedule and coordinate property inspections</p>
         </div>
         <button
           onClick={() => setShowNewInspection(true)}
@@ -75,7 +75,7 @@ export default function InspectionScheduler({
       {/* Inspection List */}
       <div className="space-y-3">
         {inspections.length === 0 ? (
-          <div className="text-center py-12 text-brand-muted">
+          <div className="text-center py-12 text-cc-muted">
             <Calendar size={48} className="mx-auto mb-4 opacity-50" />
             <p>No inspections scheduled</p>
             <p className="text-sm mt-1">Create a new inspection to get started</p>
@@ -85,21 +85,21 @@ export default function InspectionScheduler({
             <div
               key={inspection.id}
               onClick={() => setSelectedInspection(inspection.id)}
-              className="card cursor-pointer hover:bg-brand-navy/70 transition-colors group"
+              className="card cursor-pointer hover:bg-cc-surface/70 transition-colors group"
             >
               <div className="flex items-start gap-4">
-                <div className="p-3 bg-brand-orange/20 rounded-lg text-brand-orange">
+                <div className="p-3 bg-cc-accent/20 rounded-lg text-cc-accent">
                   <Calendar size={24} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-brand-light truncate">{inspection.title}</h3>
+                    <h3 className="font-bold text-cc-text truncate">{inspection.title}</h3>
                     <span className={cn('px-2 py-0.5 rounded-full text-[10px] font-medium uppercase', getStatusColor(inspection.status))}>
                       {inspection.status}
                     </span>
                   </div>
-                  <p className="text-sm text-brand-muted mt-1 line-clamp-1">{inspection.description}</p>
-                  <div className="flex items-center gap-4 mt-2 text-xs text-brand-muted">
+                  <p className="text-sm text-cc-muted mt-1 line-clamp-1">{inspection.description}</p>
+                  <div className="flex items-center gap-4 mt-2 text-xs text-cc-muted">
                     <span className="flex items-center gap-1">
                       <Users size={12} />
                       Proposed by {inspection.proposedBy.name}
@@ -110,7 +110,7 @@ export default function InspectionScheduler({
                     </span>
                   </div>
                 </div>
-                <ChevronRight size={20} className="text-brand-muted group-hover:text-brand-light transition-colors" />
+                <ChevronRight size={20} className="text-cc-muted group-hover:text-cc-text transition-colors" />
               </div>
             </div>
           ))
@@ -169,20 +169,20 @@ function InspectionDetail({
       <div className="flex items-center gap-4">
         <button
           onClick={onBack}
-          className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors text-brand-muted hover:text-brand-light"
+          className="p-2 hover:bg-cc-border/50 rounded-lg transition-colors text-cc-muted hover:text-cc-text"
         >
           <X size={20} />
         </button>
         <div className="flex-1">
-          <h2 className="text-xl font-bold text-brand-light">{inspection.title}</h2>
-          <p className="text-sm text-brand-muted">Created {formatRelativeTime(inspection.createdAt)}</p>
+          <h2 className="text-xl font-bold text-cc-text">{inspection.title}</h2>
+          <p className="text-sm text-cc-muted">Created {formatRelativeTime(inspection.createdAt)}</p>
         </div>
       </div>
 
       {/* Description */}
       <div className="card">
-        <h3 className="text-sm font-medium text-brand-muted uppercase tracking-wider mb-2">Description</h3>
-        <p className="text-brand-light">{inspection.description}</p>
+        <h3 className="text-sm font-medium text-cc-muted uppercase tracking-wider mb-2">Description</h3>
+        <p className="text-cc-text">{inspection.description}</p>
       </div>
 
       {/* Confirmed Time */}
@@ -194,7 +194,7 @@ function InspectionDetail({
             </div>
             <div>
               <h3 className="font-bold text-green-400">Confirmed</h3>
-              <p className="text-brand-light">{formatDate(inspection.confirmedTime)}</p>
+              <p className="text-cc-text">{formatDate(inspection.confirmedTime)}</p>
             </div>
           </div>
         </div>
@@ -203,11 +203,11 @@ function InspectionDetail({
       {/* Proposed Times */}
       <div className="card">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-medium text-brand-muted uppercase tracking-wider">Proposed Times</h3>
+          <h3 className="text-sm font-medium text-cc-muted uppercase tracking-wider">Proposed Times</h3>
           {inspection.status === 'pending' && (
             <button
               onClick={() => setShowTimePicker(!showTimePicker)}
-              className="text-sm text-brand-orange hover:underline flex items-center gap-1"
+              className="text-sm text-cc-accent hover:underline flex items-center gap-1"
             >
               <Plus size={14} />
               Propose Time
@@ -217,7 +217,7 @@ function InspectionDetail({
 
         {/* Time Picker */}
         {showTimePicker && (
-          <div className="flex items-center gap-2 mb-4 p-3 bg-brand-dark/50 rounded-lg">
+          <div className="flex items-center gap-2 mb-4 p-3 bg-cc-bg/50 rounded-lg">
             <input
               type="datetime-local"
               value={newTime}
@@ -247,14 +247,14 @@ function InspectionDetail({
                 className={cn(
                   'p-4 rounded-lg border transition-colors',
                   hasVoted
-                    ? 'bg-brand-orange/10 border-brand-orange/30'
-                    : 'bg-brand-dark/50 border-slate-700 hover:border-slate-600'
+                    ? 'bg-cc-accent/10 border-cc-accent/30'
+                    : 'bg-cc-bg/50 border-cc-border hover:border-cc-border'
                 )}
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-brand-light">{formatDate(time.time)}</p>
-                    <p className="text-xs text-brand-muted mt-1">
+                    <p className="font-medium text-cc-text">{formatDate(time.time)}</p>
+                    <p className="text-xs text-cc-muted mt-1">
                       Proposed by {time.proposedBy.name} • {voteCount} vote{voteCount !== 1 ? 's' : ''}
                     </p>
                   </div>
@@ -270,13 +270,13 @@ function InspectionDetail({
                     {!hasVoted && inspection.status === 'pending' && (
                       <button
                         onClick={() => onVoteForTime(time.id)}
-                        className="text-xs px-3 py-1 rounded-full bg-slate-700 text-brand-light hover:bg-slate-600 transition-colors"
+                        className="text-xs px-3 py-1 rounded-full bg-cc-border text-cc-text hover:bg-cc-border transition-colors"
                       >
                         Vote
                       </button>
                     )}
                     {hasVoted && (
-                      <span className="text-xs px-3 py-1 rounded-full bg-brand-orange/20 text-brand-orange">
+                      <span className="text-xs px-3 py-1 rounded-full bg-cc-accent/20 text-cc-accent">
                         Voted
                       </span>
                     )}
@@ -287,7 +287,7 @@ function InspectionDetail({
           })}
 
           {inspection.proposedTimes.length === 0 && (
-            <p className="text-center text-brand-muted py-4">
+            <p className="text-center text-cc-muted py-4">
               No times proposed yet. Be the first to suggest a time.
             </p>
           )}
@@ -333,13 +333,13 @@ function NewInspectionModal({ currentUser, onClose, onCreate }: NewInspectionMod
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-brand-navy border border-slate-700/50 rounded-xl w-full max-w-lg shadow-2xl">
+      <div className="bg-cc-surface border border-cc-border/50 rounded-xl w-full max-w-lg shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-700/50">
-          <h2 className="text-lg font-bold text-brand-light">Schedule New Inspection</h2>
+        <div className="flex items-center justify-between p-4 border-b border-cc-border/50">
+          <h2 className="text-lg font-bold text-cc-text">Schedule New Inspection</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors text-brand-muted hover:text-brand-light"
+            className="p-2 hover:bg-cc-border/50 rounded-lg transition-colors text-cc-muted hover:text-cc-text"
           >
             <X size={20} />
           </button>
@@ -348,7 +348,7 @@ function NewInspectionModal({ currentUser, onClose, onCreate }: NewInspectionMod
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
           <div>
-            <label className="block text-xs font-medium text-brand-muted uppercase tracking-wider mb-2">
+            <label className="block text-xs font-medium text-cc-muted uppercase tracking-wider mb-2">
               Title
             </label>
             <input
@@ -361,7 +361,7 @@ function NewInspectionModal({ currentUser, onClose, onCreate }: NewInspectionMod
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-brand-muted uppercase tracking-wider mb-2">
+            <label className="block text-xs font-medium text-cc-muted uppercase tracking-wider mb-2">
               Description
             </label>
             <textarea
@@ -374,7 +374,7 @@ function NewInspectionModal({ currentUser, onClose, onCreate }: NewInspectionMod
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-brand-muted uppercase tracking-wider mb-2">
+            <label className="block text-xs font-medium text-cc-muted uppercase tracking-wider mb-2">
               Suggest Initial Time (Optional)
             </label>
             <input

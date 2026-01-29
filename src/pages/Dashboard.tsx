@@ -12,9 +12,9 @@ export default function Dashboard() {
     if (!user?.role) {
       return (
         <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-          <LayoutDashboard size={48} className="text-brand-muted mb-4" />
-          <h2 className="text-xl font-bold text-brand-light">No Role Selected</h2>
-          <p className="text-brand-muted max-w-md mt-2">
+          <LayoutDashboard size={48} className="text-cc-muted mb-4" />
+          <h2 className="text-xl font-bold text-cc-text">No Role Selected</h2>
+          <p className="text-cc-muted max-w-md mt-2">
             Please contact support or use the debug menu to select a role.
           </p>
         </div>
@@ -39,16 +39,16 @@ export default function Dashboard() {
       {/* Debug Role Switcher - Visible only when toggled or in dev */}
       <div className="flex justify-end mb-4">
         <div className="flex items-center gap-2">
-           <label className="text-xs text-brand-muted uppercase font-bold tracking-wider">Dev Mode:</label>
-           <div className="flex bg-brand-dark rounded-lg p-1 border border-slate-700">
+           <label className="text-xs text-cc-muted uppercase font-bold tracking-wider">Dev Mode:</label>
+           <div className="flex bg-cc-bg rounded-lg p-1 border border-cc-border">
              {(['owner', 'pm', 'tenant'] as UserRole[]).map((r) => (
                <button
                  key={r}
                  onClick={() => login(r)}
                  className={`px-3 py-1 text-xs rounded-md transition-all ${
                    user?.role === r 
-                     ? 'bg-brand-orange text-white shadow-lg' 
-                     : 'text-brand-muted hover:text-brand-light hover:bg-white/5'
+                     ? 'bg-cc-accent text-white shadow-lg' 
+                     : 'text-cc-muted hover:text-cc-text hover:bg-white/5'
                  }`}
                >
                  {r?.toUpperCase()}

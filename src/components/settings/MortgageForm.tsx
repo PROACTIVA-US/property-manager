@@ -60,111 +60,111 @@ export default function MortgageForm({ initialData, onSave }: MortgageFormProps)
           <Calculator className="text-green-400" size={24} />
         </div>
         <div>
-          <h3 className="text-xl font-bold text-brand-light">Mortgage Details</h3>
-          <p className="text-sm text-brand-muted">Current loan information from your lender</p>
+          <h3 className="text-xl font-bold text-cc-text">Mortgage Details</h3>
+          <p className="text-sm text-cc-muted">Current loan information from your lender</p>
         </div>
       </div>
 
       {/* Core Loan Details */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Current Principal Balance *
           </label>
           <input
             type="number"
             value={formData.principal}
             onChange={(e) => handleChange('principal', parseFloat(e.target.value) || 0)}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             required
             min="0"
             step="0.01"
           />
-          <p className="text-xs text-brand-muted mt-1">{formatCurrency(formData.principal)}</p>
+          <p className="text-xs text-cc-muted mt-1">{formatCurrency(formData.principal)}</p>
         </div>
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Interest Rate (%) *
           </label>
           <input
             type="number"
             value={formData.interestRate}
             onChange={(e) => handleChange('interestRate', parseFloat(e.target.value) || 0)}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             required
             min="0"
             max="100"
             step="0.001"
           />
-          <p className="text-xs text-brand-muted mt-1">{formData.interestRate.toFixed(3)}%</p>
+          <p className="text-xs text-cc-muted mt-1">{formData.interestRate.toFixed(3)}%</p>
         </div>
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Loan Term (Years) *
           </label>
           <input
             type="number"
             value={formData.loanTermYears}
             onChange={(e) => handleChange('loanTermYears', parseInt(e.target.value) || 30)}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             required
             min="1"
             max="50"
           />
-          <p className="text-xs text-brand-muted mt-1">{monthsRemaining} months</p>
+          <p className="text-xs text-cc-muted mt-1">{monthsRemaining} months</p>
         </div>
       </div>
 
       {/* Monthly Payments */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Monthly P&I Payment *
           </label>
           <input
             type="number"
             value={formData.monthlyPAndI}
             onChange={(e) => handleChange('monthlyPAndI', parseFloat(e.target.value) || 0)}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             required
             min="0"
             step="0.01"
           />
-          <p className="text-xs text-brand-muted mt-1">
+          <p className="text-xs text-cc-muted mt-1">
             {formatCurrency(formData.monthlyPAndI)} Principal & Interest
           </p>
         </div>
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Monthly Escrow *
           </label>
           <input
             type="number"
             value={formData.monthlyEscrow}
             onChange={(e) => handleChange('monthlyEscrow', parseFloat(e.target.value) || 0)}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             required
             min="0"
             step="0.01"
           />
-          <p className="text-xs text-brand-muted mt-1">
+          <p className="text-xs text-cc-muted mt-1">
             {formatCurrency(formData.monthlyEscrow)} Taxes & Insurance
           </p>
         </div>
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Total Monthly Payment *
           </label>
           <input
             type="number"
             value={formData.totalMonthlyPayment}
             onChange={(e) => handleChange('totalMonthlyPayment', parseFloat(e.target.value) || 0)}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-green-400 focus:outline-none focus:border-brand-orange font-bold"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-green-400 focus:outline-none focus:border-cc-accent font-bold"
             required
             min="0"
             step="0.01"
           />
-          <p className="text-xs text-brand-muted mt-1">
+          <p className="text-xs text-cc-muted mt-1">
             {formatCurrency(formData.totalMonthlyPayment)}
           </p>
         </div>
@@ -191,75 +191,75 @@ export default function MortgageForm({ initialData, onSave }: MortgageFormProps)
       {/* Additional Details */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Loan Start Date *
           </label>
           <input
             type="date"
             value={formData.loanStartDate}
             onChange={(e) => handleChange('loanStartDate', e.target.value)}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Original Loan Amount
           </label>
           <input
             type="number"
             value={formData.originalLoanAmount || ''}
             onChange={(e) => handleChange('originalLoanAmount', e.target.value ? parseFloat(e.target.value) : '')}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             min="0"
             step="1000"
           />
-          <p className="text-xs text-brand-muted mt-1">
+          <p className="text-xs text-cc-muted mt-1">
             {formData.originalLoanAmount ? formatCurrency(formData.originalLoanAmount) : 'Optional'}
           </p>
         </div>
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Lender Name
           </label>
           <input
             type="text"
             value={formData.lender || ''}
             onChange={(e) => handleChange('lender', e.target.value)}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             placeholder="Bank of America"
           />
         </div>
       </div>
 
       {/* Summary Card */}
-      <div className="card bg-brand-navy/50 p-4">
-        <h4 className="text-sm font-bold text-brand-orange mb-3">Loan Summary</h4>
+      <div className="card bg-cc-surface/50 p-4">
+        <h4 className="text-sm font-bold text-cc-accent mb-3">Loan Summary</h4>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
-            <p className="text-brand-muted">Remaining Balance</p>
-            <p className="font-bold text-brand-light">{formatCurrency(remainingBalance)}</p>
+            <p className="text-cc-muted">Remaining Balance</p>
+            <p className="font-bold text-cc-text">{formatCurrency(remainingBalance)}</p>
           </div>
           <div>
-            <p className="text-brand-muted">Monthly P&I</p>
-            <p className="font-bold text-brand-light">{formatCurrency(formData.monthlyPAndI)}</p>
+            <p className="text-cc-muted">Monthly P&I</p>
+            <p className="font-bold text-cc-text">{formatCurrency(formData.monthlyPAndI)}</p>
           </div>
           <div>
-            <p className="text-brand-muted">Monthly Escrow</p>
-            <p className="font-bold text-brand-light">{formatCurrency(formData.monthlyEscrow)}</p>
+            <p className="text-cc-muted">Monthly Escrow</p>
+            <p className="font-bold text-cc-text">{formatCurrency(formData.monthlyEscrow)}</p>
           </div>
           <div>
-            <p className="text-brand-muted">Total Payment</p>
+            <p className="text-cc-muted">Total Payment</p>
             <p className="font-bold text-green-400">{formatCurrency(formData.totalMonthlyPayment)}</p>
           </div>
         </div>
-        <p className="text-xs text-brand-muted mt-3">
+        <p className="text-xs text-cc-muted mt-3">
           Note: Only P&I affects payoff calculations. Escrow is for taxes and insurance.
         </p>
       </div>
 
       {/* Save Button */}
-      <div className="flex items-center gap-4 pt-4 border-t border-slate-700">
+      <div className="flex items-center gap-4 pt-4 border-t border-cc-border">
         <button
           type="submit"
           disabled={isSaving}

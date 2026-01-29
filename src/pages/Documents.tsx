@@ -159,12 +159,12 @@ export default function Documents() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-orange/20 rounded-lg">
-            <FileText className="text-brand-orange" size={28} />
+          <div className="p-2 bg-cc-accent/20 rounded-lg">
+            <FileText className="text-cc-accent" size={28} />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-brand-light">Documents</h1>
-            <p className="text-brand-muted mt-1">
+            <h1 className="text-3xl font-bold text-cc-text">Documents</h1>
+            <p className="text-cc-muted mt-1">
               Manage leases, receipts, and property photos
             </p>
           </div>
@@ -208,16 +208,16 @@ export default function Documents() {
       )}
 
       {/* Storage Info */}
-      <div className="card bg-brand-navy/30 p-4">
+      <div className="card bg-cc-surface/30 p-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-brand-muted">Storage Used</span>
-          <span className="text-sm text-brand-light font-medium">
+          <span className="text-sm text-cc-muted">Storage Used</span>
+          <span className="text-sm text-cc-text font-medium">
             {formatFileSize(storageUsed)} / {formatFileSize(storageUsed + storageRemaining)}
           </span>
         </div>
-        <div className="w-full bg-slate-700 rounded-full h-2">
+        <div className="w-full bg-cc-border rounded-full h-2">
           <div
-            className="bg-brand-orange rounded-full h-2 transition-all"
+            className="bg-cc-accent rounded-full h-2 transition-all"
             style={{ width: `${Math.min(storagePercent, 100)}%` }}
           />
         </div>
@@ -226,7 +226,7 @@ export default function Documents() {
       {/* Search & Project Filter */}
       <div className="flex gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-muted" size={20} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-cc-muted" size={20} />
           <input
             type="text"
             value={searchQuery}
@@ -236,7 +236,7 @@ export default function Documents() {
           />
         </div>
         <div className="flex items-center gap-2">
-          <Filter size={16} className="text-brand-muted" />
+          <Filter size={16} className="text-cc-muted" />
           <select
             value={projectFilter}
             onChange={(e) => setProjectFilter(e.target.value)}
@@ -252,7 +252,7 @@ export default function Documents() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-slate-700">
+      <div className="border-b border-cc-border">
         <div className="flex flex-wrap gap-1">
           {tabs.map((tab) => {
             const count = getDocumentsByCategory(tab.id).length;
@@ -262,15 +262,15 @@ export default function Documents() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-4 py-3 text-sm font-medium transition-colors relative ${
                   activeTab === tab.id
-                    ? 'text-brand-orange'
-                    : 'text-brand-muted hover:text-brand-light'
+                    ? 'text-cc-accent'
+                    : 'text-cc-muted hover:text-cc-text'
                 }`}
               >
                 <div>
                   <div className="flex items-center gap-2">
                     {tab.label}
                     {count > 0 && (
-                      <span className="px-2 py-0.5 rounded-full text-xs bg-slate-700 text-brand-light">
+                      <span className="px-2 py-0.5 rounded-full text-xs bg-cc-border text-cc-text">
                         {count}
                       </span>
                     )}
@@ -278,7 +278,7 @@ export default function Documents() {
                   <div className="text-xs opacity-75">{tab.description}</div>
                 </div>
                 {activeTab === tab.id && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-orange" />
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-cc-accent" />
                 )}
               </button>
             );
@@ -289,11 +289,11 @@ export default function Documents() {
       {/* Upload Area */}
       <div className="card p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-brand-light">
+          <h3 className="text-lg font-bold text-cc-text">
             Upload {CATEGORY_LABELS[activeTab]}
           </h3>
           <div className="flex items-center gap-2">
-            <FolderKanban size={16} className="text-brand-muted" />
+            <FolderKanban size={16} className="text-cc-muted" />
             <select
               value={selectedProjectId}
               onChange={(e) => setSelectedProjectId(e.target.value)}
@@ -306,7 +306,7 @@ export default function Documents() {
             </select>
           </div>
         </div>
-        <div className="border-2 border-dashed border-slate-600 rounded-lg p-8 text-center hover:border-brand-orange/50 transition-colors">
+        <div className="border-2 border-dashed border-cc-border rounded-lg p-8 text-center hover:border-cc-accent/50 transition-colors">
           <input
             ref={fileInputRef}
             type="file"
@@ -321,15 +321,15 @@ export default function Documents() {
             htmlFor="file-upload"
             className="cursor-pointer flex flex-col items-center gap-3"
           >
-            <Upload className="text-brand-orange" size={48} />
+            <Upload className="text-cc-accent" size={48} />
             <div>
-              <p className="text-brand-light font-medium">
+              <p className="text-cc-text font-medium">
                 {uploading ? 'Uploading...' : 'Click to upload files'}
               </p>
-              <p className="text-sm text-brand-muted mt-1">
+              <p className="text-sm text-cc-muted mt-1">
                 Accepted formats: {ACCEPTED_FILE_TYPES[activeTab]}
               </p>
-              <p className="text-xs text-brand-muted mt-1">Max 5MB per file</p>
+              <p className="text-xs text-cc-muted mt-1">Max 5MB per file</p>
             </div>
           </label>
         </div>
@@ -337,12 +337,12 @@ export default function Documents() {
 
       {/* Documents List */}
       <div className="card p-6">
-        <h3 className="text-lg font-bold text-brand-light mb-4">
+        <h3 className="text-lg font-bold text-cc-text mb-4">
           {searchQuery ? 'Search Results' : CATEGORY_LABELS[activeTab]}
         </h3>
 
         {displayedDocs.length === 0 ? (
-          <div className="text-center py-8 text-brand-muted">
+          <div className="text-center py-8 text-cc-muted">
             {searchQuery
               ? 'No documents found matching your search'
               : `No ${CATEGORY_LABELS[activeTab].toLowerCase()} uploaded yet`}
@@ -352,16 +352,16 @@ export default function Documents() {
             {displayedDocs.map((doc) => (
               <div
                 key={doc.id}
-                className="flex items-center gap-4 p-4 bg-brand-navy/30 rounded-lg hover:bg-brand-navy/50 transition-colors"
+                className="flex items-center gap-4 p-4 bg-cc-surface/30 rounded-lg hover:bg-cc-surface/50 transition-colors"
               >
                 <div className="text-3xl">{getFileIcon(doc.mimeType)}</div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-brand-light font-medium truncate">{doc.name}</h4>
-                  <div className="flex items-center gap-4 mt-1 text-sm text-brand-muted">
+                  <h4 className="text-cc-text font-medium truncate">{doc.name}</h4>
+                  <div className="flex items-center gap-4 mt-1 text-sm text-cc-muted">
                     <span>{formatFileSize(doc.fileSize)}</span>
                     <span>{new Date(doc.uploadDate).toLocaleDateString()}</span>
                     {searchQuery && (
-                      <span className="px-2 py-0.5 rounded-full text-xs bg-slate-700 text-brand-light">
+                      <span className="px-2 py-0.5 rounded-full text-xs bg-cc-border text-cc-text">
                         {CATEGORY_LABELS[doc.category]}
                       </span>
                     )}
@@ -373,7 +373,7 @@ export default function Documents() {
                     )}
                   </div>
                   {doc.description && (
-                    <p className="text-sm text-brand-muted mt-1">{doc.description}</p>
+                    <p className="text-sm text-cc-muted mt-1">{doc.description}</p>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
@@ -408,9 +408,9 @@ export default function Documents() {
       </div>
 
       {/* Info Footer */}
-      <div className="card bg-brand-navy/30 p-4">
-        <h4 className="text-sm font-bold text-brand-light mb-2">💡 Tips</h4>
-        <ul className="text-sm text-brand-muted space-y-1">
+      <div className="card bg-cc-surface/30 p-4">
+        <h4 className="text-sm font-bold text-cc-text mb-2">💡 Tips</h4>
+        <ul className="text-sm text-cc-muted space-y-1">
           <li>• All documents are stored locally in your browser</li>
           <li>• Keep important documents backed up using the Export feature</li>
           <li>• Maximum file size is 5MB per document</li>
@@ -426,14 +426,14 @@ export default function Documents() {
           onClick={closePreview}
         >
           <div
-            className="bg-brand-dark rounded-lg p-4 max-w-4xl max-h-[90vh] overflow-auto"
+            className="bg-cc-bg rounded-lg p-4 max-w-4xl max-h-[90vh] overflow-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-brand-light font-bold">{previewDoc.name}</h3>
+              <h3 className="text-cc-text font-bold">{previewDoc.name}</h3>
               <button
                 onClick={closePreview}
-                className="text-brand-muted hover:text-brand-light"
+                className="text-cc-muted hover:text-cc-text"
               >
                 ✕
               </button>

@@ -77,14 +77,14 @@ export default function CSVImport({ onDataImported, templateColumns, title, desc
   };
 
   return (
-    <div className="card bg-brand-navy/30 border-l-4 border-brand-orange">
+    <div className="card bg-cc-surface/30 border-l-4 border-cc-accent">
       <div className="flex items-start gap-3">
-        <div className="p-2 bg-brand-orange/20 rounded-lg text-brand-orange">
+        <div className="p-2 bg-cc-accent/20 rounded-lg text-cc-accent">
           <FileText size={20} />
         </div>
         <div className="flex-1">
-          <h4 className="text-sm font-bold text-brand-light mb-1">{title}</h4>
-          <p className="text-sm text-brand-muted mb-4">{description}</p>
+          <h4 className="text-sm font-bold text-cc-text mb-1">{title}</h4>
+          <p className="text-sm text-cc-muted mb-4">{description}</p>
 
           <div className="flex flex-wrap gap-3">
             <button
@@ -119,7 +119,7 @@ export default function CSVImport({ onDataImported, templateColumns, title, desc
             </div>
           )}
 
-          <div className="mt-4 text-xs text-brand-muted">
+          <div className="mt-4 text-xs text-cc-muted">
             <p className="font-medium mb-1">Expected columns:</p>
             <p className="font-mono bg-black/30 p-2 rounded">{templateColumns.join(', ')}</p>
           </div>

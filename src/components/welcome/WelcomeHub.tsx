@@ -206,7 +206,7 @@ function QuickLinkCard({ to, icon, title, count, subtitle, color, badge }: Quick
     blue: 'from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700',
     purple: 'from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700',
     green: 'from-green-500 to-green-600 hover:from-green-600 hover:to-green-700',
-    orange: 'from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700',
+    orange: 'from-indigo-400 to-indigo-500 hover:from-indigo-500 hover:to-orange-700',
   };
 
   return (

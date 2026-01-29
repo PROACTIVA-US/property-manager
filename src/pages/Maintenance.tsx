@@ -123,12 +123,12 @@ export default function Maintenance() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-orange/20 rounded-lg">
-            <Wrench className="text-brand-orange" size={28} />
+          <div className="p-2 bg-cc-accent/20 rounded-lg">
+            <Wrench className="text-cc-accent" size={28} />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-brand-light">Maintenance</h1>
-            <p className="text-brand-muted mt-1">
+            <h1 className="text-3xl font-bold text-cc-text">Maintenance</h1>
+            <p className="text-cc-muted mt-1">
               Track property maintenance tasks and costs
             </p>
           </div>
@@ -136,14 +136,14 @@ export default function Maintenance() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-slate-700/50">
+      <div className="border-b border-cc-border/50">
         <nav className="flex gap-1" aria-label="Maintenance tabs">
           <button
             onClick={() => setActiveTab('tasks')}
             className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
               activeTab === 'tasks'
-                ? 'border-brand-orange text-brand-orange'
-                : 'border-transparent text-brand-muted hover:text-brand-light hover:border-slate-600'
+                ? 'border-cc-accent text-cc-accent'
+                : 'border-transparent text-cc-muted hover:text-cc-text hover:border-cc-border'
             }`}
           >
             <ClipboardList size={16} />
@@ -154,14 +154,14 @@ export default function Maintenance() {
               onClick={() => setActiveTab('costs')}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === 'costs'
-                  ? 'border-brand-orange text-brand-orange'
-                  : 'border-transparent text-brand-muted hover:text-brand-light hover:border-slate-600'
+                  ? 'border-cc-accent text-cc-accent'
+                  : 'border-transparent text-cc-muted hover:text-cc-text hover:border-cc-border'
               }`}
             >
               <DollarSign size={16} />
               Costs & Expenses
               {expenses.length > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 text-xs rounded bg-slate-700 text-brand-muted">
+                <span className="ml-1 px-1.5 py-0.5 text-xs rounded bg-cc-border text-cc-muted">
                   {expenses.length}
                 </span>
               )}
@@ -183,8 +183,8 @@ export default function Maintenance() {
                   <DollarSign size={20} />
                 </div>
                 <div>
-                  <p className="text-xs text-brand-muted uppercase">Total Expenses</p>
-                  <p className="text-xl font-bold text-brand-light">
+                  <p className="text-xs text-cc-muted uppercase">Total Expenses</p>
+                  <p className="text-xl font-bold text-cc-text">
                     ${totalExpenses.toLocaleString()}
                   </p>
                 </div>
@@ -196,8 +196,8 @@ export default function Maintenance() {
                   <Tag size={20} />
                 </div>
                 <div>
-                  <p className="text-xs text-brand-muted uppercase">Capital Improvements</p>
-                  <p className="text-xl font-bold text-brand-light">
+                  <p className="text-xs text-cc-muted uppercase">Capital Improvements</p>
+                  <p className="text-xl font-bold text-cc-text">
                     ${capitalImprovements.toLocaleString()}
                   </p>
                 </div>
@@ -207,10 +207,10 @@ export default function Maintenance() {
 
           {/* Add Expense Button & Project Filter */}
           <div className="flex items-center justify-between flex-wrap gap-3">
-            <h2 className="text-lg font-bold text-brand-light">Expense Tracking</h2>
+            <h2 className="text-lg font-bold text-cc-text">Expense Tracking</h2>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
-                <Filter size={16} className="text-brand-muted" />
+                <Filter size={16} className="text-cc-muted" />
                 <select
                   value={projectFilter}
                   onChange={(e) => setProjectFilter(e.target.value)}
@@ -244,10 +244,10 @@ export default function Maintenance() {
           {/* Add Expense Form */}
           {showAddForm && (
             <div className="card">
-              <h3 className="text-lg font-bold text-brand-light mb-4">New Expense</h3>
+              <h3 className="text-lg font-bold text-cc-text mb-4">New Expense</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-brand-light mb-2">
+                  <label className="block text-sm font-medium text-cc-text mb-2">
                     Date
                   </label>
                   <input
@@ -258,7 +258,7 @@ export default function Maintenance() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-brand-light mb-2">
+                  <label className="block text-sm font-medium text-cc-text mb-2">
                     Amount
                   </label>
                   <input
@@ -270,7 +270,7 @@ export default function Maintenance() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-brand-light mb-2">
+                  <label className="block text-sm font-medium text-cc-text mb-2">
                     Category
                   </label>
                   <select
@@ -284,7 +284,7 @@ export default function Maintenance() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-brand-light mb-2">
+                  <label className="block text-sm font-medium text-cc-text mb-2">
                     Description
                   </label>
                   <input
@@ -297,7 +297,7 @@ export default function Maintenance() {
                 </div>
               </div>
               <div className="mt-4">
-                <label className="block text-sm font-medium text-brand-light mb-2">
+                <label className="block text-sm font-medium text-cc-text mb-2">
                   <span className="flex items-center gap-2">
                     <FolderKanban size={14} />
                     Link to Project (optional)
@@ -315,7 +315,7 @@ export default function Maintenance() {
                 </select>
               </div>
               <div className="mt-4">
-                <label className="flex items-center gap-2 text-sm text-brand-light">
+                <label className="flex items-center gap-2 text-sm text-cc-text">
                   <input
                     type="checkbox"
                     checked={newExpense.isCapitalImprovement}
@@ -338,13 +338,13 @@ export default function Maintenance() {
 
           {/* Expense List */}
           <div className="card">
-            <h3 className="text-lg font-bold text-brand-light mb-4 flex items-center gap-2">
-              <DollarSign size={20} className="text-brand-orange" />
+            <h3 className="text-lg font-bold text-cc-text mb-4 flex items-center gap-2">
+              <DollarSign size={20} className="text-cc-accent" />
               Expense History ({filteredExpenses.length})
             </h3>
 
             {filteredExpenses.length === 0 ? (
-              <div className="text-center py-12 text-brand-muted">
+              <div className="text-center py-12 text-cc-muted">
                 <DollarSign size={48} className="mx-auto mb-4 opacity-50" />
                 <p>No expenses recorded yet</p>
                 <p className="text-sm mt-1">Add your first expense or import from CSV</p>
@@ -354,16 +354,16 @@ export default function Maintenance() {
                 {filteredExpenses.map((expense) => (
                   <div
                     key={expense.id}
-                    className="p-4 bg-brand-dark/50 border border-slate-700/50 rounded-lg flex items-center justify-between hover:border-slate-600 transition-colors"
+                    className="p-4 bg-cc-bg/50 border border-cc-border/50 rounded-lg flex items-center justify-between hover:border-cc-border transition-colors"
                   >
                     <div className="flex items-center gap-4 flex-1">
-                      <div className="p-2 bg-brand-orange/20 rounded-lg text-brand-orange">
+                      <div className="p-2 bg-cc-accent/20 rounded-lg text-cc-accent">
                         <DollarSign size={20} />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-3">
-                          <p className="font-medium text-brand-light">{expense.description}</p>
-                          <span className="text-xs px-2 py-0.5 rounded bg-slate-700/50 text-brand-muted">
+                          <p className="font-medium text-cc-text">{expense.description}</p>
+                          <span className="text-xs px-2 py-0.5 rounded bg-cc-border/50 text-cc-muted">
                             {expense.category}
                           </span>
                           {expense.isCapitalImprovement && (
@@ -378,7 +378,7 @@ export default function Maintenance() {
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-4 mt-1 text-xs text-brand-muted">
+                        <div className="flex items-center gap-4 mt-1 text-xs text-cc-muted">
                           <span className="flex items-center gap-1">
                             <Calendar size={12} />
                             {new Date(expense.date).toLocaleDateString()}
@@ -386,14 +386,14 @@ export default function Maintenance() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-brand-light">
+                        <p className="text-lg font-bold text-cc-text">
                           ${expense.amount.toLocaleString()}
                         </p>
                       </div>
                     </div>
                     <button
                       onClick={() => handleDeleteExpense(expense.id)}
-                      className="ml-4 p-2 text-brand-muted hover:text-red-400 transition-colors"
+                      className="ml-4 p-2 text-cc-muted hover:text-red-400 transition-colors"
                       title="Delete expense"
                     >
                       <Trash2 size={16} />

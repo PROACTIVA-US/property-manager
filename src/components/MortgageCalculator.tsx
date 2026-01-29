@@ -134,8 +134,8 @@ export default function MortgageCalculator() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-brand-light">Mortgage Payoff Accelerator</h2>
-          <p className="text-brand-muted">Visualize how extra payments save you money.</p>
+          <h2 className="text-2xl font-bold text-cc-text">Mortgage Payoff Accelerator</h2>
+          <p className="text-cc-muted">Visualize how extra payments save you money.</p>
         </div>
         <button
           onClick={() => {
@@ -158,7 +158,7 @@ export default function MortgageCalculator() {
           {/* Loan Details Card */}
           <div className="card">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-semibold text-brand-orange">Loan Details</h3>
+              <h3 className="font-semibold text-cc-accent">Loan Details</h3>
               <button
                 onClick={() => setIsManualInput(!isManualInput)}
                 className="text-sm text-blue-400 hover:text-blue-300 font-medium"
@@ -170,31 +170,31 @@ export default function MortgageCalculator() {
             {isManualInput ? (
               <div className="grid grid-cols-2 gap-4">
                  <div>
-                   <label className="block text-xs font-medium text-brand-muted mb-1">Principal</label>
+                   <label className="block text-xs font-medium text-cc-muted mb-1">Principal</label>
                    <input type="number" value={manualInputs.principal} onChange={(e) => handleManualInputChange('principal', e.target.value)} className="input-field w-full" />
                  </div>
                  <div>
-                   <label className="block text-xs font-medium text-brand-muted mb-1">Rate (%)</label>
+                   <label className="block text-xs font-medium text-cc-muted mb-1">Rate (%)</label>
                    <input type="number" value={manualInputs.rate} onChange={(e) => handleManualInputChange('rate', e.target.value)} className="input-field w-full" />
                  </div>
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="bg-brand-dark/30 p-2 rounded">
-                  <p className="text-brand-muted text-xs uppercase">Principal</p>
-                  <p className="font-medium text-brand-light">{formatCurrency(loanParams.principal)}</p>
+                <div className="bg-cc-bg/30 p-2 rounded">
+                  <p className="text-cc-muted text-xs uppercase">Principal</p>
+                  <p className="font-medium text-cc-text">{formatCurrency(loanParams.principal)}</p>
                 </div>
-                <div className="bg-brand-dark/30 p-2 rounded">
-                  <p className="text-brand-muted text-xs uppercase">Rate</p>
-                  <p className="font-medium text-brand-light">{(loanParams.annualRate * 100).toFixed(3)}%</p>
+                <div className="bg-cc-bg/30 p-2 rounded">
+                  <p className="text-cc-muted text-xs uppercase">Rate</p>
+                  <p className="font-medium text-cc-text">{(loanParams.annualRate * 100).toFixed(3)}%</p>
                 </div>
-                <div className="bg-brand-dark/30 p-2 rounded">
-                   <p className="text-brand-muted text-xs uppercase">Start Date</p>
-                   <p className="font-medium text-brand-light">{formatDate(loanParams.startDate)}</p>
+                <div className="bg-cc-bg/30 p-2 rounded">
+                   <p className="text-cc-muted text-xs uppercase">Start Date</p>
+                   <p className="font-medium text-cc-text">{formatDate(loanParams.startDate)}</p>
                 </div>
-                <div className="bg-brand-dark/30 p-2 rounded">
-                   <p className="text-brand-muted text-xs uppercase">Monthly P&I</p>
-                   <p className="font-medium text-brand-light">{formatCurrency(loanParams.baseMonthlyPAndI)}</p>
+                <div className="bg-cc-bg/30 p-2 rounded">
+                   <p className="text-cc-muted text-xs uppercase">Monthly P&I</p>
+                   <p className="font-medium text-cc-text">{formatCurrency(loanParams.baseMonthlyPAndI)}</p>
                 </div>
               </div>
             )}
@@ -205,8 +205,8 @@ export default function MortgageCalculator() {
              {/* Extra Monthly Payment */}
              <div>
                 <div className="flex justify-between mb-2">
-                   <label className="font-medium text-brand-light">Extra Monthly Payment</label>
-                   <span className="text-brand-orange font-bold">{formatCurrency(extraPayment)}/mo</span>
+                   <label className="font-medium text-cc-text">Extra Monthly Payment</label>
+                   <span className="text-cc-accent font-bold">{formatCurrency(extraPayment)}/mo</span>
                 </div>
                 <input
                   type="range"
@@ -215,15 +215,15 @@ export default function MortgageCalculator() {
                   step="50"
                   value={extraPayment}
                   onChange={(e) => setExtraPayment(parseFloat(e.target.value))}
-                  className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-orange"
+                  className="w-full h-2 bg-cc-border rounded-lg appearance-none cursor-pointer accent-cc-accent"
                 />
              </div>
 
              {/* Payoff Date Target */}
              <div>
                 <div className="flex justify-between mb-2">
-                   <label className="font-medium text-brand-light">Target Payoff Date</label>
-                   <span className="text-brand-orange font-bold">{formatDate(comparison.acceleratedPayoffDate)}</span>
+                   <label className="font-medium text-cc-text">Target Payoff Date</label>
+                   <span className="text-cc-accent font-bold">{formatDate(comparison.acceleratedPayoffDate)}</span>
                 </div>
                 <input
                   type="range"
@@ -232,18 +232,18 @@ export default function MortgageCalculator() {
                   step="1"
                   value={targetDateIndex}
                   onChange={(e) => handleTargetDateChange(parseInt(e.target.value))}
-                  className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-orange"
+                  className="w-full h-2 bg-cc-border rounded-lg appearance-none cursor-pointer accent-cc-accent"
                 />
              </div>
              
              {/* One-time Payment */}
-             <div className="pt-4 border-t border-slate-700/50">
-                <h4 className="text-sm font-medium text-brand-light mb-4">Lump Sum Payment</h4>
+             <div className="pt-4 border-t border-cc-border/50">
+                <h4 className="text-sm font-medium text-cc-text mb-4">Lump Sum Payment</h4>
                 <div className="space-y-4">
                   <div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm text-brand-muted">Amount</span>
-                      <span className="font-medium text-brand-light">{formatCurrency(oneTimeAmount)}</span>
+                      <span className="text-sm text-cc-muted">Amount</span>
+                      <span className="font-medium text-cc-text">{formatCurrency(oneTimeAmount)}</span>
                     </div>
                     <input
                       type="range"
@@ -252,13 +252,13 @@ export default function MortgageCalculator() {
                       step="100"
                       value={oneTimeAmount}
                       onChange={(e) => setOneTimeAmount(parseFloat(e.target.value))}
-                      className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                      className="w-full h-2 bg-cc-border rounded-lg appearance-none cursor-pointer accent-blue-500"
                     />
                   </div>
                   <div>
                     <div className="flex justify-between mb-2">
-                       <span className="text-sm text-brand-muted">Month Applied</span>
-                       <span className="font-medium text-brand-light">Month {oneTimeMonth}</span>
+                       <span className="text-sm text-cc-muted">Month Applied</span>
+                       <span className="font-medium text-cc-text">Month {oneTimeMonth}</span>
                     </div>
                     <input
                       type="range"
@@ -266,7 +266,7 @@ export default function MortgageCalculator() {
                       max={comparison.acceleratedSchedule.length}
                       value={oneTimeMonth}
                       onChange={(e) => setOneTimeMonth(parseInt(e.target.value))}
-                      className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                      className="w-full h-2 bg-cc-border rounded-lg appearance-none cursor-pointer accent-blue-500"
                     />
                   </div>
                 </div>
@@ -279,26 +279,26 @@ export default function MortgageCalculator() {
            {/* Summary Stats */}
            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className="card !p-4">
-                 <p className="text-[10px] text-brand-muted uppercase">New Payoff</p>
-                 <p className="text-lg font-bold text-brand-orange">{formatDate(comparison.acceleratedPayoffDate)}</p>
+                 <p className="text-[10px] text-cc-muted uppercase">New Payoff</p>
+                 <p className="text-lg font-bold text-cc-accent">{formatDate(comparison.acceleratedPayoffDate)}</p>
               </div>
               <div className="card !p-4">
-                 <p className="text-[10px] text-brand-muted uppercase">Time Saved</p>
+                 <p className="text-[10px] text-cc-muted uppercase">Time Saved</p>
                  <p className="text-lg font-bold text-green-400">{Math.round(comparison.monthsSaved / 12 * 10) / 10} Years</p>
               </div>
               <div className="card !p-4">
-                 <p className="text-[10px] text-brand-muted uppercase">Interest Saved</p>
+                 <p className="text-[10px] text-cc-muted uppercase">Interest Saved</p>
                  <p className="text-lg font-bold text-green-400">{formatCurrency(comparison.interestSaved)}</p>
               </div>
               <div className="card !p-4">
-                 <p className="text-[10px] text-brand-muted uppercase">Total Interest</p>
-                 <p className="text-lg font-bold text-brand-light">{formatCurrency(comparison.acceleratedTotalInterest)}</p>
+                 <p className="text-[10px] text-cc-muted uppercase">Total Interest</p>
+                 <p className="text-lg font-bold text-cc-text">{formatCurrency(comparison.acceleratedTotalInterest)}</p>
               </div>
            </div>
 
            {/* Balance Chart */}
            <div className="card">
-              <h3 className="font-semibold text-brand-orange mb-4">Balance Over Time</h3>
+              <h3 className="font-semibold text-cc-accent mb-4">Balance Over Time</h3>
               <div className="h-[250px] w-full">
                  <ResponsiveContainer width="100%" height="100%">
                    <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -319,7 +319,7 @@ export default function MortgageCalculator() {
 
            {/* Interest vs Principal Chart */}
            <div className="card">
-              <h3 className="font-semibold text-brand-orange mb-4">Total Cost Breakdown</h3>
+              <h3 className="font-semibold text-cc-accent mb-4">Total Cost Breakdown</h3>
               <div className="h-[200px] w-full">
                  <ResponsiveContainer width="100%" height="100%">
                    <BarChart data={interestData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -353,26 +353,26 @@ export default function MortgageCalculator() {
       {showTable && (
         <div className="card !p-0 overflow-hidden mt-6">
            <div className="overflow-x-auto max-h-[500px]">
-             <table className="min-w-full divide-y divide-slate-700/50 text-sm">
-               <thead className="bg-brand-dark sticky top-0">
+             <table className="min-w-full divide-y divide-cc-border/50 text-sm">
+               <thead className="bg-cc-bg sticky top-0">
                  <tr>
-                   <th className="px-6 py-3 text-left font-medium text-brand-muted uppercase tracking-wider">Month</th>
-                   <th className="px-6 py-3 text-left font-medium text-brand-muted uppercase tracking-wider">Date</th>
-                   <th className="px-6 py-3 text-right font-medium text-brand-muted uppercase tracking-wider">Principal</th>
-                   <th className="px-6 py-3 text-right font-medium text-brand-muted uppercase tracking-wider">Interest</th>
-                   <th className="px-6 py-3 text-right font-medium text-brand-muted uppercase tracking-wider">Extra</th>
-                   <th className="px-6 py-3 text-right font-medium text-brand-muted uppercase tracking-wider">Balance</th>
+                   <th className="px-6 py-3 text-left font-medium text-cc-muted uppercase tracking-wider">Month</th>
+                   <th className="px-6 py-3 text-left font-medium text-cc-muted uppercase tracking-wider">Date</th>
+                   <th className="px-6 py-3 text-right font-medium text-cc-muted uppercase tracking-wider">Principal</th>
+                   <th className="px-6 py-3 text-right font-medium text-cc-muted uppercase tracking-wider">Interest</th>
+                   <th className="px-6 py-3 text-right font-medium text-cc-muted uppercase tracking-wider">Extra</th>
+                   <th className="px-6 py-3 text-right font-medium text-cc-muted uppercase tracking-wider">Balance</th>
                  </tr>
                </thead>
-               <tbody className="divide-y divide-slate-700/50">
+               <tbody className="divide-y divide-cc-border/50">
                  {comparison.acceleratedSchedule.map((entry) => (
-                   <tr key={entry.month} className="hover:bg-brand-navy/30 transition-colors">
-                     <td className="px-6 py-4 whitespace-nowrap text-brand-light">{entry.month}</td>
-                     <td className="px-6 py-4 whitespace-nowrap text-brand-muted">{formatDate(entry.paymentDate)}</td>
-                     <td className="px-6 py-4 whitespace-nowrap text-right text-brand-light">{formatCurrency(entry.principalPaid)}</td>
+                   <tr key={entry.month} className="hover:bg-cc-surface/30 transition-colors">
+                     <td className="px-6 py-4 whitespace-nowrap text-cc-text">{entry.month}</td>
+                     <td className="px-6 py-4 whitespace-nowrap text-cc-muted">{formatDate(entry.paymentDate)}</td>
+                     <td className="px-6 py-4 whitespace-nowrap text-right text-cc-text">{formatCurrency(entry.principalPaid)}</td>
                      <td className="px-6 py-4 whitespace-nowrap text-right text-red-400">{formatCurrency(entry.interestPaid)}</td>
                      <td className="px-6 py-4 whitespace-nowrap text-right text-green-400 font-medium">{formatCurrency(entry.extraPayment)}</td>
-                     <td className="px-6 py-4 whitespace-nowrap text-right text-brand-light">{formatCurrency(entry.remainingBalance)}</td>
+                     <td className="px-6 py-4 whitespace-nowrap text-right text-cc-text">{formatCurrency(entry.remainingBalance)}</td>
                    </tr>
                  ))}
                </tbody>

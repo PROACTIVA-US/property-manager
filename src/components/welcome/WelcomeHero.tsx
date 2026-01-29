@@ -12,7 +12,7 @@ export default function WelcomeHero({ userName }: WelcomeHeroProps) {
 
   return (
     <div className="mb-8">
-      <h1 className="text-3xl font-bold text-brand-light">
+      <h1 className="text-3xl font-bold text-cc-text">
         {getGreeting()}{userName ? `, ${userName}` : ''}!
       </h1>
     </div>

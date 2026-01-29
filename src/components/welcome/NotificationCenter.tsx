@@ -203,7 +203,7 @@ export function NotificationCenter({ isOpen, onClose, maxHeight = '500px' }: Not
                           {notification.actionRequired && (
                             <>
                               <span>•</span>
-                              <span className="text-orange-600 font-medium">Action required</span>
+                              <span className="text-indigo-500 font-medium">Action required</span>
                             </>
                           )}
                           {notification.archived && (

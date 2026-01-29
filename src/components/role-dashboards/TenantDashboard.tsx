@@ -65,8 +65,8 @@ export default function TenantDashboard() {
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Welcome Header */}
       <div className="text-center py-6">
-        <h1 className="text-3xl font-bold text-brand-light">Welcome Home, {user?.displayName || 'Gregg Marshall'}</h1>
-        <p className="text-brand-muted mt-2 flex items-center justify-center gap-2">
+        <h1 className="text-3xl font-bold text-cc-text">Welcome Home, {user?.displayName || 'Gregg Marshall'}</h1>
+        <p className="text-cc-muted mt-2 flex items-center justify-center gap-2">
           <Home size={16} />
           {lease.propertyAddress}, {lease.unitNumber}
         </p>
@@ -75,28 +75,28 @@ export default function TenantDashboard() {
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="card p-4 text-center">
-          <div className={`text-3xl font-bold ${daysUntilRent <= 5 ? 'text-yellow-400' : 'text-brand-light'}`}>
+          <div className={`text-3xl font-bold ${daysUntilRent <= 5 ? 'text-yellow-400' : 'text-cc-text'}`}>
             {daysUntilRent}
           </div>
-          <p className="text-xs text-brand-muted uppercase tracking-wider mt-1">Days Until Rent</p>
+          <p className="text-xs text-cc-muted uppercase tracking-wider mt-1">Days Until Rent</p>
         </div>
         <div className="card p-4 text-center">
-          <div className={`text-3xl font-bold ${openRequests > 0 ? 'text-brand-orange' : 'text-green-400'}`}>
+          <div className={`text-3xl font-bold ${openRequests > 0 ? 'text-cc-accent' : 'text-green-400'}`}>
             {openRequests}
           </div>
-          <p className="text-xs text-brand-muted uppercase tracking-wider mt-1">Open Requests</p>
+          <p className="text-xs text-cc-muted uppercase tracking-wider mt-1">Open Requests</p>
         </div>
         <div className="card p-4 text-center">
-          <div className={`text-3xl font-bold ${unreadMessages > 0 ? 'text-blue-400' : 'text-brand-light'}`}>
+          <div className={`text-3xl font-bold ${unreadMessages > 0 ? 'text-blue-400' : 'text-cc-text'}`}>
             {unreadMessages}
           </div>
-          <p className="text-xs text-brand-muted uppercase tracking-wider mt-1">Unread Messages</p>
+          <p className="text-xs text-cc-muted uppercase tracking-wider mt-1">Unread Messages</p>
         </div>
         <div className="card p-4 text-center">
-          <div className={`text-3xl font-bold ${daysUntilLeaseEnd <= 60 ? 'text-yellow-400' : 'text-brand-light'}`}>
+          <div className={`text-3xl font-bold ${daysUntilLeaseEnd <= 60 ? 'text-yellow-400' : 'text-cc-text'}`}>
             {daysUntilLeaseEnd}
           </div>
-          <p className="text-xs text-brand-muted uppercase tracking-wider mt-1">Lease Days Left</p>
+          <p className="text-xs text-cc-muted uppercase tracking-wider mt-1">Lease Days Left</p>
         </div>
       </div>
 
@@ -108,7 +108,7 @@ export default function TenantDashboard() {
               <AlertCircle className="text-red-400 flex-shrink-0" size={20} />
               <div>
                 <p className="font-bold text-red-400">Rent Payment Overdue</p>
-                <p className="text-sm text-brand-muted mt-1">
+                <p className="text-sm text-cc-muted mt-1">
                   Your rent payment of {formatCurrency(balance.amount)} is past due. Please make a payment to avoid late fees.
                 </p>
               </div>
@@ -119,7 +119,7 @@ export default function TenantDashboard() {
               <Calendar className="text-yellow-400 flex-shrink-0" size={20} />
               <div>
                 <p className="font-bold text-yellow-400">Lease Expiring Soon</p>
-                <p className="text-sm text-brand-muted mt-1">
+                <p className="text-sm text-cc-muted mt-1">
                   Your lease expires in {daysUntilLeaseEnd} days. View lease details to express renewal interest.
                 </p>
               </div>
@@ -135,8 +135,8 @@ export default function TenantDashboard() {
           onClick={() => setCurrentView('payments')}
           className={`card cursor-pointer transition-all hover:scale-[1.02] ${
             balance.status === 'overdue'
-              ? 'bg-gradient-to-br from-red-900/40 to-brand-navy border-red-500/30'
-              : 'bg-gradient-to-br from-green-900/40 to-brand-navy border-green-500/30'
+              ? 'bg-gradient-to-br from-red-900/40 to-cc-surface border-red-500/30'
+              : 'bg-gradient-to-br from-green-900/40 to-cc-surface border-green-500/30'
           }`}
         >
           <div className="flex justify-between items-start mb-6">
@@ -156,9 +156,9 @@ export default function TenantDashboard() {
             </span>
           </div>
           <div>
-            <p className="text-brand-muted text-sm font-medium uppercase tracking-wider">Next Payment Due</p>
-            <h2 className="text-4xl font-bold text-brand-light mt-1">{formatCurrency(balance.amount)}</h2>
-            <p className="text-brand-muted mt-2 text-sm">
+            <p className="text-cc-muted text-sm font-medium uppercase tracking-wider">Next Payment Due</p>
+            <h2 className="text-4xl font-bold text-cc-text mt-1">{formatCurrency(balance.amount)}</h2>
+            <p className="text-cc-muted mt-2 text-sm">
               {daysUntilRent > 0 ? `Due in ${daysUntilRent} days` : daysUntilRent === 0 ? 'Due today' : `${Math.abs(daysUntilRent)} days overdue`}
             </p>
           </div>
@@ -176,24 +176,24 @@ export default function TenantDashboard() {
         <div className="grid grid-cols-1 gap-4">
           <div
             onClick={() => setCurrentView('maintenance')}
-            className="card hover:bg-brand-navy/60 transition-colors cursor-pointer group"
+            className="card hover:bg-cc-surface/60 transition-colors cursor-pointer group"
           >
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-brand-orange/20 rounded-lg text-brand-orange group-hover:scale-110 transition-transform">
+              <div className="p-3 bg-cc-accent/20 rounded-lg text-cc-accent group-hover:scale-110 transition-transform">
                 <Wrench size={24} />
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-brand-light flex items-center gap-2">
+                <h3 className="font-bold text-cc-text flex items-center gap-2">
                   Request Maintenance
                   {openRequests > 0 && (
-                    <span className="text-xs bg-brand-orange/20 text-brand-orange px-2 py-0.5 rounded-full">
+                    <span className="text-xs bg-cc-accent/20 text-cc-accent px-2 py-0.5 rounded-full">
                       {openRequests} open
                     </span>
                   )}
                 </h3>
-                <p className="text-xs text-brand-muted">Report leaks, appliance issues, etc.</p>
+                <p className="text-xs text-cc-muted">Report leaks, appliance issues, etc.</p>
               </div>
-              <span className="text-brand-muted group-hover:text-brand-light transition-colors">
+              <span className="text-cc-muted group-hover:text-cc-text transition-colors">
                 <ChevronRight size={20} />
               </span>
             </div>
@@ -201,14 +201,14 @@ export default function TenantDashboard() {
 
           <div
             onClick={() => console.log('Contact manager clicked')}
-            className="card hover:bg-brand-navy/60 transition-colors cursor-pointer group"
+            className="card hover:bg-cc-surface/60 transition-colors cursor-pointer group"
           >
             <div className="flex items-center gap-4">
               <div className="p-3 bg-blue-500/20 rounded-lg text-blue-400 group-hover:scale-110 transition-transform">
                 <MessageSquare size={24} />
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-brand-light flex items-center gap-2">
+                <h3 className="font-bold text-cc-text flex items-center gap-2">
                   Contact Manager
                   {unreadMessages > 0 && (
                     <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">
@@ -216,9 +216,9 @@ export default function TenantDashboard() {
                     </span>
                   )}
                 </h3>
-                <p className="text-xs text-brand-muted">Questions about lease, parking, etc.</p>
+                <p className="text-xs text-cc-muted">Questions about lease, parking, etc.</p>
               </div>
-              <span className="text-brand-muted group-hover:text-brand-light transition-colors">
+              <span className="text-cc-muted group-hover:text-cc-text transition-colors">
                 <ChevronRight size={20} />
               </span>
             </div>
@@ -226,14 +226,14 @@ export default function TenantDashboard() {
 
           <div
             onClick={() => setCurrentView('lease')}
-            className="card hover:bg-brand-navy/60 transition-colors cursor-pointer group"
+            className="card hover:bg-cc-surface/60 transition-colors cursor-pointer group"
           >
             <div className="flex items-center gap-4">
               <div className="p-3 bg-purple-500/20 rounded-lg text-purple-400 group-hover:scale-110 transition-transform">
                 <FileText size={24} />
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-brand-light flex items-center gap-2">
+                <h3 className="font-bold text-cc-text flex items-center gap-2">
                   View Lease Details
                   {daysUntilLeaseEnd <= 60 && daysUntilLeaseEnd > 0 && (
                     <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full">
@@ -241,9 +241,9 @@ export default function TenantDashboard() {
                     </span>
                   )}
                 </h3>
-                <p className="text-xs text-brand-muted">Documents, rules, and renewal info</p>
+                <p className="text-xs text-cc-muted">Documents, rules, and renewal info</p>
               </div>
-              <span className="text-brand-muted group-hover:text-brand-light transition-colors">
+              <span className="text-cc-muted group-hover:text-cc-text transition-colors">
                 <ChevronRight size={20} />
               </span>
             </div>
@@ -253,8 +253,8 @@ export default function TenantDashboard() {
 
       {/* Messages from Property Manager */}
       <div className="card">
-        <h3 className="text-lg font-bold text-brand-light mb-4 flex items-center gap-2">
-          <Bell size={20} className="text-brand-orange" />
+        <h3 className="text-lg font-bold text-cc-text mb-4 flex items-center gap-2">
+          <Bell size={20} className="text-cc-accent" />
           Messages from Property Manager
           {unreadMessages > 0 && (
             <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full ml-2">
@@ -267,24 +267,24 @@ export default function TenantDashboard() {
             <div
               key={message.id}
               onClick={() => handleMessageClick(message.id)}
-              className={`p-4 rounded-lg border cursor-pointer transition-all hover:border-slate-600 ${
+              className={`p-4 rounded-lg border cursor-pointer transition-all hover:border-cc-border ${
                 message.read
-                  ? 'bg-brand-dark/30 border-slate-700/50'
-                  : 'bg-brand-dark/50 border-blue-500/30'
+                  ? 'bg-cc-bg/30 border-cc-border/50'
+                  : 'bg-cc-bg/50 border-blue-500/30'
               }`}
             >
               <div className="flex gap-3">
-                <div className={`w-1 rounded-full ${message.read ? 'bg-slate-600' : 'bg-brand-orange'}`}></div>
+                <div className={`w-1 rounded-full ${message.read ? 'bg-cc-border' : 'bg-cc-accent'}`}></div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <p className={`text-sm font-medium ${message.read ? 'text-brand-light' : 'text-brand-light'}`}>
+                    <p className={`text-sm font-medium ${message.read ? 'text-cc-text' : 'text-cc-text'}`}>
                       {message.subject}
                     </p>
                     {!message.read && (
                       <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">New</span>
                     )}
                   </div>
-                  <p className="text-xs text-brand-muted mt-1 truncate">{message.preview}</p>
+                  <p className="text-xs text-cc-muted mt-1 truncate">{message.preview}</p>
                   <p className="text-[10px] text-slate-500 mt-2">
                     From: {message.from} - {message.date}
                   </p>
@@ -296,24 +296,24 @@ export default function TenantDashboard() {
       </div>
 
       {/* Property Info Footer */}
-      <div className="card bg-brand-dark/30">
-        <h4 className="text-sm font-bold text-brand-muted uppercase tracking-wider mb-3">Property Information</h4>
+      <div className="card bg-cc-bg/30">
+        <h4 className="text-sm font-bold text-cc-muted uppercase tracking-wider mb-3">Property Information</h4>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
-            <p className="text-brand-muted">Address</p>
-            <p className="text-brand-light font-medium">{lease.propertyAddress}</p>
+            <p className="text-cc-muted">Address</p>
+            <p className="text-cc-text font-medium">{lease.propertyAddress}</p>
           </div>
           <div>
-            <p className="text-brand-muted">Unit</p>
-            <p className="text-brand-light font-medium">{lease.unitNumber}</p>
+            <p className="text-cc-muted">Unit</p>
+            <p className="text-cc-text font-medium">{lease.unitNumber}</p>
           </div>
           <div>
-            <p className="text-brand-muted">Monthly Rent</p>
-            <p className="text-brand-light font-medium">{formatCurrency(lease.monthlyRent)}</p>
+            <p className="text-cc-muted">Monthly Rent</p>
+            <p className="text-cc-text font-medium">{formatCurrency(lease.monthlyRent)}</p>
           </div>
           <div>
-            <p className="text-brand-muted">Lease Ends</p>
-            <p className="text-brand-light font-medium">{new Date(lease.endDate).toLocaleDateString()}</p>
+            <p className="text-cc-muted">Lease Ends</p>
+            <p className="text-cc-text font-medium">{new Date(lease.endDate).toLocaleDateString()}</p>
           </div>
         </div>
       </div>

@@ -101,7 +101,7 @@ export function TenantResponsibilities() {
           <p className="text-sm text-blue-100 mt-1">Total Responsibilities</p>
         </div>
 
-        <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg p-6">
+        <div className="bg-gradient-to-br from-indigo-400 to-indigo-500 text-white rounded-lg p-6">
           <div className="text-3xl mb-2">⏰</div>
           <p className="text-3xl font-bold">{dueResponsibilities.length}</p>
           <p className="text-sm text-orange-100 mt-1">Due or Overdue</p>

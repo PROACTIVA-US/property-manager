@@ -137,7 +137,7 @@ export function PropertyGallery({ relatedProjectId, allowUpload = true, maxImage
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
                 className={`h-full transition-all ${
-                  storagePercent >= 90 ? 'bg-red-600' : storagePercent >= 70 ? 'bg-orange-500' : 'bg-blue-600'
+                  storagePercent >= 90 ? 'bg-red-600' : storagePercent >= 70 ? 'bg-indigo-400' : 'bg-blue-600'
                 }`}
                 style={{ width: `${Math.min(storagePercent, 100)}%` }}
               />

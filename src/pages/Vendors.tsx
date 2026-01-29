@@ -13,8 +13,8 @@ export default function VendorsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-brand-light">Vendor Management</h1>
-        <p className="text-brand-muted mt-1">
+        <h1 className="text-2xl font-bold text-cc-text">Vendor Management</h1>
+        <p className="text-cc-muted mt-1">
           Manage your service providers and contractors
         </p>
       </div>

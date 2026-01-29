@@ -230,8 +230,8 @@ export default function MessagesPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-brand-light">Communication Hub</h1>
-          <p className="text-brand-muted">Messages, scheduling, and feedback</p>
+          <h1 className="text-2xl font-bold text-cc-text">Communication Hub</h1>
+          <p className="text-cc-muted">Messages, scheduling, and feedback</p>
         </div>
         {activeTab === 'messages' && (
           <button
@@ -245,7 +245,7 @@ export default function MessagesPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-slate-700/50 pb-2 overflow-x-auto">
+      <div className="flex gap-2 border-b border-cc-border/50 pb-2 overflow-x-auto">
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -256,14 +256,14 @@ export default function MessagesPage() {
             className={cn(
               'flex items-center gap-2 px-4 py-2 rounded-t-lg font-medium transition-colors whitespace-nowrap',
               activeTab === tab.id
-                ? 'bg-brand-navy/50 text-brand-orange border-b-2 border-brand-orange'
-                : 'text-brand-muted hover:text-brand-light hover:bg-slate-700/30'
+                ? 'bg-cc-surface/50 text-cc-accent border-b-2 border-cc-accent'
+                : 'text-cc-muted hover:text-cc-text hover:bg-cc-border/30'
             )}
           >
             <tab.icon size={18} />
             {tab.label}
             {tab.count > 0 && (
-              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-brand-orange text-white">
+              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-cc-accent text-white">
                 {tab.count}
               </span>
             )}
@@ -281,7 +281,7 @@ export default function MessagesPage() {
               {/* Search and Filter */}
               <div className="flex gap-2">
                 <div className="flex-1 relative">
-                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-muted" />
+                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-cc-muted" />
                   <input
                     type="text"
                     value={searchQuery}
@@ -302,19 +302,19 @@ export default function MessagesPage() {
                     <option value="lease">Lease</option>
                     <option value="inspection">Inspection</option>
                   </select>
-                  <Filter size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none" />
+                  <Filter size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-cc-muted pointer-events-none" />
                 </div>
               </div>
 
               {/* Thread Items */}
               <div className="space-y-2">
                 {filteredThreads.length === 0 ? (
-                  <div className="text-center py-12 text-brand-muted">
+                  <div className="text-center py-12 text-cc-muted">
                     <MessageSquare size={48} className="mx-auto mb-4 opacity-50" />
                     <p>No conversations found</p>
                     <button
                       onClick={() => setShowNewThread(true)}
-                      className="text-brand-orange hover:underline mt-2"
+                      className="text-cc-accent hover:underline mt-2"
                     >
                       Start a new conversation
                     </button>
@@ -349,7 +349,7 @@ export default function MessagesPage() {
                   <MessageComposer onSend={handleSendMessage} />
                 </>
               ) : (
-                <div className="flex-1 flex items-center justify-center text-brand-muted">
+                <div className="flex-1 flex items-center justify-center text-cc-muted">
                   <div className="text-center">
                     <MessageSquare size={48} className="mx-auto mb-4 opacity-50" />
                     <p>Select a conversation to view messages</p>
@@ -368,7 +368,7 @@ export default function MessagesPage() {
               onMarkRead={handleMarkNotificationRead}
             />
 
-            <div className="border-t border-slate-700/50 pt-8">
+            <div className="border-t border-cc-border/50 pt-8">
               <InspectionScheduler
                 inspections={inspections}
                 currentUser={currentUser}
@@ -379,7 +379,7 @@ export default function MessagesPage() {
               />
             </div>
 
-            <div className="border-t border-slate-700/50 pt-8">
+            <div className="border-t border-cc-border/50 pt-8">
               <SatisfactionSurvey
                 entries={satisfactionEntries}
                 averageRating={getAverageSatisfaction()}
@@ -415,8 +415,8 @@ interface ThreadItemProps {
 function ThreadItem({ thread, isSelected, onClick }: ThreadItemProps) {
   const getCategoryColor = (category: Thread['category']) => {
     const colors = {
-      general: 'bg-slate-600/50',
-      maintenance: 'bg-orange-500/20',
+      general: 'bg-cc-border/50',
+      maintenance: 'bg-indigo-400/20',
       lease: 'bg-purple-500/20',
       inspection: 'bg-blue-500/20',
     };
@@ -429,24 +429,24 @@ function ThreadItem({ thread, isSelected, onClick }: ThreadItemProps) {
       className={cn(
         'p-4 rounded-lg cursor-pointer transition-all border',
         isSelected
-          ? 'bg-brand-navy border-brand-orange/50'
-          : 'bg-brand-navy/30 border-slate-700/50 hover:bg-brand-navy/50'
+          ? 'bg-cc-surface border-cc-accent/50'
+          : 'bg-cc-surface/30 border-cc-border/50 hover:bg-cc-surface/50'
       )}
     >
       <div className="flex items-start justify-between gap-2 mb-2">
-        <h3 className="font-bold text-brand-light truncate flex-1">{thread.subject}</h3>
+        <h3 className="font-bold text-cc-text truncate flex-1">{thread.subject}</h3>
         {thread.unreadCount > 0 && (
-          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-brand-orange text-white">
+          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-cc-accent text-white">
             {thread.unreadCount}
           </span>
         )}
       </div>
-      <p className="text-sm text-brand-muted line-clamp-1 mb-2">{thread.lastMessage}</p>
+      <p className="text-sm text-cc-muted line-clamp-1 mb-2">{thread.lastMessage}</p>
       <div className="flex items-center justify-between text-xs">
         <span className={cn('px-2 py-0.5 rounded-full capitalize', getCategoryColor(thread.category))}>
           {thread.category}
         </span>
-        <span className="text-brand-muted">{formatRelativeTime(thread.lastMessageTime)}</span>
+        <span className="text-cc-muted">{formatRelativeTime(thread.lastMessageTime)}</span>
       </div>
     </div>
   );
@@ -466,24 +466,24 @@ function NotificationsList({ notifications, onMarkRead }: NotificationsListProps
       case 'inspection':
         return <Calendar size={20} className="text-blue-400" />;
       case 'payment':
-        return <Star size={20} className="text-orange-400" />;
+        return <Star size={20} className="text-indigo-300" />;
       default:
-        return <Bell size={20} className="text-brand-muted" />;
+        return <Bell size={20} className="text-cc-muted" />;
     }
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-brand-light">Recent Activity</h2>
-        <span className="text-sm text-brand-muted">
+        <h2 className="text-lg font-bold text-cc-text">Recent Activity</h2>
+        <span className="text-sm text-cc-muted">
           {notifications.filter(n => !n.read).length} unread
         </span>
       </div>
 
       <div className="space-y-2">
         {notifications.length === 0 ? (
-          <div className="text-center py-12 text-brand-muted">
+          <div className="text-center py-12 text-cc-muted">
             <Bell size={48} className="mx-auto mb-4 opacity-50" />
             <p>No notifications yet</p>
           </div>
@@ -495,27 +495,27 @@ function NotificationsList({ notifications, onMarkRead }: NotificationsListProps
               className={cn(
                 'p-4 rounded-lg border transition-colors',
                 notification.read
-                  ? 'bg-brand-navy/30 border-slate-700/50'
-                  : 'bg-brand-navy/50 border-brand-orange/30 cursor-pointer hover:bg-brand-navy/70'
+                  ? 'bg-cc-surface/30 border-cc-border/50'
+                  : 'bg-cc-surface/50 border-cc-accent/30 cursor-pointer hover:bg-cc-surface/70'
               )}
             >
               <div className="flex items-start gap-4">
-                <div className="p-2 bg-brand-dark/50 rounded-lg">
+                <div className="p-2 bg-cc-bg/50 rounded-lg">
                   {getTypeIcon(notification.type)}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <h3 className={cn(
                       'font-medium truncate',
-                      notification.read ? 'text-brand-muted' : 'text-brand-light'
+                      notification.read ? 'text-cc-muted' : 'text-cc-text'
                     )}>
                       {notification.title}
                     </h3>
                     {!notification.read && (
-                      <span className="w-2 h-2 rounded-full bg-brand-orange flex-shrink-0" />
+                      <span className="w-2 h-2 rounded-full bg-cc-accent flex-shrink-0" />
                     )}
                   </div>
-                  <p className="text-sm text-brand-muted mt-1">{notification.body}</p>
+                  <p className="text-sm text-cc-muted mt-1">{notification.body}</p>
                   <p className="text-xs text-slate-500 mt-2">
                     {formatRelativeTime(notification.timestamp)}
                   </p>

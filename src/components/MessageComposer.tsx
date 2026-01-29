@@ -29,7 +29,7 @@ export function MessageComposer({ onSend, placeholder = 'Type a message...', dis
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 border-t border-slate-700/50 bg-brand-dark/30">
+    <form onSubmit={handleSubmit} className="p-4 border-t border-cc-border/50 bg-cc-bg/30">
       <div className="flex items-end gap-2">
         <div className="flex-1 relative">
           <textarea
@@ -51,8 +51,8 @@ export function MessageComposer({ onSend, placeholder = 'Type a message...', dis
           className={cn(
             'p-3 rounded-full transition-all',
             content.trim() && !disabled
-              ? 'bg-brand-orange text-white hover:bg-orange-600 shadow-lg shadow-orange-900/30'
-              : 'bg-slate-700/50 text-brand-muted cursor-not-allowed'
+              ? 'bg-cc-accent text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/30'
+              : 'bg-cc-border/50 text-cc-muted cursor-not-allowed'
           )}
         >
           <Send size={20} />
@@ -113,23 +113,23 @@ export function NewThreadComposer({
       case 'owner':
         return 'text-purple-400 border-purple-400/50';
       case 'pm':
-        return 'text-brand-orange border-brand-orange/50';
+        return 'text-cc-accent border-cc-accent/50';
       case 'tenant':
         return 'text-blue-400 border-blue-400/50';
       default:
-        return 'text-brand-muted border-slate-600';
+        return 'text-cc-muted border-cc-border';
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-brand-navy border border-slate-700/50 rounded-xl w-full max-w-lg shadow-2xl">
+      <div className="bg-cc-surface border border-cc-border/50 rounded-xl w-full max-w-lg shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-700/50">
-          <h2 className="text-lg font-bold text-brand-light">New Conversation</h2>
+        <div className="flex items-center justify-between p-4 border-b border-cc-border/50">
+          <h2 className="text-lg font-bold text-cc-text">New Conversation</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors text-brand-muted hover:text-brand-light"
+            className="p-2 hover:bg-cc-border/50 rounded-lg transition-colors text-cc-muted hover:text-cc-text"
           >
             <X size={20} />
           </button>
@@ -139,7 +139,7 @@ export function NewThreadComposer({
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
           {/* Subject */}
           <div>
-            <label className="block text-xs font-medium text-brand-muted uppercase tracking-wider mb-2">
+            <label className="block text-xs font-medium text-cc-muted uppercase tracking-wider mb-2">
               Subject
             </label>
             <input
@@ -153,7 +153,7 @@ export function NewThreadComposer({
 
           {/* Category */}
           <div>
-            <label className="block text-xs font-medium text-brand-muted uppercase tracking-wider mb-2">
+            <label className="block text-xs font-medium text-cc-muted uppercase tracking-wider mb-2">
               Category
             </label>
             <div className="flex flex-wrap gap-2">
@@ -165,8 +165,8 @@ export function NewThreadComposer({
                   className={cn(
                     'px-3 py-1 rounded-full text-sm font-medium transition-colors capitalize',
                     category === cat
-                      ? 'bg-brand-orange text-white'
-                      : 'bg-slate-700/50 text-brand-muted hover:bg-slate-700'
+                      ? 'bg-cc-accent text-white'
+                      : 'bg-cc-border/50 text-cc-muted hover:bg-cc-border'
                   )}
                 >
                   {cat}
@@ -177,7 +177,7 @@ export function NewThreadComposer({
 
           {/* Participants */}
           <div>
-            <label className="block text-xs font-medium text-brand-muted uppercase tracking-wider mb-2">
+            <label className="block text-xs font-medium text-cc-muted uppercase tracking-wider mb-2">
               Add Recipients
             </label>
             <div className="flex flex-wrap gap-2">
@@ -189,8 +189,8 @@ export function NewThreadComposer({
                   className={cn(
                     'px-3 py-1 rounded-full text-sm font-medium transition-colors border',
                     selectedParticipants.includes(p.id)
-                      ? cn('bg-slate-700', getRoleColor(p.role))
-                      : 'bg-transparent border-slate-600 text-brand-muted hover:border-slate-500'
+                      ? cn('bg-cc-border', getRoleColor(p.role))
+                      : 'bg-transparent border-cc-border text-cc-muted hover:border-slate-500'
                   )}
                 >
                   {p.name}
@@ -201,7 +201,7 @@ export function NewThreadComposer({
 
           {/* Message */}
           <div>
-            <label className="block text-xs font-medium text-brand-muted uppercase tracking-wider mb-2">
+            <label className="block text-xs font-medium text-cc-muted uppercase tracking-wider mb-2">
               Message
             </label>
             <textarea

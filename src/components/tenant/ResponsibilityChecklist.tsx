@@ -100,7 +100,7 @@ function ResponsibilityItem({
                 {daysUntilDue !== null && (
                   <>
                     <span>•</span>
-                    <span className={isOverdue ? 'text-red-600 font-medium' : isDueSoon ? 'text-orange-600 font-medium' : ''}>
+                    <span className={isOverdue ? 'text-red-600 font-medium' : isDueSoon ? 'text-indigo-500 font-medium' : ''}>
                       {isOverdue
                         ? `Overdue by ${Math.abs(daysUntilDue)} day${Math.abs(daysUntilDue) !== 1 ? 's' : ''}`
                         : isDueSoon

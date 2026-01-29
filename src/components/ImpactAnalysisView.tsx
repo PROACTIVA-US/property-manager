@@ -29,7 +29,7 @@ export default function ImpactAnalysisView({ analysis }: ImpactAnalysisViewProps
   const getRecipientColor = (recipient: string) => {
     const colors = {
       tenant: 'text-green-400 bg-green-500/20',
-      owner: 'text-orange-400 bg-orange-500/20',
+      owner: 'text-indigo-300 bg-indigo-400/20',
       pm: 'text-blue-400 bg-blue-500/20',
       vendor: 'text-purple-400 bg-purple-500/20',
     };
@@ -45,19 +45,19 @@ export default function ImpactAnalysisView({ analysis }: ImpactAnalysisViewProps
       </div>
 
       {/* Tenant Impact */}
-      <div className="bg-brand-dark rounded-lg p-4 border border-white/10">
+      <div className="bg-cc-bg rounded-lg p-4 border border-white/10">
         <div className="flex items-center gap-2 mb-3">
-          <Users size={18} className="text-brand-muted" />
-          <h4 className="font-semibold text-brand-light">Tenant Impact</h4>
+          <Users size={18} className="text-cc-muted" />
+          <h4 className="font-semibold text-cc-text">Tenant Impact</h4>
           <span className={`ml-auto px-3 py-1 rounded border ${getImpactLevelColor(analysis.tenantImpact.level)}`}>
             {getImpactLevelLabel(analysis.tenantImpact.level)}
           </span>
         </div>
 
-        <p className="text-sm text-brand-muted mb-3">{analysis.tenantImpact.description}</p>
+        <p className="text-sm text-cc-muted mb-3">{analysis.tenantImpact.description}</p>
 
         {analysis.tenantImpact.estimatedDuration && (
-          <div className="flex items-center gap-2 text-sm text-brand-muted mb-2">
+          <div className="flex items-center gap-2 text-sm text-cc-muted mb-2">
             <Clock size={14} />
             <span>Estimated Duration: {analysis.tenantImpact.estimatedDuration}</span>
           </div>
@@ -65,11 +65,11 @@ export default function ImpactAnalysisView({ analysis }: ImpactAnalysisViewProps
 
         {analysis.tenantImpact.accessRestrictions && analysis.tenantImpact.accessRestrictions.length > 0 && (
           <div className="mb-3">
-            <p className="text-xs font-semibold text-brand-muted mb-1 flex items-center gap-1">
+            <p className="text-xs font-semibold text-cc-muted mb-1 flex items-center gap-1">
               <AlertTriangle size={12} />
               Access Restrictions:
             </p>
-            <ul className="list-disc list-inside text-sm text-brand-muted space-y-1">
+            <ul className="list-disc list-inside text-sm text-cc-muted space-y-1">
               {analysis.tenantImpact.accessRestrictions.map((restriction, idx) => (
                 <li key={idx}>{restriction}</li>
               ))}
@@ -79,11 +79,11 @@ export default function ImpactAnalysisView({ analysis }: ImpactAnalysisViewProps
 
         {analysis.tenantImpact.recommendations.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-brand-muted mb-1 flex items-center gap-1">
+            <p className="text-xs font-semibold text-cc-muted mb-1 flex items-center gap-1">
               <Info size={12} />
               Recommendations:
             </p>
-            <ul className="list-disc list-inside text-sm text-brand-muted space-y-1">
+            <ul className="list-disc list-inside text-sm text-cc-muted space-y-1">
               {analysis.tenantImpact.recommendations.map((rec, idx) => (
                 <li key={idx}>{rec}</li>
               ))}
@@ -93,31 +93,31 @@ export default function ImpactAnalysisView({ analysis }: ImpactAnalysisViewProps
       </div>
 
       {/* Owner Impact */}
-      <div className="bg-brand-dark rounded-lg p-4 border border-white/10">
+      <div className="bg-cc-bg rounded-lg p-4 border border-white/10">
         <div className="flex items-center gap-2 mb-3">
-          <DollarSign size={18} className="text-brand-muted" />
-          <h4 className="font-semibold text-brand-light">Owner Impact</h4>
+          <DollarSign size={18} className="text-cc-muted" />
+          <h4 className="font-semibold text-cc-text">Owner Impact</h4>
           <span className={`ml-auto px-3 py-1 rounded border ${getImpactLevelColor(analysis.ownerImpact.level)}`}>
             {getImpactLevelLabel(analysis.ownerImpact.level)}
           </span>
         </div>
 
-        <p className="text-sm text-brand-muted mb-3">{analysis.ownerImpact.description}</p>
+        <p className="text-sm text-cc-muted mb-3">{analysis.ownerImpact.description}</p>
 
         {analysis.ownerImpact.financialNotes && (
-          <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-3 mb-3">
-            <p className="text-xs font-semibold text-orange-400 mb-1">Financial Notes:</p>
+          <div className="bg-indigo-400/10 border border-indigo-400/30 rounded-lg p-3 mb-3">
+            <p className="text-xs font-semibold text-indigo-300 mb-1">Financial Notes:</p>
             <p className="text-sm text-orange-300">{analysis.ownerImpact.financialNotes}</p>
           </div>
         )}
 
         {analysis.ownerImpact.recommendations.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-brand-muted mb-1 flex items-center gap-1">
+            <p className="text-xs font-semibold text-cc-muted mb-1 flex items-center gap-1">
               <Info size={12} />
               Recommendations:
             </p>
-            <ul className="list-disc list-inside text-sm text-brand-muted space-y-1">
+            <ul className="list-disc list-inside text-sm text-cc-muted space-y-1">
               {analysis.ownerImpact.recommendations.map((rec, idx) => (
                 <li key={idx}>{rec}</li>
               ))}
@@ -128,8 +128,8 @@ export default function ImpactAnalysisView({ analysis }: ImpactAnalysisViewProps
 
       {/* Suggested Notifications */}
       {analysis.suggestedNotifications.length > 0 && (
-        <div className="bg-brand-dark rounded-lg p-4 border border-white/10">
-          <h4 className="font-semibold text-brand-light mb-3 flex items-center gap-2">
+        <div className="bg-cc-bg rounded-lg p-4 border border-white/10">
+          <h4 className="font-semibold text-cc-text mb-3 flex items-center gap-2">
             <AlertTriangle size={18} className="text-yellow-400" />
             Suggested Notifications
           </h4>
@@ -137,19 +137,19 @@ export default function ImpactAnalysisView({ analysis }: ImpactAnalysisViewProps
             {analysis.suggestedNotifications.map((notification, idx) => (
               <div
                 key={idx}
-                className="bg-brand-darker rounded-lg p-3 border border-white/10"
+                className="bg-cc-bger rounded-lg p-3 border border-white/10"
               >
                 <div className="flex items-center gap-2 mb-2">
                   <span className={`px-2 py-0.5 rounded text-xs font-medium ${getRecipientColor(notification.recipient)}`}>
                     {notification.recipient.toUpperCase()}
                   </span>
-                  <span className="text-xs text-brand-muted">
+                  <span className="text-xs text-cc-muted">
                     {notification.timing === 'immediate' && '📢 Immediate'}
                     {notification.timing === 'before_start' && '⏰ Before Start'}
                     {notification.timing === 'on_completion' && '✅ On Completion'}
                   </span>
                 </div>
-                <p className="text-sm text-brand-light">{notification.message}</p>
+                <p className="text-sm text-cc-text">{notification.message}</p>
               </div>
             ))}
           </div>
@@ -157,7 +157,7 @@ export default function ImpactAnalysisView({ analysis }: ImpactAnalysisViewProps
       )}
 
       {/* Analysis Metadata */}
-      <div className="text-xs text-brand-muted text-center pt-4 border-t border-white/10">
+      <div className="text-xs text-cc-muted text-center pt-4 border-t border-white/10">
         Generated on {new Date(analysis.generatedAt).toLocaleString()}
       </div>
     </div>

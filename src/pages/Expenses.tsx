@@ -91,8 +91,8 @@ export default function Expenses() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-brand-light">Expense Tracking</h1>
-          <p className="text-brand-muted mt-1">
+          <h1 className="text-3xl font-bold text-cc-text">Expense Tracking</h1>
+          <p className="text-cc-muted mt-1">
             Track repairs, maintenance, and capital improvements
           </p>
         </div>
@@ -113,8 +113,8 @@ export default function Expenses() {
               <DollarSign size={20} />
             </div>
             <div>
-              <p className="text-xs text-brand-muted uppercase">Total Expenses</p>
-              <p className="text-xl font-bold text-brand-light">
+              <p className="text-xs text-cc-muted uppercase">Total Expenses</p>
+              <p className="text-xl font-bold text-cc-text">
                 ${totalExpenses.toLocaleString()}
               </p>
             </div>
@@ -126,8 +126,8 @@ export default function Expenses() {
               <Tag size={20} />
             </div>
             <div>
-              <p className="text-xs text-brand-muted uppercase">Capital Improvements</p>
-              <p className="text-xl font-bold text-brand-light">
+              <p className="text-xs text-cc-muted uppercase">Capital Improvements</p>
+              <p className="text-xl font-bold text-cc-text">
                 ${capitalImprovements.toLocaleString()}
               </p>
             </div>
@@ -146,10 +146,10 @@ export default function Expenses() {
       {/* Add Expense Form */}
       {showAddForm && (
         <div className="card">
-          <h3 className="text-lg font-bold text-brand-light mb-4">New Expense</h3>
+          <h3 className="text-lg font-bold text-cc-text mb-4">New Expense</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-brand-light mb-2">
+              <label className="block text-sm font-medium text-cc-text mb-2">
                 Date
               </label>
               <input
@@ -160,7 +160,7 @@ export default function Expenses() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-brand-light mb-2">
+              <label className="block text-sm font-medium text-cc-text mb-2">
                 Amount
               </label>
               <input
@@ -172,7 +172,7 @@ export default function Expenses() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-brand-light mb-2">
+              <label className="block text-sm font-medium text-cc-text mb-2">
                 Category
               </label>
               <select
@@ -186,7 +186,7 @@ export default function Expenses() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-brand-light mb-2">
+              <label className="block text-sm font-medium text-cc-text mb-2">
                 Description
               </label>
               <input
@@ -199,7 +199,7 @@ export default function Expenses() {
             </div>
           </div>
           <div className="mt-4">
-            <label className="flex items-center gap-2 text-sm text-brand-light">
+            <label className="flex items-center gap-2 text-sm text-cc-text">
               <input
                 type="checkbox"
                 checked={newExpense.isCapitalImprovement}
@@ -222,13 +222,13 @@ export default function Expenses() {
 
       {/* Expense List */}
       <div className="card">
-        <h3 className="text-lg font-bold text-brand-light mb-4 flex items-center gap-2">
-          <Receipt size={20} className="text-brand-orange" />
+        <h3 className="text-lg font-bold text-cc-text mb-4 flex items-center gap-2">
+          <Receipt size={20} className="text-cc-accent" />
           Expense History ({expenses.length})
         </h3>
 
         {expenses.length === 0 ? (
-          <div className="text-center py-12 text-brand-muted">
+          <div className="text-center py-12 text-cc-muted">
             <Receipt size={48} className="mx-auto mb-4 opacity-50" />
             <p>No expenses recorded yet</p>
             <p className="text-sm mt-1">Add your first expense or import from CSV</p>
@@ -238,16 +238,16 @@ export default function Expenses() {
             {expenses.map((expense) => (
               <div
                 key={expense.id}
-                className="p-4 bg-brand-dark/50 border border-slate-700/50 rounded-lg flex items-center justify-between hover:border-slate-600 transition-colors"
+                className="p-4 bg-cc-bg/50 border border-cc-border/50 rounded-lg flex items-center justify-between hover:border-cc-border transition-colors"
               >
                 <div className="flex items-center gap-4 flex-1">
-                  <div className="p-2 bg-brand-orange/20 rounded-lg text-brand-orange">
+                  <div className="p-2 bg-cc-accent/20 rounded-lg text-cc-accent">
                     <Receipt size={20} />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-3">
-                      <p className="font-medium text-brand-light">{expense.description}</p>
-                      <span className="text-xs px-2 py-0.5 rounded bg-slate-700/50 text-brand-muted">
+                      <p className="font-medium text-cc-text">{expense.description}</p>
+                      <span className="text-xs px-2 py-0.5 rounded bg-cc-border/50 text-cc-muted">
                         {expense.category}
                       </span>
                       {expense.isCapitalImprovement && (
@@ -256,7 +256,7 @@ export default function Expenses() {
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-4 mt-1 text-xs text-brand-muted">
+                    <div className="flex items-center gap-4 mt-1 text-xs text-cc-muted">
                       <span className="flex items-center gap-1">
                         <Calendar size={12} />
                         {new Date(expense.date).toLocaleDateString()}
@@ -264,14 +264,14 @@ export default function Expenses() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-lg font-bold text-brand-light">
+                    <p className="text-lg font-bold text-cc-text">
                       ${expense.amount.toLocaleString()}
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={() => handleDeleteExpense(expense.id)}
-                  className="ml-4 p-2 text-brand-muted hover:text-red-400 transition-colors"
+                  className="ml-4 p-2 text-cc-muted hover:text-red-400 transition-colors"
                   title="Delete expense"
                 >
                   <Trash2 size={16} />

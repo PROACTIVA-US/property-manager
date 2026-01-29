@@ -50,129 +50,129 @@ export default function RentalIncomeForm({ initialData, mortgageData, onSave }: 
           <DollarSign className="text-green-400" size={24} />
         </div>
         <div>
-          <h3 className="text-xl font-bold text-brand-light">Rental Income & Expenses</h3>
-          <p className="text-sm text-brand-muted">Monthly rental income and operating costs</p>
+          <h3 className="text-xl font-bold text-cc-text">Rental Income & Expenses</h3>
+          <p className="text-sm text-cc-muted">Monthly rental income and operating costs</p>
         </div>
       </div>
 
       {/* Rental Income */}
       <div>
-        <label className="block text-sm font-medium text-brand-light mb-2">
+        <label className="block text-sm font-medium text-cc-text mb-2">
           Monthly Rental Income *
         </label>
         <input
           type="number"
           value={formData.monthlyRent}
           onChange={(e) => handleChange('monthlyRent', parseFloat(e.target.value) || 0)}
-          className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+          className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
           required
           min="0"
           step="10"
         />
-        <p className="text-xs text-brand-muted mt-1">{formatCurrency(formData.monthlyRent)}/month</p>
+        <p className="text-xs text-cc-muted mt-1">{formatCurrency(formData.monthlyRent)}/month</p>
       </div>
 
       {/* Operating Expenses */}
       <div className="space-y-4">
-        <h4 className="text-sm font-bold text-brand-orange">Monthly Operating Expenses</h4>
+        <h4 className="text-sm font-bold text-cc-accent">Monthly Operating Expenses</h4>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-brand-light mb-2">
+            <label className="block text-sm font-medium text-cc-text mb-2">
               Property Tax *
             </label>
             <input
               type="number"
               value={formData.monthlyPropertyTax}
               onChange={(e) => handleChange('monthlyPropertyTax', parseFloat(e.target.value) || 0)}
-              className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+              className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
               required
               min="0"
               step="10"
             />
-            <p className="text-xs text-brand-muted mt-1">{formatCurrency(formData.monthlyPropertyTax)}</p>
+            <p className="text-xs text-cc-muted mt-1">{formatCurrency(formData.monthlyPropertyTax)}</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-brand-light mb-2">
+            <label className="block text-sm font-medium text-cc-text mb-2">
               Insurance *
             </label>
             <input
               type="number"
               value={formData.monthlyInsurance}
               onChange={(e) => handleChange('monthlyInsurance', parseFloat(e.target.value) || 0)}
-              className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+              className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
               required
               min="0"
               step="10"
             />
-            <p className="text-xs text-brand-muted mt-1">{formatCurrency(formData.monthlyInsurance)}</p>
+            <p className="text-xs text-cc-muted mt-1">{formatCurrency(formData.monthlyInsurance)}</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-brand-light mb-2">
+            <label className="block text-sm font-medium text-cc-text mb-2">
               HOA Fees
             </label>
             <input
               type="number"
               value={formData.monthlyHOA}
               onChange={(e) => handleChange('monthlyHOA', parseFloat(e.target.value) || 0)}
-              className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+              className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
               min="0"
               step="10"
             />
-            <p className="text-xs text-brand-muted mt-1">{formatCurrency(formData.monthlyHOA)}</p>
+            <p className="text-xs text-cc-muted mt-1">{formatCurrency(formData.monthlyHOA)}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-brand-light mb-2">
+            <label className="block text-sm font-medium text-cc-text mb-2">
               Maintenance Reserve *
             </label>
             <input
               type="number"
               value={formData.monthlyMaintenanceReserve}
               onChange={(e) => handleChange('monthlyMaintenanceReserve', parseFloat(e.target.value) || 0)}
-              className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+              className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
               required
               min="0"
               step="10"
             />
-            <p className="text-xs text-brand-muted mt-1">{formatCurrency(formData.monthlyMaintenanceReserve)}</p>
+            <p className="text-xs text-cc-muted mt-1">{formatCurrency(formData.monthlyMaintenanceReserve)}</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-brand-light mb-2">
+            <label className="block text-sm font-medium text-cc-text mb-2">
               Vacancy Reserve *
             </label>
             <input
               type="number"
               value={formData.monthlyVacancyReserve}
               onChange={(e) => handleChange('monthlyVacancyReserve', parseFloat(e.target.value) || 0)}
-              className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+              className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
               required
               min="0"
               step="10"
             />
-            <p className="text-xs text-brand-muted mt-1">
+            <p className="text-xs text-cc-muted mt-1">
               {formatCurrency(formData.monthlyVacancyReserve)} (Usually 5-8% of rent)
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-brand-light mb-2">
+            <label className="block text-sm font-medium text-cc-text mb-2">
               Management Fee
             </label>
             <input
               type="number"
               value={formData.monthlyManagementFee}
               onChange={(e) => handleChange('monthlyManagementFee', parseFloat(e.target.value) || 0)}
-              className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+              className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
               min="0"
               step="10"
             />
-            <p className="text-xs text-brand-muted mt-1">
+            <p className="text-xs text-cc-muted mt-1">
               {formatCurrency(formData.monthlyManagementFee)} (8-10% if managed, $0 if self)
             </p>
           </div>
@@ -186,31 +186,31 @@ export default function RentalIncomeForm({ initialData, mortgageData, onSave }: 
             type="checkbox"
             checked={formData.includesUtilities}
             onChange={(e) => handleChange('includesUtilities', e.target.checked)}
-            className="w-4 h-4 rounded border-slate-700 bg-brand-dark text-brand-orange focus:ring-brand-orange"
+            className="w-4 h-4 rounded border-cc-border bg-cc-bg text-cc-accent focus:ring-cc-accent"
           />
-          <span className="text-sm text-brand-light">Rent includes utilities</span>
+          <span className="text-sm text-cc-text">Rent includes utilities</span>
         </label>
       </div>
 
       {/* Summary Card */}
-      <div className="card bg-brand-navy/50 p-4">
-        <h4 className="text-sm font-bold text-brand-orange mb-3">Financial Summary</h4>
+      <div className="card bg-cc-surface/50 p-4">
+        <h4 className="text-sm font-bold text-cc-accent mb-3">Financial Summary</h4>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
-            <p className="text-brand-muted">Gross Rent</p>
+            <p className="text-cc-muted">Gross Rent</p>
             <p className="font-bold text-green-400">{formatCurrency(formData.monthlyRent)}</p>
           </div>
           <div>
-            <p className="text-brand-muted">Operating Expenses</p>
+            <p className="text-cc-muted">Operating Expenses</p>
             <p className="font-bold text-red-400">-{formatCurrency(operatingExpenses)}</p>
           </div>
           <div>
-            <p className="text-brand-muted">Net Operating Income</p>
-            <p className="font-bold text-brand-light">{formatCurrency(netOperatingIncome)}</p>
+            <p className="text-cc-muted">Net Operating Income</p>
+            <p className="font-bold text-cc-text">{formatCurrency(netOperatingIncome)}</p>
           </div>
           {cashFlow !== null && (
             <div>
-              <p className="text-brand-muted">Net Cash Flow</p>
+              <p className="text-cc-muted">Net Cash Flow</p>
               <p className={`font-bold ${cashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                 {cashFlow >= 0 ? '+' : ''}{formatCurrency(cashFlow)}
               </p>
@@ -220,7 +220,7 @@ export default function RentalIncomeForm({ initialData, mortgageData, onSave }: 
       </div>
 
       {/* Save Button */}
-      <div className="flex items-center gap-4 pt-4 border-t border-slate-700">
+      <div className="flex items-center gap-4 pt-4 border-t border-cc-border">
         <button
           type="submit"
           disabled={isSaving}

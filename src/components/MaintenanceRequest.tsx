@@ -132,7 +132,7 @@ export default function MaintenanceRequest({ onBack }: MaintenanceRequestProps) 
       case 'emergency':
         return 'bg-red-500/20 text-red-400';
       case 'high':
-        return 'bg-orange-500/20 text-orange-400';
+        return 'bg-indigo-400/20 text-indigo-300';
       case 'medium':
         return 'bg-yellow-500/20 text-yellow-400';
       case 'low':
@@ -146,7 +146,7 @@ export default function MaintenanceRequest({ onBack }: MaintenanceRequestProps) 
       {onBack && (
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-brand-muted hover:text-brand-light transition-colors"
+          className="flex items-center gap-2 text-cc-muted hover:text-cc-text transition-colors"
         >
           <ArrowLeft size={20} />
           <span>Back to Dashboard</span>
@@ -155,8 +155,8 @@ export default function MaintenanceRequest({ onBack }: MaintenanceRequestProps) 
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-brand-light">Maintenance Requests</h1>
-          <p className="text-brand-muted mt-1">Submit and track maintenance issues</p>
+          <h1 className="text-2xl font-bold text-cc-text">Maintenance Requests</h1>
+          <p className="text-cc-muted mt-1">Submit and track maintenance issues</p>
         </div>
         {!showForm && (
           <button
@@ -182,15 +182,15 @@ export default function MaintenanceRequest({ onBack }: MaintenanceRequestProps) 
 
       {/* New Request Form */}
       {showForm && (
-        <div className="card border-brand-orange/50">
+        <div className="card border-cc-accent/50">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-brand-light flex items-center gap-2">
-              <Wrench size={20} className="text-brand-orange" />
+            <h3 className="text-lg font-bold text-cc-text flex items-center gap-2">
+              <Wrench size={20} className="text-cc-accent" />
               Submit New Request
             </h3>
             <button
               onClick={resetForm}
-              className="text-brand-muted hover:text-brand-light transition-colors"
+              className="text-cc-muted hover:text-cc-text transition-colors"
             >
               <X size={24} />
             </button>
@@ -199,7 +199,7 @@ export default function MaintenanceRequest({ onBack }: MaintenanceRequestProps) 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Category Selection */}
             <div>
-              <label className="block text-sm font-bold text-brand-muted uppercase tracking-wider mb-2">
+              <label className="block text-sm font-bold text-cc-muted uppercase tracking-wider mb-2">
                 Category
               </label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -210,8 +210,8 @@ export default function MaintenanceRequest({ onBack }: MaintenanceRequestProps) 
                     onClick={() => setCategory(cat)}
                     className={`p-3 rounded-lg border text-sm font-medium transition-all ${
                       category === cat
-                        ? 'bg-brand-orange/20 border-brand-orange text-brand-orange'
-                        : 'bg-brand-dark/50 border-slate-700 text-brand-muted hover:border-slate-600'
+                        ? 'bg-cc-accent/20 border-cc-accent text-cc-accent'
+                        : 'bg-cc-bg/50 border-cc-border text-cc-muted hover:border-cc-border'
                     }`}
                   >
                     {CATEGORY_LABELS[cat]}
@@ -222,7 +222,7 @@ export default function MaintenanceRequest({ onBack }: MaintenanceRequestProps) 
 
             {/* Urgency Selection */}
             <div>
-              <label className="block text-sm font-bold text-brand-muted uppercase tracking-wider mb-2">
+              <label className="block text-sm font-bold text-cc-muted uppercase tracking-wider mb-2">
                 Urgency Level
               </label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -234,7 +234,7 @@ export default function MaintenanceRequest({ onBack }: MaintenanceRequestProps) 
                     className={`p-3 rounded-lg border text-sm font-medium transition-all ${
                       urgency === urg
                         ? `${getUrgencyColor(urg)} border-current`
-                        : 'bg-brand-dark/50 border-slate-700 text-brand-muted hover:border-slate-600'
+                        : 'bg-cc-bg/50 border-cc-border text-cc-muted hover:border-cc-border'
                     }`}
                   >
                     {URGENCY_LABELS[urg]}
@@ -251,7 +251,7 @@ export default function MaintenanceRequest({ onBack }: MaintenanceRequestProps) 
 
             {/* Title */}
             <div>
-              <label className="block text-sm font-bold text-brand-muted uppercase tracking-wider mb-2">
+              <label className="block text-sm font-bold text-cc-muted uppercase tracking-wider mb-2">
                 Issue Title
               </label>
               <input
@@ -266,7 +266,7 @@ export default function MaintenanceRequest({ onBack }: MaintenanceRequestProps) 
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-bold text-brand-muted uppercase tracking-wider mb-2">
+              <label className="block text-sm font-bold text-cc-muted uppercase tracking-wider mb-2">
                 Detailed Description
               </label>
               <textarea
@@ -281,28 +281,28 @@ export default function MaintenanceRequest({ onBack }: MaintenanceRequestProps) 
 
             {/* Photo Upload */}
             <div>
-              <label className="block text-sm font-bold text-brand-muted uppercase tracking-wider mb-2">
+              <label className="block text-sm font-bold text-cc-muted uppercase tracking-wider mb-2">
                 Photo (Optional)
               </label>
               {photoPreview ? (
-                <div className="flex items-center gap-4 p-4 bg-brand-dark/50 rounded-lg border border-slate-700">
-                  <div className="w-16 h-16 bg-slate-700 rounded-lg flex items-center justify-center">
+                <div className="flex items-center gap-4 p-4 bg-cc-bg/50 rounded-lg border border-cc-border">
+                  <div className="w-16 h-16 bg-cc-border rounded-lg flex items-center justify-center">
                     <Camera size={24} className="text-slate-400" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-brand-light text-sm">Photo attached</p>
-                    <p className="text-brand-muted text-xs">Click to change</p>
+                    <p className="text-cc-text text-sm">Photo attached</p>
+                    <p className="text-cc-muted text-xs">Click to change</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setPhotoPreview(null)}
-                    className="text-brand-muted hover:text-red-400 transition-colors"
+                    className="text-cc-muted hover:text-red-400 transition-colors"
                   >
                     <X size={20} />
                   </button>
                 </div>
               ) : (
-                <label className="w-full p-6 border-2 border-dashed border-slate-700 rounded-lg hover:border-slate-600 transition-colors text-brand-muted hover:text-brand-light cursor-pointer block">
+                <label className="w-full p-6 border-2 border-dashed border-cc-border rounded-lg hover:border-cc-border transition-colors text-cc-muted hover:text-cc-text cursor-pointer block">
                   <div className="flex flex-col items-center gap-2">
                     <Camera size={32} />
                     <span className="text-sm">Click to add a photo</span>
@@ -351,16 +351,16 @@ export default function MaintenanceRequest({ onBack }: MaintenanceRequestProps) 
       {/* Requests List */}
       <div className="card">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-bold text-brand-light">
+          <h3 className="text-lg font-bold text-cc-text">
             {showAllRequests ? 'All Requests' : 'Open Requests'}
-            <span className="ml-2 text-sm font-normal text-brand-muted">
+            <span className="ml-2 text-sm font-normal text-cc-muted">
               ({showAllRequests ? requests.length : openRequests.length})
             </span>
           </h3>
           {completedRequests.length > 0 && (
             <button
               onClick={() => setShowAllRequests(!showAllRequests)}
-              className="text-sm text-brand-muted hover:text-brand-light transition-colors flex items-center gap-1"
+              className="text-sm text-cc-muted hover:text-cc-text transition-colors flex items-center gap-1"
             >
               {showAllRequests ? (
                 <>
@@ -378,7 +378,7 @@ export default function MaintenanceRequest({ onBack }: MaintenanceRequestProps) 
         </div>
 
         {displayRequests.length === 0 ? (
-          <div className="text-center py-12 text-brand-muted">
+          <div className="text-center py-12 text-cc-muted">
             <Wrench size={48} className="mx-auto mb-4 opacity-50" />
             <p className="font-medium">No maintenance requests</p>
             <p className="text-sm mt-1">Submit a new request if you have any issues.</p>
@@ -395,13 +395,13 @@ export default function MaintenanceRequest({ onBack }: MaintenanceRequestProps) 
                     {getStatusIcon(request.status)}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h4 className="font-bold text-brand-light">{request.title}</h4>
+                        <h4 className="font-bold text-cc-text">{request.title}</h4>
                         <span className={`text-xs px-2 py-0.5 rounded-full ${getUrgencyColor(request.urgency)}`}>
                           {URGENCY_LABELS[request.urgency]}
                         </span>
                       </div>
-                      <p className="text-sm text-brand-muted mt-1">{request.description}</p>
-                      <div className="flex items-center gap-4 mt-3 text-xs text-brand-muted">
+                      <p className="text-sm text-cc-muted mt-1">{request.description}</p>
+                      <div className="flex items-center gap-4 mt-3 text-xs text-cc-muted">
                         <span className="flex items-center gap-1">
                           <Wrench size={12} />
                           {CATEGORY_LABELS[request.category]}
@@ -419,14 +419,14 @@ export default function MaintenanceRequest({ onBack }: MaintenanceRequestProps) 
                         )}
                       </div>
                       {request.notes && (
-                        <div className="mt-3 p-3 bg-brand-dark/50 rounded-lg text-sm">
-                          <p className="text-xs font-bold text-brand-muted uppercase mb-1">Notes from Maintenance:</p>
-                          <p className="text-brand-light">{request.notes}</p>
+                        <div className="mt-3 p-3 bg-cc-bg/50 rounded-lg text-sm">
+                          <p className="text-xs font-bold text-cc-muted uppercase mb-1">Notes from Maintenance:</p>
+                          <p className="text-cc-text">{request.notes}</p>
                         </div>
                       )}
                     </div>
                   </div>
-                  <span className="text-xs font-bold px-2 py-1 rounded-full bg-brand-dark/50 whitespace-nowrap">
+                  <span className="text-xs font-bold px-2 py-1 rounded-full bg-cc-bg/50 whitespace-nowrap">
                     {STATUS_LABELS[request.status]}
                   </span>
                 </div>

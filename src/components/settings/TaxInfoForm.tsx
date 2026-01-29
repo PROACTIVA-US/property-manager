@@ -45,25 +45,25 @@ export default function TaxInfoForm({ initialData, onSave }: TaxInfoFormProps) {
           <FileText className="text-purple-400" size={24} />
         </div>
         <div>
-          <h3 className="text-xl font-bold text-brand-light">Tax Information</h3>
-          <p className="text-sm text-brand-muted">For capital gains and tax planning estimates</p>
+          <h3 className="text-xl font-bold text-cc-text">Tax Information</h3>
+          <p className="text-sm text-cc-muted">For capital gains and tax planning estimates</p>
         </div>
       </div>
 
-      <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-sm text-brand-muted">
-        <p className="font-medium text-brand-light mb-1">⚠️ Disclaimer</p>
+      <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-sm text-cc-muted">
+        <p className="font-medium text-cc-text mb-1">⚠️ Disclaimer</p>
         <p>This information is for educational estimates only. Consult a tax professional for actual tax planning.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Filing Status *
           </label>
           <select
             value={formData.filingStatus}
             onChange={(e) => handleChange('filingStatus', e.target.value as TaxInfoData['filingStatus'])}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             required
           >
             <option value="single">Single</option>
@@ -74,55 +74,55 @@ export default function TaxInfoForm({ initialData, onSave }: TaxInfoFormProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Annual Household Income *
           </label>
           <input
             type="number"
             value={formData.annualIncome}
             onChange={(e) => handleChange('annualIncome', parseFloat(e.target.value) || 0)}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             required
             min="0"
             step="1000"
           />
-          <p className="text-xs text-brand-muted mt-1">{formatCurrency(formData.annualIncome)}/year</p>
+          <p className="text-xs text-cc-muted mt-1">{formatCurrency(formData.annualIncome)}/year</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Depreciable Value *
           </label>
           <input
             type="number"
             value={formData.depreciableValue}
             onChange={(e) => handleChange('depreciableValue', parseFloat(e.target.value) || 0)}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             required
             min="0"
             step="1000"
           />
-          <p className="text-xs text-brand-muted mt-1">
+          <p className="text-xs text-cc-muted mt-1">
             {formatCurrency(formData.depreciableValue)} (Purchase price - land value)
           </p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Capital Improvements *
           </label>
           <input
             type="number"
             value={formData.capitalImprovementsCost}
             onChange={(e) => handleChange('capitalImprovementsCost', parseFloat(e.target.value) || 0)}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             required
             min="0"
             step="1000"
           />
-          <p className="text-xs text-brand-muted mt-1">
+          <p className="text-xs text-cc-muted mt-1">
             {formatCurrency(formData.capitalImprovementsCost)} (Roof, HVAC, etc.)
           </p>
         </div>
@@ -130,42 +130,42 @@ export default function TaxInfoForm({ initialData, onSave }: TaxInfoFormProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             Estimated Selling Costs *
           </label>
           <input
             type="number"
             value={formData.estimatedSellingCosts}
             onChange={(e) => handleChange('estimatedSellingCosts', parseFloat(e.target.value) || 0)}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             required
             min="0"
             step="100"
           />
-          <p className="text-xs text-brand-muted mt-1">
+          <p className="text-xs text-cc-muted mt-1">
             {formatCurrency(formData.estimatedSellingCosts)} (Usually 6-10% of sale price)
           </p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-brand-light mb-2">
+          <label className="block text-sm font-medium text-cc-text mb-2">
             State Income Tax Rate (%) *
           </label>
           <input
             type="number"
             value={formData.stateIncomeTaxRate}
             onChange={(e) => handleChange('stateIncomeTaxRate', parseFloat(e.target.value) || 0)}
-            className="w-full px-4 py-2 bg-brand-dark border border-slate-700 rounded-lg text-brand-light focus:outline-none focus:border-brand-orange"
+            className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
             required
             min="0"
             max="100"
             step="0.1"
           />
-          <p className="text-xs text-brand-muted mt-1">{formData.stateIncomeTaxRate.toFixed(1)}%</p>
+          <p className="text-xs text-cc-muted mt-1">{formData.stateIncomeTaxRate.toFixed(1)}%</p>
         </div>
       </div>
 
-      <div className="flex items-center gap-4 pt-4 border-t border-slate-700">
+      <div className="flex items-center gap-4 pt-4 border-t border-cc-border">
         <button
           type="submit"
           disabled={isSaving}

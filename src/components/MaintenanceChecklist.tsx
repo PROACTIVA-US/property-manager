@@ -246,11 +246,11 @@ export default function MaintenanceChecklist() {
     const isOverdue = daysUntil < 0;
     const isUpcoming = daysUntil >= 0 && daysUntil <= 7;
 
-    let colorClass = 'text-brand-muted';
+    let colorClass = 'text-cc-muted';
     let Icon = Calendar;
 
     if (task.completed) {
-      colorClass = 'text-brand-muted';
+      colorClass = 'text-cc-muted';
     } else if (isOverdue) {
       colorClass = 'text-red-400';
       Icon = AlertTriangle;
@@ -280,8 +280,8 @@ export default function MaintenanceChecklist() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h2 className="text-xl font-bold text-brand-orange">Maintenance Checklist</h2>
-          <p className="text-sm text-brand-muted mt-1">
+          <h2 className="text-xl font-bold text-cc-accent">Maintenance Checklist</h2>
+          <p className="text-sm text-cc-muted mt-1">
             {stats.completed}/{stats.total} completed
             {stats.overdue > 0 && (
               <span className="text-red-400 ml-2">({stats.overdue} overdue)</span>
@@ -306,10 +306,10 @@ export default function MaintenanceChecklist() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 mb-6 p-3 bg-brand-dark/30 rounded-lg">
+      <div className="flex flex-wrap items-center gap-3 mb-6 p-3 bg-cc-bg/30 rounded-lg">
         <div className="flex items-center gap-2">
-          <Filter size={14} className="text-brand-muted" />
-          <span className="text-xs text-brand-muted">Filter:</span>
+          <Filter size={14} className="text-cc-muted" />
+          <span className="text-xs text-cc-muted">Filter:</span>
         </div>
 
         <select
@@ -343,7 +343,7 @@ export default function MaintenanceChecklist() {
               setFilterStatus('all');
               setFilterCategory('all');
             }}
-            className="text-xs text-brand-orange hover:text-orange-400"
+            className="text-xs text-cc-accent hover:text-indigo-300"
           >
             Clear filters
           </button>
@@ -363,28 +363,28 @@ export default function MaintenanceChecklist() {
           }
 
           return (
-            <div key={category} className="border border-slate-700/50 rounded-lg overflow-hidden">
+            <div key={category} className="border border-cc-border/50 rounded-lg overflow-hidden">
               {/* Category Header */}
               <div
                 className={`flex items-center justify-between p-3 cursor-pointer transition-colors ${
-                  isExpanded ? 'bg-brand-dark/50' : 'bg-brand-dark/30 hover:bg-brand-dark/40'
+                  isExpanded ? 'bg-cc-bg/50' : 'bg-cc-bg/30 hover:bg-cc-bg/40'
                 }`}
                 onClick={() => toggleCategory(category)}
               >
                 <div className="flex items-center gap-3">
                   {isExpanded ? (
-                    <ChevronUp size={16} className="text-brand-muted" />
+                    <ChevronUp size={16} className="text-cc-muted" />
                   ) : (
-                    <ChevronDown size={16} className="text-brand-muted" />
+                    <ChevronDown size={16} className="text-cc-muted" />
                   )}
                   <div>
-                    <h3 className="text-sm font-semibold text-brand-light">{category}</h3>
-                    <p className="text-xs text-brand-muted">{CATEGORY_INFO[category].timing}</p>
+                    <h3 className="text-sm font-semibold text-cc-text">{category}</h3>
+                    <p className="text-xs text-cc-muted">{CATEGORY_INFO[category].timing}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-brand-muted bg-brand-dark px-2 py-1 rounded">
+                  <span className="text-xs text-cc-muted bg-cc-bg px-2 py-1 rounded">
                     {categoryStats.completed}/{categoryStats.total}
                   </span>
 
@@ -392,14 +392,14 @@ export default function MaintenanceChecklist() {
                     <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
                       <button
                         onClick={() => handleCompleteCategory(category)}
-                        className="p-1.5 text-brand-muted hover:text-green-400 hover:bg-green-400/10 rounded transition-colors"
+                        className="p-1.5 text-cc-muted hover:text-green-400 hover:bg-green-400/10 rounded transition-colors"
                         title="Complete all"
                       >
                         <CheckCheck size={14} />
                       </button>
                       <button
                         onClick={() => handleResetCategory(category)}
-                        className="p-1.5 text-brand-muted hover:text-amber-400 hover:bg-amber-400/10 rounded transition-colors"
+                        className="p-1.5 text-cc-muted hover:text-amber-400 hover:bg-amber-400/10 rounded transition-colors"
                         title="Reset all"
                       >
                         <RotateCcw size={14} />
@@ -413,7 +413,7 @@ export default function MaintenanceChecklist() {
               {isExpanded && (
                 <div className="p-2 space-y-2">
                   {categoryTasks.length === 0 ? (
-                    <p className="text-xs text-brand-muted text-center py-4">
+                    <p className="text-xs text-cc-muted text-center py-4">
                       No tasks match the current filters
                     </p>
                   ) : (
@@ -427,14 +427,14 @@ export default function MaintenanceChecklist() {
                               ? 'bg-red-900/10 border-red-900/30'
                               : isTaskUpcoming(task)
                                 ? 'bg-amber-900/10 border-amber-900/30'
-                                : 'bg-brand-dark/30 border-slate-700/50 hover:bg-brand-dark/50 hover:border-brand-orange/50'
+                                : 'bg-cc-bg/30 border-cc-border/50 hover:bg-cc-bg/50 hover:border-cc-accent/50'
                         }`}
                       >
                         {/* Checkbox */}
                         <div
                           onClick={() => handleToggleTask(task.id)}
                           className={`mt-0.5 mr-3 cursor-pointer ${
-                            task.completed ? 'text-green-500' : 'text-brand-muted hover:text-brand-orange'
+                            task.completed ? 'text-green-500' : 'text-cc-muted hover:text-cc-accent'
                           }`}
                         >
                           {task.completed ? <CheckCircle2 size={18} /> : <Circle size={18} />}
@@ -444,19 +444,19 @@ export default function MaintenanceChecklist() {
                         <div className="flex-1 min-w-0">
                           <p
                             className={`text-sm ${
-                              task.completed ? 'line-through text-brand-muted' : 'text-brand-light'
+                              task.completed ? 'line-through text-cc-muted' : 'text-cc-text'
                             }`}
                           >
                             {task.description}
                           </p>
 
                           <div className="flex flex-wrap items-center gap-2 mt-1">
-                            <span className="text-xs text-brand-muted bg-brand-dark px-1.5 py-0.5 rounded">
+                            <span className="text-xs text-cc-muted bg-cc-bg px-1.5 py-0.5 rounded">
                               {task.frequency}
                             </span>
                             {getDueDateDisplay(task)}
                             {task.notes && (
-                              <span className="text-xs text-brand-muted italic truncate max-w-[150px]">
+                              <span className="text-xs text-cc-muted italic truncate max-w-[150px]">
                                 {task.notes}
                               </span>
                             )}
@@ -468,7 +468,7 @@ export default function MaintenanceChecklist() {
                           <div className="flex items-center gap-1 ml-2">
                             <button
                               onClick={() => handleOpenEditModal(task)}
-                              className="p-1.5 text-brand-muted hover:text-brand-orange hover:bg-brand-orange/10 rounded transition-colors"
+                              className="p-1.5 text-cc-muted hover:text-cc-accent hover:bg-cc-accent/10 rounded transition-colors"
                               title="Edit task"
                             >
                               <Pencil size={14} />
@@ -484,7 +484,7 @@ export default function MaintenanceChecklist() {
                                 </button>
                                 <button
                                   onClick={() => setDeleteConfirm(null)}
-                                  className="p-1.5 text-brand-muted hover:bg-brand-dark rounded transition-colors"
+                                  className="p-1.5 text-cc-muted hover:bg-cc-bg rounded transition-colors"
                                 >
                                   <X size={14} />
                                 </button>
@@ -492,7 +492,7 @@ export default function MaintenanceChecklist() {
                             ) : (
                               <button
                                 onClick={() => setDeleteConfirm(task.id)}
-                                className="p-1.5 text-brand-muted hover:text-red-400 hover:bg-red-400/10 rounded transition-colors"
+                                className="p-1.5 text-cc-muted hover:text-red-400 hover:bg-red-400/10 rounded transition-colors"
                                 title="Delete task"
                               >
                                 <Trash2 size={14} />
@@ -513,14 +513,14 @@ export default function MaintenanceChecklist() {
       {/* Add/Edit Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-brand-navy border border-slate-700 rounded-xl p-6 w-full max-w-md shadow-2xl">
+          <div className="bg-cc-surface border border-cc-border rounded-xl p-6 w-full max-w-md shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-brand-orange">
+              <h3 className="text-lg font-bold text-cc-accent">
                 {editingTask ? 'Edit Task' : 'Add New Task'}
               </h3>
               <button
                 onClick={handleCloseModal}
-                className="text-brand-muted hover:text-brand-light transition-colors"
+                className="text-cc-muted hover:text-cc-text transition-colors"
               >
                 <X size={20} />
               </button>
@@ -528,7 +528,7 @@ export default function MaintenanceChecklist() {
 
             <form onSubmit={handleSubmitForm} className="space-y-4">
               <div>
-                <label className="block text-sm text-brand-light mb-1">Description *</label>
+                <label className="block text-sm text-cc-text mb-1">Description *</label>
                 <input
                   type="text"
                   value={formData.description}
@@ -541,7 +541,7 @@ export default function MaintenanceChecklist() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-brand-light mb-1">Category</label>
+                  <label className="block text-sm text-cc-text mb-1">Category</label>
                   <select
                     value={formData.category}
                     onChange={e => setFormData({ ...formData, category: e.target.value as TaskCategory })}
@@ -556,7 +556,7 @@ export default function MaintenanceChecklist() {
                 </div>
 
                 <div>
-                  <label className="block text-sm text-brand-light mb-1">Frequency</label>
+                  <label className="block text-sm text-cc-text mb-1">Frequency</label>
                   <select
                     value={formData.frequency}
                     onChange={e => setFormData({ ...formData, frequency: e.target.value as TaskFrequency })}
@@ -572,7 +572,7 @@ export default function MaintenanceChecklist() {
               </div>
 
               <div>
-                <label className="block text-sm text-brand-light mb-1">Due Date (optional)</label>
+                <label className="block text-sm text-cc-text mb-1">Due Date (optional)</label>
                 <input
                   type="date"
                   value={formData.dueDate}
@@ -583,7 +583,7 @@ export default function MaintenanceChecklist() {
               </div>
 
               <div>
-                <label className="block text-sm text-brand-light mb-1">Notes (optional)</label>
+                <label className="block text-sm text-cc-text mb-1">Notes (optional)</label>
                 <textarea
                   value={formData.notes}
                   onChange={e => setFormData({ ...formData, notes: e.target.value })}

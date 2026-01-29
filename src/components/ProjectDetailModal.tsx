@@ -50,7 +50,7 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
       draft: 'bg-slate-500/20 text-slate-400',
       pending_approval: 'bg-yellow-500/20 text-yellow-400',
       approved: 'bg-blue-500/20 text-blue-400',
-      in_progress: 'bg-orange-500/20 text-orange-400',
+      in_progress: 'bg-indigo-400/20 text-indigo-300',
       on_hold: 'bg-purple-500/20 text-purple-400',
       completed: 'bg-green-500/20 text-green-400',
       cancelled: 'bg-red-500/20 text-red-400',
@@ -62,7 +62,7 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
     const colors = {
       low: 'bg-blue-500/20 text-blue-400',
       medium: 'bg-yellow-500/20 text-yellow-400',
-      high: 'bg-orange-500/20 text-orange-400',
+      high: 'bg-indigo-400/20 text-indigo-300',
       urgent: 'bg-red-500/20 text-red-400',
     };
     return colors[priority as keyof typeof colors] || colors.medium;
@@ -70,12 +70,12 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-brand-darker rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col border border-white/10">
+      <div className="bg-cc-bger rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] flex flex-col border border-white/10">
         {/* Header */}
         <div className="flex items-start justify-between p-6 border-b border-white/10">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-2">
-              <h2 className="text-2xl font-bold text-brand-light truncate">{project.title}</h2>
+              <h2 className="text-2xl font-bold text-cc-text truncate">{project.title}</h2>
               <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(project.status)}`}>
                 {STATUS_LABELS[project.status]}
               </span>
@@ -83,11 +83,11 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
                 {PRIORITY_LABELS[project.priority]}
               </span>
             </div>
-            <p className="text-sm text-brand-muted">{CATEGORY_LABELS[project.category]}</p>
+            <p className="text-sm text-cc-muted">{CATEGORY_LABELS[project.category]}</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors text-brand-muted hover:text-brand-light"
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors text-cc-muted hover:text-cc-text"
           >
             <X size={20} />
           </button>
@@ -103,8 +103,8 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-t-lg transition-colors whitespace-nowrap ${
                   activeTab === tab.id
-                    ? 'bg-brand-orange text-white'
-                    : 'text-brand-muted hover:text-brand-light hover:bg-white/5'
+                    ? 'bg-cc-accent text-white'
+                    : 'text-cc-muted hover:text-cc-text hover:bg-white/5'
                 }`}
               >
                 <Icon size={16} />
@@ -127,68 +127,68 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
             <div className="space-y-6">
               {/* Description */}
               <div>
-                <h3 className="text-sm font-semibold text-brand-light mb-2">Description</h3>
-                <p className="text-sm text-brand-muted whitespace-pre-wrap">{project.description}</p>
+                <h3 className="text-sm font-semibold text-cc-text mb-2">Description</h3>
+                <p className="text-sm text-cc-muted whitespace-pre-wrap">{project.description}</p>
               </div>
 
               {/* Key Details Grid */}
               <div className="grid grid-cols-2 gap-4">
                 {/* Vendor */}
-                <div className="bg-brand-dark rounded-lg p-4 border border-white/10">
-                  <div className="flex items-center gap-2 text-brand-muted mb-2">
+                <div className="bg-cc-bg rounded-lg p-4 border border-white/10">
+                  <div className="flex items-center gap-2 text-cc-muted mb-2">
                     <User size={16} />
                     <span className="text-xs font-semibold uppercase">Primary Vendor</span>
                   </div>
-                  <p className="text-brand-light">{vendor?.name || 'Not assigned'}</p>
+                  <p className="text-cc-text">{vendor?.name || 'Not assigned'}</p>
                   {vendor && (
-                    <p className="text-sm text-brand-muted mt-1">{vendor.phone}</p>
+                    <p className="text-sm text-cc-muted mt-1">{vendor.phone}</p>
                   )}
                 </div>
 
                 {/* Project Owner */}
-                <div className="bg-brand-dark rounded-lg p-4 border border-white/10">
-                  <div className="flex items-center gap-2 text-brand-muted mb-2">
+                <div className="bg-cc-bg rounded-lg p-4 border border-white/10">
+                  <div className="flex items-center gap-2 text-cc-muted mb-2">
                     <User size={16} />
                     <span className="text-xs font-semibold uppercase">Project Owner</span>
                   </div>
-                  <p className="text-brand-light">{project.projectOwnerName}</p>
+                  <p className="text-cc-text">{project.projectOwnerName}</p>
                 </div>
 
                 {/* Estimated Cost */}
-                <div className="bg-brand-dark rounded-lg p-4 border border-white/10">
-                  <div className="flex items-center gap-2 text-brand-muted mb-2">
+                <div className="bg-cc-bg rounded-lg p-4 border border-white/10">
+                  <div className="flex items-center gap-2 text-cc-muted mb-2">
                     <DollarSign size={16} />
                     <span className="text-xs font-semibold uppercase">Estimated Cost</span>
                   </div>
-                  <p className="text-brand-light text-xl font-bold">
+                  <p className="text-cc-text text-xl font-bold">
                     {project.estimatedCost ? `$${project.estimatedCost.toLocaleString()}` : 'Not set'}
                   </p>
                   {project.actualCost && (
-                    <p className="text-sm text-brand-muted mt-1">
+                    <p className="text-sm text-cc-muted mt-1">
                       Actual: ${project.actualCost.toLocaleString()}
                     </p>
                   )}
                 </div>
 
                 {/* Timeline */}
-                <div className="bg-brand-dark rounded-lg p-4 border border-white/10">
-                  <div className="flex items-center gap-2 text-brand-muted mb-2">
+                <div className="bg-cc-bg rounded-lg p-4 border border-white/10">
+                  <div className="flex items-center gap-2 text-cc-muted mb-2">
                     <Calendar size={16} />
                     <span className="text-xs font-semibold uppercase">Timeline</span>
                   </div>
                   {project.estimatedStartDate ? (
                     <div className="space-y-1">
-                      <p className="text-sm text-brand-light">
+                      <p className="text-sm text-cc-text">
                         Start: {new Date(project.estimatedStartDate).toLocaleDateString()}
                       </p>
                       {project.estimatedEndDate && (
-                        <p className="text-sm text-brand-light">
+                        <p className="text-sm text-cc-text">
                           End: {new Date(project.estimatedEndDate).toLocaleDateString()}
                         </p>
                       )}
                     </div>
                   ) : (
-                    <p className="text-brand-light">Not scheduled</p>
+                    <p className="text-cc-text">Not scheduled</p>
                   )}
                 </div>
               </div>
@@ -207,18 +207,18 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
               {/* Emergency Contacts */}
               {project.emergencyContacts.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-semibold text-brand-light mb-3">Emergency Contacts</h3>
+                  <h3 className="text-sm font-semibold text-cc-text mb-3">Emergency Contacts</h3>
                   <div className="space-y-2">
                     {project.emergencyContacts.map((contact, idx) => (
-                      <div key={idx} className="bg-brand-dark rounded-lg p-3 border border-white/10">
+                      <div key={idx} className="bg-cc-bg rounded-lg p-3 border border-white/10">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-brand-light font-medium">{contact.name}</p>
-                            <p className="text-sm text-brand-muted">{contact.relationship}</p>
+                            <p className="text-cc-text font-medium">{contact.name}</p>
+                            <p className="text-sm text-cc-muted">{contact.relationship}</p>
                           </div>
                           <div className="text-right text-sm">
-                            <p className="text-brand-light">{contact.phone}</p>
-                            {contact.email && <p className="text-brand-muted">{contact.email}</p>}
+                            <p className="text-cc-text">{contact.phone}</p>
+                            {contact.email && <p className="text-cc-muted">{contact.email}</p>}
                           </div>
                         </div>
                       </div>
@@ -230,10 +230,10 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
               {/* Tags */}
               {project.tags.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-semibold text-brand-light mb-2">Tags</h3>
+                  <h3 className="text-sm font-semibold text-cc-text mb-2">Tags</h3>
                   <div className="flex flex-wrap gap-2">
                     {project.tags.map(tag => (
-                      <span key={tag} className="px-2 py-1 bg-white/10 rounded text-xs text-brand-muted">
+                      <span key={tag} className="px-2 py-1 bg-white/10 rounded text-xs text-cc-muted">
                         #{tag}
                       </span>
                     ))}
@@ -244,15 +244,15 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
               {/* Notes */}
               {project.notes && (
                 <div>
-                  <h3 className="text-sm font-semibold text-brand-light mb-2">Additional Notes</h3>
-                  <div className="bg-brand-dark rounded-lg p-4 border border-white/10">
-                    <p className="text-sm text-brand-muted whitespace-pre-wrap">{project.notes}</p>
+                  <h3 className="text-sm font-semibold text-cc-text mb-2">Additional Notes</h3>
+                  <div className="bg-cc-bg rounded-lg p-4 border border-white/10">
+                    <p className="text-sm text-cc-muted whitespace-pre-wrap">{project.notes}</p>
                   </div>
                 </div>
               )}
 
               {/* Metadata */}
-              <div className="flex items-center gap-4 text-xs text-brand-muted pt-4 border-t border-white/10">
+              <div className="flex items-center gap-4 text-xs text-cc-muted pt-4 border-t border-white/10">
                 <div className="flex items-center gap-1">
                   <Clock size={12} />
                   Created {new Date(project.createdAt).toLocaleString()}
@@ -289,20 +289,20 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
             <div className="space-y-4">
               {projectDocuments.length === 0 ? (
                 <div className="text-center py-12">
-                  <Paperclip size={48} className="mx-auto text-brand-muted mb-4" />
-                  <p className="text-brand-muted">No documents linked to this project</p>
-                  <p className="text-sm text-brand-muted mt-1">
+                  <Paperclip size={48} className="mx-auto text-cc-muted mb-4" />
+                  <p className="text-cc-muted">No documents linked to this project</p>
+                  <p className="text-sm text-cc-muted mt-1">
                     Link documents from the Documents page when uploading
                   </p>
                 </div>
               ) : (
                 <div className="space-y-2">
                   {projectDocuments.map((doc: DocumentFile) => (
-                    <div key={doc.id} className="bg-brand-dark rounded-lg p-3 border border-white/10 flex items-center gap-4">
+                    <div key={doc.id} className="bg-cc-bg rounded-lg p-3 border border-white/10 flex items-center gap-4">
                       <div className="text-2xl">{getFileIcon(doc.mimeType)}</div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-medium text-brand-light truncate">{doc.name}</h4>
-                        <div className="flex items-center gap-3 mt-0.5 text-xs text-brand-muted">
+                        <h4 className="text-sm font-medium text-cc-text truncate">{doc.name}</h4>
+                        <div className="flex items-center gap-3 mt-0.5 text-xs text-cc-muted">
                           <span>{formatFileSize(doc.fileSize)}</span>
                           <span>{new Date(doc.uploadDate).toLocaleDateString()}</span>
                           <span className="px-1.5 py-0.5 rounded bg-white/10">
@@ -312,11 +312,11 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
                       </div>
                       <div className="flex items-center gap-2">
                         {doc.mimeType.startsWith('image/') && (
-                          <a href={doc.dataUrl} target="_blank" rel="noopener noreferrer" className="p-1.5 hover:bg-white/10 rounded text-brand-muted hover:text-brand-light">
+                          <a href={doc.dataUrl} target="_blank" rel="noopener noreferrer" className="p-1.5 hover:bg-white/10 rounded text-cc-muted hover:text-cc-text">
                             <EyeIcon size={16} />
                           </a>
                         )}
-                        <a href={doc.dataUrl} download={doc.name} className="p-1.5 hover:bg-white/10 rounded text-brand-muted hover:text-brand-light">
+                        <a href={doc.dataUrl} download={doc.name} className="p-1.5 hover:bg-white/10 rounded text-cc-muted hover:text-cc-text">
                           <Download size={16} />
                         </a>
                       </div>
@@ -331,24 +331,24 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
             <div className="space-y-4">
               {projectExpenses.length === 0 ? (
                 <div className="text-center py-12">
-                  <DollarSign size={48} className="mx-auto text-brand-muted mb-4" />
-                  <p className="text-brand-muted">No expenses linked to this project</p>
-                  <p className="text-sm text-brand-muted mt-1">
+                  <DollarSign size={48} className="mx-auto text-cc-muted mb-4" />
+                  <p className="text-cc-muted">No expenses linked to this project</p>
+                  <p className="text-sm text-cc-muted mt-1">
                     Link expenses from the Maintenance &gt; Costs tab
                   </p>
                 </div>
               ) : (
                 <>
                   <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div className="bg-brand-dark rounded-lg p-4 border border-white/10">
-                      <p className="text-xs text-brand-muted uppercase mb-1">Total Expenses</p>
-                      <p className="text-xl font-bold text-brand-light">
+                    <div className="bg-cc-bg rounded-lg p-4 border border-white/10">
+                      <p className="text-xs text-cc-muted uppercase mb-1">Total Expenses</p>
+                      <p className="text-xl font-bold text-cc-text">
                         ${projectExpenses.reduce((sum: number, e: Expense) => sum + e.amount, 0).toLocaleString()}
                       </p>
                     </div>
-                    <div className="bg-brand-dark rounded-lg p-4 border border-white/10">
-                      <p className="text-xs text-brand-muted uppercase mb-1">vs Estimated</p>
-                      <p className="text-xl font-bold text-brand-light">
+                    <div className="bg-cc-bg rounded-lg p-4 border border-white/10">
+                      <p className="text-xs text-cc-muted uppercase mb-1">vs Estimated</p>
+                      <p className="text-xl font-bold text-cc-text">
                         {project.estimatedCost
                           ? `$${project.estimatedCost.toLocaleString()}`
                           : 'No estimate'}
@@ -357,16 +357,16 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
                   </div>
                   <div className="space-y-2">
                     {projectExpenses.map((expense: Expense) => (
-                      <div key={expense.id} className="bg-brand-dark rounded-lg p-3 border border-white/10 flex items-center justify-between">
+                      <div key={expense.id} className="bg-cc-bg rounded-lg p-3 border border-white/10 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <DollarSign size={16} className="text-brand-orange" />
+                          <DollarSign size={16} className="text-cc-accent" />
                           <div>
-                            <p className="text-sm font-medium text-brand-light">{expense.description}</p>
+                            <p className="text-sm font-medium text-cc-text">{expense.description}</p>
                             <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-xs text-brand-muted">
+                              <span className="text-xs text-cc-muted">
                                 {new Date(expense.date).toLocaleDateString()}
                               </span>
-                              <span className="text-xs px-1.5 py-0.5 rounded bg-white/10 text-brand-muted">
+                              <span className="text-xs px-1.5 py-0.5 rounded bg-white/10 text-cc-muted">
                                 {expense.category}
                               </span>
                               {expense.isCapitalImprovement && (
@@ -377,7 +377,7 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
                             </div>
                           </div>
                         </div>
-                        <p className="text-sm font-bold text-brand-light">${expense.amount.toLocaleString()}</p>
+                        <p className="text-sm font-bold text-cc-text">${expense.amount.toLocaleString()}</p>
                       </div>
                     ))}
                   </div>
@@ -388,8 +388,8 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
 
           {activeTab === 'attachments' && (
             <div className="text-center py-12">
-              <Paperclip size={48} className="mx-auto text-brand-muted mb-4" />
-              <p className="text-brand-muted">Attachment management coming soon</p>
+              <Paperclip size={48} className="mx-auto text-cc-muted mb-4" />
+              <p className="text-cc-muted">Attachment management coming soon</p>
             </div>
           )}
         </div>
@@ -398,7 +398,7 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
         <div className="flex items-center justify-end gap-3 p-6 border-t border-white/10">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-lg transition-colors"
+            className="px-4 py-2 bg-cc-border hover:bg-slate-500 text-white rounded-lg transition-colors"
           >
             Close
           </button>

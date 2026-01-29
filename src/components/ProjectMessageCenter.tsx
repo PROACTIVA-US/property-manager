@@ -56,13 +56,13 @@ export default function ProjectMessageCenter({ project }: ProjectMessageCenterPr
   };
 
   const getRoleColor = (role: string | null) => {
-    if (!role) return 'text-brand-muted';
+    if (!role) return 'text-cc-muted';
     const colors: Record<string, string> = {
-      owner: 'text-orange-400',
+      owner: 'text-indigo-300',
       pm: 'text-blue-400',
       tenant: 'text-green-400',
     };
-    return colors[role] || 'text-brand-muted';
+    return colors[role] || 'text-cc-muted';
   };
 
   const getRoleBadge = (role: string | null) => {
@@ -81,9 +81,9 @@ export default function ProjectMessageCenter({ project }: ProjectMessageCenterPr
       <div className="flex-1 overflow-y-auto space-y-4 mb-4">
         {messages.length === 0 ? (
           <div className="text-center py-12">
-            <Bot size={48} className="mx-auto text-brand-muted mb-4" />
-            <p className="text-brand-muted">No messages yet</p>
-            <p className="text-sm text-brand-muted/70 mt-1">
+            <Bot size={48} className="mx-auto text-cc-muted mb-4" />
+            <p className="text-cc-muted">No messages yet</p>
+            <p className="text-sm text-cc-muted/70 mt-1">
               Start the conversation about this project
             </p>
           </div>
@@ -96,7 +96,7 @@ export default function ProjectMessageCenter({ project }: ProjectMessageCenterPr
               }`}
             >
               {message.isSystemMessage ? (
-                <div className="bg-white/5 rounded-lg px-4 py-2 text-sm text-brand-muted text-center max-w-md">
+                <div className="bg-white/5 rounded-lg px-4 py-2 text-sm text-cc-muted text-center max-w-md">
                   <Bot size={14} className="inline mr-1" />
                   {message.content}
                   <span className="text-xs ml-2">
@@ -105,23 +105,23 @@ export default function ProjectMessageCenter({ project }: ProjectMessageCenterPr
                 </div>
               ) : (
                 <>
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-brand-darker flex items-center justify-center">
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-cc-bger flex items-center justify-center">
                     <User size={20} className={getRoleColor(message.senderRole)} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-brand-light">
+                      <span className="font-semibold text-cc-text">
                         {message.senderName}
                       </span>
                       <span className={`text-xs px-1.5 py-0.5 rounded ${getRoleColor(message.senderRole)} bg-white/10`}>
                         {getRoleBadge(message.senderRole)}
                       </span>
-                      <span className="text-xs text-brand-muted">
+                      <span className="text-xs text-cc-muted">
                         {new Date(message.timestamp).toLocaleString()}
                       </span>
                     </div>
-                    <div className="bg-brand-dark rounded-lg px-4 py-2 border border-white/10">
-                      <p className="text-sm text-brand-light whitespace-pre-wrap">
+                    <div className="bg-cc-bg rounded-lg px-4 py-2 border border-white/10">
+                      <p className="text-sm text-cc-text whitespace-pre-wrap">
                         {message.content}
                       </p>
                     </div>
@@ -135,25 +135,25 @@ export default function ProjectMessageCenter({ project }: ProjectMessageCenterPr
       </div>
 
       {/* Input Area */}
-      <div className="bg-brand-dark rounded-lg p-3 border border-white/10">
+      <div className="bg-cc-bg rounded-lg p-3 border border-white/10">
         <div className="flex gap-2">
           <textarea
             value={newMessage}
             onChange={e => setNewMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Type a message... (Shift+Enter for new line)"
-            className="flex-1 bg-brand-darker border border-white/10 rounded-lg px-3 py-2 text-brand-light placeholder-brand-muted resize-none focus:outline-none focus:ring-2 focus:ring-brand-orange"
+            className="flex-1 bg-cc-bger border border-white/10 rounded-lg px-3 py-2 text-cc-text placeholder-cc-muted resize-none focus:outline-none focus:ring-2 focus:ring-cc-accent"
             rows={3}
           />
           <button
             onClick={handleSendMessage}
             disabled={!newMessage.trim()}
-            className="px-4 py-2 bg-brand-orange hover:bg-orange-600 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center justify-center"
+            className="px-4 py-2 bg-cc-accent hover:bg-indigo-500 disabled:bg-cc-border disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center justify-center"
           >
             <Send size={18} />
           </button>
         </div>
-        <p className="text-xs text-brand-muted mt-2">
+        <p className="text-xs text-cc-muted mt-2">
           Press Enter to send, Shift+Enter for new line
         </p>
       </div>

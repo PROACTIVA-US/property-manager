@@ -25,10 +25,10 @@ export default function LoginPage() {
         <div className="grid grid-cols-1 gap-4 mt-8">
           <button
             onClick={() => handleLogin('owner')}
-            className="relative group bg-slate-800 p-6 focus:ring-2 focus:ring-inset focus:ring-orange-500 rounded-lg hover:bg-slate-700 transition-colors"
+            className="relative group bg-slate-800 p-6 focus:ring-2 focus:ring-inset focus:ring-indigo-400 rounded-lg hover:bg-cc-border transition-colors"
           >
             <div className="flex items-center space-x-4">
-              <div className="bg-orange-500 p-3 rounded-full">
+              <div className="bg-indigo-400 p-3 rounded-full">
                 <Home className="h-6 w-6 text-white" />
               </div>
               <div className="text-left">
@@ -40,7 +40,7 @@ export default function LoginPage() {
 
           <button
             onClick={() => handleLogin('pm')}
-            className="relative group bg-slate-800 p-6 focus:ring-2 focus:ring-inset focus:ring-orange-500 rounded-lg hover:bg-slate-700 transition-colors"
+            className="relative group bg-slate-800 p-6 focus:ring-2 focus:ring-inset focus:ring-indigo-400 rounded-lg hover:bg-cc-border transition-colors"
           >
             <div className="flex items-center space-x-4">
               <div className="bg-blue-500 p-3 rounded-full">
@@ -55,7 +55,7 @@ export default function LoginPage() {
 
           <button
             onClick={() => handleLogin('tenant')}
-            className="relative group bg-slate-800 p-6 focus:ring-2 focus:ring-inset focus:ring-orange-500 rounded-lg hover:bg-slate-700 transition-colors"
+            className="relative group bg-slate-800 p-6 focus:ring-2 focus:ring-inset focus:ring-indigo-400 rounded-lg hover:bg-cc-border transition-colors"
           >
             <div className="flex items-center space-x-4">
               <div className="bg-green-500 p-3 rounded-full">

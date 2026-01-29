@@ -93,8 +93,8 @@ export default function KeepVsSell({
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h3 className="text-xl font-bold text-brand-light">Keep vs Sell Analysis</h3>
-          <p className="text-sm text-brand-muted">Compare long-term wealth building scenarios</p>
+          <h3 className="text-xl font-bold text-cc-text">Keep vs Sell Analysis</h3>
+          <p className="text-sm text-cc-muted">Compare long-term wealth building scenarios</p>
         </div>
         <button
           onClick={() => setShowInputs(!showInputs)}
@@ -109,13 +109,13 @@ export default function KeepVsSell({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Property Inputs */}
           <div className="card">
-            <h4 className="font-semibold text-brand-orange mb-4 flex items-center gap-2">
+            <h4 className="font-semibold text-cc-accent mb-4 flex items-center gap-2">
               <Building2 size={18} />
               Property Assumptions
             </h4>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Current Market Value
                 </label>
                 <input
@@ -126,7 +126,7 @@ export default function KeepVsSell({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Mortgage Balance
                 </label>
                 <input
@@ -137,7 +137,7 @@ export default function KeepVsSell({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Monthly Mortgage (P&I)
                 </label>
                 <input
@@ -148,7 +148,7 @@ export default function KeepVsSell({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Monthly Rental Income
                 </label>
                 <input
@@ -159,7 +159,7 @@ export default function KeepVsSell({
                 />
               </div>
               <div className="col-span-2">
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Expected Annual Appreciation: {(property.annualAppreciationRate * 100).toFixed(1)}%
                 </label>
                 <input
@@ -172,9 +172,9 @@ export default function KeepVsSell({
                     ...prev,
                     annualAppreciationRate: parseFloat(e.target.value) / 100
                   }))}
-                  className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-orange"
+                  className="w-full h-2 bg-cc-border rounded-lg appearance-none cursor-pointer accent-cc-accent"
                 />
-                <div className="flex justify-between text-xs text-brand-muted mt-1">
+                <div className="flex justify-between text-xs text-cc-muted mt-1">
                   <span>0%</span>
                   <span>5%</span>
                   <span>10%</span>
@@ -185,13 +185,13 @@ export default function KeepVsSell({
 
           {/* Investment Assumptions */}
           <div className="card">
-            <h4 className="font-semibold text-brand-orange mb-4 flex items-center gap-2">
+            <h4 className="font-semibold text-cc-accent mb-4 flex items-center gap-2">
               <BarChart3 size={18} />
               Investment Assumptions
             </h4>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Alternative Investment Return: {alternativeReturn.toFixed(1)}%
                 </label>
                 <input
@@ -201,16 +201,16 @@ export default function KeepVsSell({
                   step="0.5"
                   value={alternativeReturn}
                   onChange={(e) => setAlternativeReturn(parseFloat(e.target.value))}
-                  className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                  className="w-full h-2 bg-cc-border rounded-lg appearance-none cursor-pointer accent-blue-500"
                 />
-                <div className="flex justify-between text-xs text-brand-muted mt-1">
+                <div className="flex justify-between text-xs text-cc-muted mt-1">
                   <span>2% (Bonds)</span>
                   <span>7% (S&P Avg)</span>
                   <span>12% (Aggressive)</span>
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Projection Period: {projectionYears} Years
                 </label>
                 <input
@@ -220,16 +220,16 @@ export default function KeepVsSell({
                   step="1"
                   value={projectionYears}
                   onChange={(e) => setProjectionYears(parseInt(e.target.value))}
-                  className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                  className="w-full h-2 bg-cc-border rounded-lg appearance-none cursor-pointer accent-purple-500"
                 />
-                <div className="flex justify-between text-xs text-brand-muted mt-1">
+                <div className="flex justify-between text-xs text-cc-muted mt-1">
                   <span>5 years</span>
                   <span>10 years</span>
                   <span>20 years</span>
                 </div>
               </div>
-              <div className="text-xs text-brand-muted bg-brand-dark/50 p-3 rounded-lg">
-                <p className="font-medium text-brand-light mb-1">About the Alternative Return</p>
+              <div className="text-xs text-cc-muted bg-cc-bg/50 p-3 rounded-lg">
+                <p className="font-medium text-cc-text mb-1">About the Alternative Return</p>
                 <p>
                   This represents the expected annual return if you sold the property and invested
                   the net proceeds (after taxes and selling costs) in stocks or other investments.
@@ -248,9 +248,9 @@ export default function KeepVsSell({
             <div className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400">
               <Building2 size={16} />
             </div>
-            <span className="text-xs text-brand-muted uppercase">Current Equity</span>
+            <span className="text-xs text-cc-muted uppercase">Current Equity</span>
           </div>
-          <p className="text-xl font-bold text-brand-light">{formatCurrency(currentEquity)}</p>
+          <p className="text-xl font-bold text-cc-text">{formatCurrency(currentEquity)}</p>
         </div>
 
         <div className="card !p-4">
@@ -258,7 +258,7 @@ export default function KeepVsSell({
             <div className="p-1.5 rounded-lg bg-green-500/20 text-green-400">
               <TrendingUp size={16} />
             </div>
-            <span className="text-xs text-brand-muted uppercase">{projectionYears}Y Keep Value</span>
+            <span className="text-xs text-cc-muted uppercase">{projectionYears}Y Keep Value</span>
           </div>
           <p className="text-xl font-bold text-green-400">
             {formatCurrency(analysis.tenYearKeepValue)}
@@ -270,7 +270,7 @@ export default function KeepVsSell({
             <div className="p-1.5 rounded-lg bg-purple-500/20 text-purple-400">
               <BarChart3 size={16} />
             </div>
-            <span className="text-xs text-brand-muted uppercase">{projectionYears}Y Sell Value</span>
+            <span className="text-xs text-cc-muted uppercase">{projectionYears}Y Sell Value</span>
           </div>
           <p className="text-xl font-bold text-purple-400">
             {formatCurrency(analysis.tenYearSellValue)}
@@ -282,7 +282,7 @@ export default function KeepVsSell({
             <div className={`p-1.5 rounded-lg ${keepVsSellDiff >= 0 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
               {keepVsSellDiff >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
             </div>
-            <span className="text-xs text-brand-muted uppercase">Difference</span>
+            <span className="text-xs text-cc-muted uppercase">Difference</span>
           </div>
           <p className={`text-xl font-bold ${keepVsSellDiff >= 0 ? 'text-green-400' : 'text-red-400'}`}>
             {keepVsSellDiff >= 0 ? '+' : ''}{formatCurrency(keepVsSellDiff)}
@@ -292,7 +292,7 @@ export default function KeepVsSell({
 
       {/* Main Projection Chart */}
       <div className="card">
-        <h4 className="font-semibold text-brand-orange mb-4">Wealth Projection Over Time</h4>
+        <h4 className="font-semibold text-cc-accent mb-4">Wealth Projection Over Time</h4>
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={chartData} margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
@@ -361,11 +361,11 @@ export default function KeepVsSell({
         <div className="flex justify-center gap-6 mt-4 text-xs">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded bg-green-500" />
-            <span className="text-brand-muted">Keep Property (Equity + Cash Flow)</span>
+            <span className="text-cc-muted">Keep Property (Equity + Cash Flow)</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded bg-purple-500" />
-            <span className="text-brand-muted">Sell & Invest in Stocks</span>
+            <span className="text-cc-muted">Sell & Invest in Stocks</span>
           </div>
         </div>
       </div>
@@ -381,7 +381,7 @@ export default function KeepVsSell({
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <h4 className="font-semibold text-brand-light">Analysis Recommendation</h4>
+              <h4 className="font-semibold text-cc-text">Analysis Recommendation</h4>
               <span className={`px-2 py-0.5 rounded text-xs font-medium uppercase ${
                 analysis.recommendation === 'keep' ? 'bg-green-500/20 text-green-400' :
                 analysis.recommendation === 'sell' ? 'bg-red-500/20 text-red-400' :
@@ -391,13 +391,13 @@ export default function KeepVsSell({
                  analysis.recommendation === 'sell' ? 'Consider Selling' : 'Neutral'}
               </span>
             </div>
-            <p className="text-sm text-brand-muted">{analysis.recommendationReason}</p>
+            <p className="text-sm text-cc-muted">{analysis.recommendationReason}</p>
 
             {analysis.breakEvenYear && (
               <div className="flex items-center gap-2 mt-3 text-sm">
-                <Clock className="w-4 h-4 text-brand-orange" />
-                <span className="text-brand-muted">
-                  Break-even point: <span className="text-brand-light font-medium">Year {analysis.breakEvenYear}</span>
+                <Clock className="w-4 h-4 text-cc-accent" />
+                <span className="text-cc-muted">
+                  Break-even point: <span className="text-cc-text font-medium">Year {analysis.breakEvenYear}</span>
                 </span>
               </div>
             )}
@@ -407,29 +407,29 @@ export default function KeepVsSell({
 
       {/* Year-by-Year Table */}
       <div className="card !p-0 overflow-hidden">
-        <div className="p-4 border-b border-slate-700/50">
-          <h4 className="font-semibold text-brand-orange">Year-by-Year Projection</h4>
+        <div className="p-4 border-b border-cc-border/50">
+          <h4 className="font-semibold text-cc-accent">Year-by-Year Projection</h4>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-700/50 text-sm">
-            <thead className="bg-brand-dark">
+          <table className="min-w-full divide-y divide-cc-border/50 text-sm">
+            <thead className="bg-cc-bg">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-brand-muted uppercase">Year</th>
-                <th className="px-4 py-3 text-right font-medium text-brand-muted uppercase">Equity</th>
-                <th className="px-4 py-3 text-right font-medium text-brand-muted uppercase">Cash Flow</th>
-                <th className="px-4 py-3 text-right font-medium text-brand-muted uppercase">Total (Keep)</th>
-                <th className="px-4 py-3 text-right font-medium text-brand-muted uppercase">Alt Investment</th>
-                <th className="px-4 py-3 text-right font-medium text-brand-muted uppercase">Advantage</th>
+                <th className="px-4 py-3 text-left font-medium text-cc-muted uppercase">Year</th>
+                <th className="px-4 py-3 text-right font-medium text-cc-muted uppercase">Equity</th>
+                <th className="px-4 py-3 text-right font-medium text-cc-muted uppercase">Cash Flow</th>
+                <th className="px-4 py-3 text-right font-medium text-cc-muted uppercase">Total (Keep)</th>
+                <th className="px-4 py-3 text-right font-medium text-cc-muted uppercase">Alt Investment</th>
+                <th className="px-4 py-3 text-right font-medium text-cc-muted uppercase">Advantage</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-700/50">
+            <tbody className="divide-y divide-cc-border/50">
               {analysis.projections.map((proj) => (
-                <tr key={proj.year} className="hover:bg-brand-navy/30 transition-colors">
-                  <td className="px-4 py-3 whitespace-nowrap text-brand-light">Year {proj.year}</td>
-                  <td className="px-4 py-3 whitespace-nowrap text-right text-brand-light">
+                <tr key={proj.year} className="hover:bg-cc-surface/30 transition-colors">
+                  <td className="px-4 py-3 whitespace-nowrap text-cc-text">Year {proj.year}</td>
+                  <td className="px-4 py-3 whitespace-nowrap text-right text-cc-text">
                     {formatCurrency(proj.equityValue)}
                   </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-right text-brand-light">
+                  <td className="px-4 py-3 whitespace-nowrap text-right text-cc-text">
                     {formatCurrency(proj.cumulativeCashFlow)}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-right text-green-400 font-medium">
@@ -451,16 +451,16 @@ export default function KeepVsSell({
       </div>
 
       {/* Important Factors Not Considered */}
-      <div className="card bg-gradient-to-br from-brand-navy to-slate-800">
+      <div className="card bg-gradient-to-br from-cc-surface to-slate-800">
         <div className="flex items-start gap-3">
           <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400 shrink-0">
             <Info size={20} />
           </div>
           <div>
-            <h4 className="font-semibold text-brand-light mb-2">Factors Not Fully Captured</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-brand-muted">
+            <h4 className="font-semibold text-cc-text mb-2">Factors Not Fully Captured</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-cc-muted">
               <div>
-                <p className="font-medium text-brand-light text-xs uppercase mb-1">Keep Property Considerations</p>
+                <p className="font-medium text-cc-text text-xs uppercase mb-1">Keep Property Considerations</p>
                 <ul className="space-y-1">
                   <li>- Tax benefits from depreciation</li>
                   <li>- Potential rent increases</li>
@@ -470,7 +470,7 @@ export default function KeepVsSell({
                 </ul>
               </div>
               <div>
-                <p className="font-medium text-brand-light text-xs uppercase mb-1">Sell & Invest Considerations</p>
+                <p className="font-medium text-cc-text text-xs uppercase mb-1">Sell & Invest Considerations</p>
                 <ul className="space-y-1">
                   <li>- Portfolio diversification benefits</li>
                   <li>- Liquidity and flexibility</li>
@@ -485,7 +485,7 @@ export default function KeepVsSell({
       </div>
 
       {/* Disclaimer */}
-      <p className="text-xs text-brand-muted text-center px-4">
+      <p className="text-xs text-cc-muted text-center px-4">
         This analysis uses simplified projections and assumptions. Actual results will vary
         based on market conditions, property-specific factors, and your tax situation.
         This is not financial advice - consult qualified professionals before making decisions.

@@ -53,13 +53,13 @@ export default function SatisfactionSurvey({
   return (
     <div className="space-y-6">
       {/* Satisfaction Overview */}
-      <div className="card bg-gradient-to-br from-brand-navy to-slate-800">
+      <div className="card bg-gradient-to-br from-cc-surface to-slate-800">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-brand-light">Tenant Satisfaction</h2>
+          <h2 className="text-lg font-bold text-cc-text">Tenant Satisfaction</h2>
           {!isReadOnly && (
             <button
               onClick={() => setShowSurvey(!showSurvey)}
-              className="text-sm text-brand-orange hover:underline"
+              className="text-sm text-cc-accent hover:underline"
             >
               {showSurvey ? 'Cancel' : 'Submit Feedback'}
             </button>
@@ -69,7 +69,7 @@ export default function SatisfactionSurvey({
         <div className="flex items-center gap-6">
           {/* Average Rating */}
           <div className="text-center">
-            <div className="text-4xl font-bold text-brand-light mb-1">
+            <div className="text-4xl font-bold text-cc-text mb-1">
               {averageRating > 0 ? averageRating.toFixed(1) : '--'}
             </div>
             <div className="flex items-center justify-center gap-1">
@@ -80,7 +80,7 @@ export default function SatisfactionSurvey({
                   className={cn(
                     star <= Math.round(averageRating)
                       ? 'text-yellow-400 fill-yellow-400'
-                      : 'text-slate-600'
+                      : 'text-cc-border'
                   )}
                 />
               ))}
@@ -93,7 +93,7 @@ export default function SatisfactionSurvey({
               {satisfaction.icon}
               <span className="font-bold">{satisfaction.label}</span>
             </div>
-            <p className="text-sm text-brand-muted">
+            <p className="text-sm text-cc-muted">
               Based on {entries.length} feedback submission{entries.length !== 1 ? 's' : ''}
             </p>
           </div>
@@ -102,12 +102,12 @@ export default function SatisfactionSurvey({
 
       {/* Survey Form */}
       {showSurvey && !isReadOnly && (
-        <div className="card border-brand-orange/30">
-          <h3 className="font-bold text-brand-light mb-4">Submit Your Feedback</h3>
+        <div className="card border-cc-accent/30">
+          <h3 className="font-bold text-cc-text mb-4">Submit Your Feedback</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Category Selection */}
             <div>
-              <label className="block text-xs font-medium text-brand-muted uppercase tracking-wider mb-2">
+              <label className="block text-xs font-medium text-cc-muted uppercase tracking-wider mb-2">
                 Category
               </label>
               <div className="flex flex-wrap gap-2">
@@ -119,8 +119,8 @@ export default function SatisfactionSurvey({
                     className={cn(
                       'px-3 py-1 rounded-full text-sm font-medium transition-colors capitalize',
                       category === cat
-                        ? 'bg-brand-orange text-white'
-                        : 'bg-slate-700/50 text-brand-muted hover:bg-slate-700'
+                        ? 'bg-cc-accent text-white'
+                        : 'bg-cc-border/50 text-cc-muted hover:bg-cc-border'
                     )}
                   >
                     {cat}
@@ -131,7 +131,7 @@ export default function SatisfactionSurvey({
 
             {/* Star Rating */}
             <div>
-              <label className="block text-xs font-medium text-brand-muted uppercase tracking-wider mb-2">
+              <label className="block text-xs font-medium text-cc-muted uppercase tracking-wider mb-2">
                 Rating
               </label>
               <div className="flex items-center gap-2">
@@ -150,13 +150,13 @@ export default function SatisfactionSurvey({
                         'transition-colors',
                         star <= (hoveredRating || rating || 0)
                           ? 'text-yellow-400 fill-yellow-400'
-                          : 'text-slate-600 hover:text-slate-500'
+                          : 'text-cc-border hover:text-slate-500'
                       )}
                     />
                   </button>
                 ))}
                 {rating && (
-                  <span className="ml-2 text-sm text-brand-muted">
+                  <span className="ml-2 text-sm text-cc-muted">
                     {rating === 5 && 'Excellent!'}
                     {rating === 4 && 'Good'}
                     {rating === 3 && 'Average'}
@@ -169,7 +169,7 @@ export default function SatisfactionSurvey({
 
             {/* Feedback Text */}
             <div>
-              <label className="block text-xs font-medium text-brand-muted uppercase tracking-wider mb-2">
+              <label className="block text-xs font-medium text-cc-muted uppercase tracking-wider mb-2">
                 Additional Feedback (Optional)
               </label>
               <textarea
@@ -201,18 +201,18 @@ export default function SatisfactionSurvey({
 
       {/* Recent Feedback */}
       <div className="card">
-        <h3 className="font-bold text-brand-light mb-4">
+        <h3 className="font-bold text-cc-text mb-4">
           {isReadOnly ? 'Recent Tenant Feedback' : 'Your Recent Feedback'}
         </h3>
         <div className="space-y-3">
           {(isReadOnly ? entries : tenantEntries).slice(0, 5).map((entry) => (
             <div
               key={entry.id}
-              className="p-3 bg-brand-dark/50 rounded-lg border border-slate-700/50"
+              className="p-3 bg-cc-bg/50 rounded-lg border border-cc-border/50"
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-medium uppercase bg-slate-600/50 text-slate-300 capitalize">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-medium uppercase bg-cc-border/50 text-slate-300 capitalize">
                     {entry.category}
                   </span>
                   <div className="flex items-center">
@@ -223,23 +223,23 @@ export default function SatisfactionSurvey({
                         className={cn(
                           star <= entry.rating
                             ? 'text-yellow-400 fill-yellow-400'
-                            : 'text-slate-600'
+                            : 'text-cc-border'
                         )}
                       />
                     ))}
                   </div>
                 </div>
-                <span className="text-[10px] text-brand-muted">
+                <span className="text-[10px] text-cc-muted">
                   {formatRelativeTime(entry.timestamp)}
                 </span>
               </div>
               {entry.feedback && (
-                <p className="text-sm text-brand-light">{entry.feedback}</p>
+                <p className="text-sm text-cc-text">{entry.feedback}</p>
               )}
             </div>
           ))}
           {(isReadOnly ? entries : tenantEntries).length === 0 && (
-            <p className="text-center text-brand-muted py-4">
+            <p className="text-center text-cc-muted py-4">
               No feedback submitted yet
             </p>
           )}
@@ -267,8 +267,8 @@ export function SatisfactionWidget({ averageRating, totalEntries, onClick }: Sat
     <div
       onClick={onClick}
       className={cn(
-        'flex items-center gap-3 p-3 rounded-lg bg-brand-dark/50 border border-slate-700/50',
-        onClick && 'cursor-pointer hover:bg-brand-dark/70 transition-colors'
+        'flex items-center gap-3 p-3 rounded-lg bg-cc-bg/50 border border-cc-border/50',
+        onClick && 'cursor-pointer hover:bg-cc-bg/70 transition-colors'
       )}
     >
       <div className="flex items-center">
@@ -279,7 +279,7 @@ export function SatisfactionWidget({ averageRating, totalEntries, onClick }: Sat
             className={cn(
               star <= Math.round(averageRating)
                 ? 'text-yellow-400 fill-yellow-400'
-                : 'text-slate-600'
+                : 'text-cc-border'
             )}
           />
         ))}
@@ -287,7 +287,7 @@ export function SatisfactionWidget({ averageRating, totalEntries, onClick }: Sat
       <span className={cn('font-bold', getSatisfactionColor(averageRating))}>
         {averageRating > 0 ? averageRating.toFixed(1) : '--'}
       </span>
-      <span className="text-xs text-brand-muted">
+      <span className="text-xs text-cc-muted">
         ({totalEntries} review{totalEntries !== 1 ? 's' : ''})
       </span>
     </div>

@@ -100,8 +100,8 @@ export default function FinancialComparison({
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h3 className="text-xl font-bold text-brand-light">Financial Comparison</h3>
-          <p className="text-sm text-brand-muted">Compare rental income against your living expenses</p>
+          <h3 className="text-xl font-bold text-cc-text">Financial Comparison</h3>
+          <p className="text-sm text-cc-muted">Compare rental income against your living expenses</p>
         </div>
         <button
           onClick={() => setShowInputs(!showInputs)}
@@ -116,13 +116,13 @@ export default function FinancialComparison({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Personal Expenses Inputs */}
           <div className="card">
-            <h4 className="font-semibold text-brand-orange mb-4 flex items-center gap-2">
+            <h4 className="font-semibold text-cc-accent mb-4 flex items-center gap-2">
               <Wallet size={18} />
               Your Current Living Costs
             </h4>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Current Monthly Rent (where you live now)
                 </label>
                 <input
@@ -134,7 +134,7 @@ export default function FinancialComparison({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Current Monthly Utilities
                 </label>
                 <input
@@ -146,7 +146,7 @@ export default function FinancialComparison({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Monthly Job Income
                 </label>
                 <input
@@ -162,13 +162,13 @@ export default function FinancialComparison({
 
           {/* Property Income/Expenses Inputs */}
           <div className="card">
-            <h4 className="font-semibold text-brand-orange mb-4 flex items-center gap-2">
+            <h4 className="font-semibold text-cc-accent mb-4 flex items-center gap-2">
               <Home size={18} />
               Rental Property Financials
             </h4>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Monthly Rental Income
                 </label>
                 <input
@@ -180,7 +180,7 @@ export default function FinancialComparison({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Monthly Mortgage (P&I)
                 </label>
                 <input
@@ -192,7 +192,7 @@ export default function FinancialComparison({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Property Tax (monthly)
                 </label>
                 <input
@@ -204,7 +204,7 @@ export default function FinancialComparison({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Insurance (monthly)
                 </label>
                 <input
@@ -216,7 +216,7 @@ export default function FinancialComparison({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Maintenance Reserve
                 </label>
                 <input
@@ -228,7 +228,7 @@ export default function FinancialComparison({
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-brand-muted mb-1">
+                <label className="block text-xs font-medium text-cc-muted mb-1">
                   Vacancy Reserve
                 </label>
                 <input
@@ -252,11 +252,11 @@ export default function FinancialComparison({
             <div className={`p-1.5 rounded-lg ${isPositiveCashFlow ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
               {isPositiveCashFlow ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
             </div>
-            <span className="text-xs text-brand-muted uppercase">Cash Flow</span>
+            <span className="text-xs text-cc-muted uppercase">Cash Flow</span>
           </div>
           <p className={`text-xl font-bold ${isPositiveCashFlow ? 'text-green-400' : 'text-red-400'}`}>
             {formatCurrency(monthlyCashFlow)}
-            <span className="text-xs font-normal text-brand-muted">/mo</span>
+            <span className="text-xs font-normal text-cc-muted">/mo</span>
           </p>
         </div>
 
@@ -266,11 +266,11 @@ export default function FinancialComparison({
             <div className={`p-1.5 rounded-lg ${isPositiveAdvantage ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
               <PiggyBank size={16} />
             </div>
-            <span className="text-xs text-brand-muted uppercase">Net Benefit</span>
+            <span className="text-xs text-cc-muted uppercase">Net Benefit</span>
           </div>
           <p className={`text-xl font-bold ${isPositiveAdvantage ? 'text-green-400' : 'text-red-400'}`}>
             {formatCurrency(comparison.monthlyAdvantage)}
-            <span className="text-xs font-normal text-brand-muted">/mo</span>
+            <span className="text-xs font-normal text-cc-muted">/mo</span>
           </p>
         </div>
 
@@ -280,9 +280,9 @@ export default function FinancialComparison({
             <div className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400">
               <DollarSign size={16} />
             </div>
-            <span className="text-xs text-brand-muted uppercase">Cap Rate</span>
+            <span className="text-xs text-cc-muted uppercase">Cap Rate</span>
           </div>
-          <p className="text-xl font-bold text-brand-light">
+          <p className="text-xl font-bold text-cc-text">
             {cashFlow.capRate.toFixed(1)}%
           </p>
         </div>
@@ -293,9 +293,9 @@ export default function FinancialComparison({
             <div className="p-1.5 rounded-lg bg-purple-500/20 text-purple-400">
               <TrendingUp size={16} />
             </div>
-            <span className="text-xs text-brand-muted uppercase">Cash on Cash</span>
+            <span className="text-xs text-cc-muted uppercase">Cash on Cash</span>
           </div>
-          <p className="text-xl font-bold text-brand-light">
+          <p className="text-xl font-bold text-cc-text">
             {cashFlow.cashOnCashReturn.toFixed(1)}%
           </p>
         </div>
@@ -305,7 +305,7 @@ export default function FinancialComparison({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Income vs Expenses Bar Chart */}
         <div className="card">
-          <h4 className="font-semibold text-brand-orange mb-4">Income vs Expenses</h4>
+          <h4 className="font-semibold text-cc-accent mb-4">Income vs Expenses</h4>
           <div className="h-[250px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={comparisonData} margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
@@ -328,19 +328,19 @@ export default function FinancialComparison({
           </div>
           <div className="flex justify-center gap-6 mt-2 text-xs">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-brand-orange" />
-              <span className="text-brand-muted">Rental Property</span>
+              <div className="w-3 h-3 rounded bg-cc-accent" />
+              <span className="text-cc-muted">Rental Property</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded bg-slate-500" />
-              <span className="text-brand-muted">Personal Housing</span>
+              <span className="text-cc-muted">Personal Housing</span>
             </div>
           </div>
         </div>
 
         {/* Expense Breakdown Pie Chart */}
         <div className="card">
-          <h4 className="font-semibold text-brand-orange mb-4">Operating Expense Breakdown</h4>
+          <h4 className="font-semibold text-cc-accent mb-4">Operating Expense Breakdown</h4>
           <div className="h-[250px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -374,7 +374,7 @@ export default function FinancialComparison({
             {expenseData.map((item) => (
               <div key={item.name} className="flex items-center gap-1.5 text-xs">
                 <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                <span className="text-brand-muted">{item.name}</span>
+                <span className="text-cc-muted">{item.name}</span>
               </div>
             ))}
           </div>
@@ -382,14 +382,14 @@ export default function FinancialComparison({
       </div>
 
       {/* Summary Analysis */}
-      <div className="card bg-gradient-to-br from-brand-navy to-slate-800">
+      <div className="card bg-gradient-to-br from-cc-surface to-slate-800">
         <div className="flex items-start gap-3">
-          <div className="p-2 bg-brand-orange/20 rounded-lg text-brand-orange shrink-0">
+          <div className="p-2 bg-cc-accent/20 rounded-lg text-cc-accent shrink-0">
             <Info size={20} />
           </div>
           <div>
-            <h4 className="font-semibold text-brand-light mb-2">Analysis Summary</h4>
-            <div className="text-sm text-brand-muted space-y-2">
+            <h4 className="font-semibold text-cc-text mb-2">Analysis Summary</h4>
+            <div className="text-sm text-cc-muted space-y-2">
               {isPositiveAdvantage ? (
                 <p>
                   Your rental property generates a <span className="text-green-400 font-medium">
@@ -407,7 +407,7 @@ export default function FinancialComparison({
               )}
               <p>
                 Your effective housing cost (what you spend on housing after rental income) is{' '}
-                <span className="text-brand-light font-medium">
+                <span className="text-cc-text font-medium">
                   {formatCurrency(comparison.effectiveHousingCost)}/month
                 </span>
                 {comparison.effectiveHousingCost < personal.currentRentPayment && (
@@ -422,7 +422,7 @@ export default function FinancialComparison({
       </div>
 
       {/* Disclaimer */}
-      <p className="text-xs text-brand-muted text-center px-4">
+      <p className="text-xs text-cc-muted text-center px-4">
         This analysis is for educational purposes only and does not constitute financial advice.
         Actual results may vary based on market conditions, tax situations, and other factors.
         Consult with qualified financial and tax professionals for personalized guidance.

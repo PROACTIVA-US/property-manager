@@ -33,11 +33,11 @@ export default function MessageThread({
       case 'owner':
         return 'text-purple-400';
       case 'pm':
-        return 'text-brand-orange';
+        return 'text-cc-accent';
       case 'tenant':
         return 'text-blue-400';
       default:
-        return 'text-brand-muted';
+        return 'text-cc-muted';
     }
   };
 
@@ -46,17 +46,17 @@ export default function MessageThread({
       case 'owner':
         return 'bg-purple-500/20';
       case 'pm':
-        return 'bg-brand-orange/20';
+        return 'bg-cc-accent/20';
       case 'tenant':
         return 'bg-blue-500/20';
       default:
-        return 'bg-slate-700';
+        return 'bg-cc-border';
     }
   };
 
   const getCategoryBadge = (category: Thread['category']) => {
     const styles = {
-      general: 'bg-slate-600/50 text-slate-300',
+      general: 'bg-cc-border/50 text-slate-300',
       maintenance: 'bg-yellow-500/20 text-yellow-400',
       lease: 'bg-purple-500/20 text-purple-400',
       inspection: 'bg-green-500/20 text-green-400',
@@ -67,21 +67,21 @@ export default function MessageThread({
   return (
     <div className="flex flex-col h-full">
       {/* Thread Header */}
-      <div className="flex items-center gap-4 p-4 border-b border-slate-700/50 bg-brand-dark/30">
+      <div className="flex items-center gap-4 p-4 border-b border-cc-border/50 bg-cc-bg/30">
         <button
           onClick={onBack}
-          className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors text-brand-muted hover:text-brand-light"
+          className="p-2 hover:bg-cc-border/50 rounded-lg transition-colors text-cc-muted hover:text-cc-text"
         >
           <ArrowLeft size={20} />
         </button>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold text-brand-light truncate">{thread.subject}</h2>
+            <h2 className="text-lg font-bold text-cc-text truncate">{thread.subject}</h2>
             <span className={cn('px-2 py-0.5 rounded-full text-[10px] font-medium uppercase', getCategoryBadge(thread.category))}>
               {thread.category}
             </span>
           </div>
-          <div className="flex items-center gap-1 text-xs text-brand-muted mt-1">
+          <div className="flex items-center gap-1 text-xs text-cc-muted mt-1">
             <Users size={12} />
             <span>
               {thread.participants.map(p => p.name).join(', ')}
@@ -116,7 +116,7 @@ export default function MessageThread({
                   <span className={cn('text-xs font-medium', getRoleColor(message.senderRole))}>
                     {message.senderName}
                   </span>
-                  <span className="text-[10px] text-brand-muted">
+                  <span className="text-[10px] text-cc-muted">
                     {formatRelativeTime(message.timestamp)}
                   </span>
                 </div>
@@ -124,8 +124,8 @@ export default function MessageThread({
                   className={cn(
                     'px-4 py-2 rounded-2xl text-sm',
                     isOwn
-                      ? 'bg-brand-orange/20 text-brand-light rounded-tr-sm'
-                      : 'bg-slate-700/50 text-brand-light rounded-tl-sm'
+                      ? 'bg-cc-accent/20 text-cc-text rounded-tr-sm'
+                      : 'bg-cc-border/50 text-cc-text rounded-tl-sm'
                   )}
                 >
                   {message.content}

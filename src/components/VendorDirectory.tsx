@@ -167,8 +167,8 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="animate-spin text-brand-muted" size={24} />
-        <span className="ml-2 text-brand-muted text-sm">Loading vendors...</span>
+        <Loader2 className="animate-spin text-cc-muted" size={24} />
+        <span className="ml-2 text-cc-muted text-sm">Loading vendors...</span>
       </div>
     );
   }
@@ -180,11 +180,11 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
         {vendors.slice(0, 3).map(vendor => (
           <div
             key={vendor.id}
-            className="flex items-center justify-between p-2 rounded hover:bg-brand-dark/50 transition-colors"
+            className="flex items-center justify-between p-2 rounded hover:bg-cc-bg/50 transition-colors"
           >
             <div>
-              <p className="text-sm font-medium text-brand-light">{vendor.name}</p>
-              <p className="text-xs text-brand-muted">{SPECIALTY_LABELS[vendor.specialty]}</p>
+              <p className="text-sm font-medium text-cc-text">{vendor.name}</p>
+              <p className="text-xs text-cc-muted">{SPECIALTY_LABELS[vendor.specialty]}</p>
             </div>
             <span className={cn('text-[10px] px-2 py-0.5 rounded-full', getStatusBadgeClass(vendor.status))}>
               {STATUS_LABELS[vendor.status]}
@@ -200,8 +200,8 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-brand-light">Vendor Directory</h2>
-          <p className="text-sm text-brand-muted">
+          <h2 className="text-xl font-bold text-cc-text">Vendor Directory</h2>
+          <p className="text-sm text-cc-muted">
             {filteredVendors.length} vendor{filteredVendors.length !== 1 ? 's' : ''} found
           </p>
         </div>
@@ -216,7 +216,7 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Search */}
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-muted" size={18} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-cc-muted" size={18} />
             <input
               type="text"
               value={searchQuery}
@@ -231,22 +231,22 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
             onClick={() => setShowFilters(!showFilters)}
             className={cn(
               'btn-secondary flex items-center gap-2',
-              hasActiveFilters && 'border-brand-orange text-brand-orange'
+              hasActiveFilters && 'border-cc-accent text-cc-accent'
             )}
           >
             <Filter size={18} />
             Filters
             {hasActiveFilters && (
-              <span className="w-2 h-2 bg-brand-orange rounded-full" />
+              <span className="w-2 h-2 bg-cc-accent rounded-full" />
             )}
           </button>
         </div>
 
         {/* Filter options */}
         {showFilters && (
-          <div className="flex flex-col sm:flex-row gap-3 pt-3 border-t border-slate-700/50">
+          <div className="flex flex-col sm:flex-row gap-3 pt-3 border-t border-cc-border/50">
             <div className="flex-1">
-              <label className="block text-xs text-brand-muted mb-1">Status</label>
+              <label className="block text-xs text-cc-muted mb-1">Status</label>
               <select
                 value={statusFilter}
                 onChange={e => setStatusFilter(e.target.value as VendorStatus | 'all')}
@@ -262,7 +262,7 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
             </div>
 
             <div className="flex-1">
-              <label className="block text-xs text-brand-muted mb-1">Specialty</label>
+              <label className="block text-xs text-cc-muted mb-1">Specialty</label>
               <select
                 value={specialtyFilter}
                 onChange={e => setSpecialtyFilter(e.target.value as VendorSpecialty | 'all')}
@@ -294,11 +294,11 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
       <div className="space-y-3">
         {filteredVendors.length === 0 ? (
           <div className="card text-center py-12">
-            <p className="text-brand-muted">No vendors found</p>
+            <p className="text-cc-muted">No vendors found</p>
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="mt-2 text-sm text-brand-orange hover:underline"
+                className="mt-2 text-sm text-cc-accent hover:underline"
               >
                 Clear filters
               </button>
@@ -311,29 +311,29 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-start gap-4">
                   {/* Avatar/Initial */}
-                  <div className="w-12 h-12 rounded-lg bg-brand-dark flex items-center justify-center text-brand-orange font-bold text-lg flex-shrink-0">
+                  <div className="w-12 h-12 rounded-lg bg-cc-bg flex items-center justify-center text-cc-accent font-bold text-lg flex-shrink-0">
                     {vendor.name.charAt(0)}
                   </div>
 
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-semibold text-brand-light">{vendor.name}</h3>
+                      <h3 className="font-semibold text-cc-text">{vendor.name}</h3>
                       <span className={cn('text-xs px-2 py-0.5 rounded-full', getStatusBadgeClass(vendor.status))}>
                         {STATUS_LABELS[vendor.status]}
                       </span>
                     </div>
-                    <p className="text-sm text-brand-muted">{SPECIALTY_LABELS[vendor.specialty]}</p>
+                    <p className="text-sm text-cc-muted">{SPECIALTY_LABELS[vendor.specialty]}</p>
                     <div className="flex flex-wrap items-center gap-3 mt-2 text-sm">
                       <a
                         href={`tel:${vendor.phone}`}
-                        className="flex items-center gap-1 text-brand-muted hover:text-brand-light transition-colors"
+                        className="flex items-center gap-1 text-cc-muted hover:text-cc-text transition-colors"
                       >
                         <Phone size={14} />
                         {vendor.phone}
                       </a>
                       <a
                         href={`mailto:${vendor.email}`}
-                        className="flex items-center gap-1 text-brand-muted hover:text-brand-light transition-colors"
+                        className="flex items-center gap-1 text-cc-muted hover:text-cc-text transition-colors"
                       >
                         <Mail size={14} />
                         {vendor.email}
@@ -359,14 +359,14 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
                   </button>
                   <button
                     onClick={() => handleEdit(vendor)}
-                    className="p-2 text-brand-muted hover:text-brand-light hover:bg-white/5 rounded-lg transition-colors"
+                    className="p-2 text-cc-muted hover:text-cc-text hover:bg-white/5 rounded-lg transition-colors"
                     title="Edit vendor"
                   >
                     <Edit2 size={18} />
                   </button>
                   <button
                     onClick={() => setDeleteConfirmId(vendor.id)}
-                    className="p-2 text-brand-muted hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                    className="p-2 text-cc-muted hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
                     title="Delete vendor"
                   >
                     <Trash2 size={18} />
@@ -376,16 +376,16 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
 
               {/* Notes */}
               {vendor.notes && (
-                <div className="mt-3 pt-3 border-t border-slate-700/50">
-                  <p className="text-sm text-brand-muted">{vendor.notes}</p>
+                <div className="mt-3 pt-3 border-t border-cc-border/50">
+                  <p className="text-sm text-cc-muted">{vendor.notes}</p>
                 </div>
               )}
 
               {/* Expanded section - Estimates */}
               {expandedVendorId === vendor.id && (
-                <div className="mt-4 pt-4 border-t border-slate-700/50">
+                <div className="mt-4 pt-4 border-t border-cc-border/50">
                   <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-sm font-semibold text-brand-light">Estimates</h4>
+                    <h4 className="text-sm font-semibold text-cc-text">Estimates</h4>
                     <label className="btn-secondary text-xs cursor-pointer flex items-center gap-1">
                       <Upload size={14} />
                       Upload Estimate
@@ -409,15 +409,15 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
                       {vendorEstimates[vendor.id].map(estimate => (
                         <div
                           key={estimate.id}
-                          className="flex items-center justify-between p-3 bg-brand-dark/50 rounded-lg"
+                          className="flex items-center justify-between p-3 bg-cc-bg/50 rounded-lg"
                         >
                           <div className="flex items-center gap-3">
-                            <FileText className="text-brand-orange" size={20} />
+                            <FileText className="text-cc-accent" size={20} />
                             <div>
-                              <p className="text-sm font-medium text-brand-light">
+                              <p className="text-sm font-medium text-cc-text">
                                 {estimate.fileName}
                               </p>
-                              <p className="text-xs text-brand-muted">
+                              <p className="text-xs text-cc-muted">
                                 {formatFileSize(estimate.fileSize)} -{' '}
                                 {new Date(estimate.uploadedAt).toLocaleDateString()}
                               </p>
@@ -425,7 +425,7 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
                           </div>
                           <button
                             onClick={() => handleEstimateDelete(estimate.id, vendor.id)}
-                            className="p-1 text-brand-muted hover:text-red-400 transition-colors"
+                            className="p-1 text-cc-muted hover:text-red-400 transition-colors"
                             title="Delete estimate"
                           >
                             <Trash2 size={16} />
@@ -434,7 +434,7 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-brand-muted text-center py-4">
+                    <p className="text-sm text-cc-muted text-center py-4">
                       No estimates uploaded yet
                     </p>
                   )}

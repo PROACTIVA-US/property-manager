@@ -153,15 +153,15 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-brand-darker rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col border border-white/10">
+      <div className="bg-cc-bger rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col border border-white/10">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10">
-          <h2 className="text-2xl font-bold text-brand-light">
+          <h2 className="text-2xl font-bold text-cc-text">
             {project ? 'Edit Project' : 'New Project'}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors text-brand-muted hover:text-brand-light"
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors text-cc-muted hover:text-cc-text"
           >
             <X size={20} />
           </button>
@@ -179,7 +179,7 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
 
             {/* Title */}
             <div>
-              <label className="block text-sm font-semibold text-brand-light mb-1">
+              <label className="block text-sm font-semibold text-cc-text mb-1">
                 Project Title <span className="text-red-400">*</span>
               </label>
               <input
@@ -199,7 +199,7 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-semibold text-brand-light mb-1">
+              <label className="block text-sm font-semibold text-cc-text mb-1">
                 Description <span className="text-red-400">*</span>
               </label>
               <textarea
@@ -220,7 +220,7 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
             {/* Category, Priority, Status Grid */}
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-brand-light mb-1">Category</label>
+                <label className="block text-sm font-semibold text-cc-text mb-1">Category</label>
                 <select
                   value={formData.category}
                   onChange={e => setFormData({ ...formData, category: e.target.value as ProjectCategory })}
@@ -235,7 +235,7 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-brand-light mb-1">Priority</label>
+                <label className="block text-sm font-semibold text-cc-text mb-1">Priority</label>
                 <select
                   value={formData.priority}
                   onChange={e => setFormData({ ...formData, priority: e.target.value as ProjectPriority })}
@@ -250,7 +250,7 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-brand-light mb-1">Status</label>
+                <label className="block text-sm font-semibold text-cc-text mb-1">Status</label>
                 <select
                   value={formData.status}
                   onChange={e => setFormData({ ...formData, status: e.target.value as ProjectStatus })}
@@ -269,7 +269,7 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
 
             {/* Vendor */}
             <div>
-              <label className="block text-sm font-semibold text-brand-light mb-1">Primary Vendor</label>
+              <label className="block text-sm font-semibold text-cc-text mb-1">Primary Vendor</label>
               <select
                 value={formData.primaryVendorId}
                 onChange={e => setFormData({ ...formData, primaryVendorId: e.target.value })}
@@ -287,7 +287,7 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
             {/* Cost & Timeline */}
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-brand-light mb-1">Estimated Cost</label>
+                <label className="block text-sm font-semibold text-cc-text mb-1">Estimated Cost</label>
                 <input
                   type="number"
                   value={formData.estimatedCost}
@@ -306,7 +306,7 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-brand-light mb-1">Start Date</label>
+                <label className="block text-sm font-semibold text-cc-text mb-1">Start Date</label>
                 <input
                   type="date"
                   value={formData.estimatedStartDate}
@@ -319,7 +319,7 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-brand-light mb-1">End Date</label>
+                <label className="block text-sm font-semibold text-cc-text mb-1">End Date</label>
                 <input
                   type="date"
                   value={formData.estimatedEndDate}
@@ -337,7 +337,7 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
 
             {/* Tags */}
             <div>
-              <label className="block text-sm font-semibold text-brand-light mb-1">Tags</label>
+              <label className="block text-sm font-semibold text-cc-text mb-1">Tags</label>
               <input
                 type="text"
                 value={formData.tags}
@@ -345,12 +345,12 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
                 className="input-field w-full"
                 placeholder="urgent, winter, electrical (comma-separated)"
               />
-              <p className="text-xs text-brand-muted mt-1">Separate tags with commas</p>
+              <p className="text-xs text-cc-muted mt-1">Separate tags with commas</p>
             </div>
 
             {/* Notes */}
             <div>
-              <label className="block text-sm font-semibold text-brand-light mb-1">Additional Notes</label>
+              <label className="block text-sm font-semibold text-cc-text mb-1">Additional Notes</label>
               <textarea
                 value={formData.notes}
                 onChange={e => setFormData({ ...formData, notes: e.target.value })}
@@ -382,14 +382,14 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-lg transition-colors"
+            className="px-4 py-2 bg-cc-border hover:bg-slate-500 text-white rounded-lg transition-colors"
           >
             Cancel
           </button>
           <button
             type="submit"
             onClick={handleSubmit}
-            className="px-4 py-2 bg-brand-orange hover:bg-orange-600 text-white rounded-lg transition-colors font-semibold"
+            className="px-4 py-2 bg-cc-accent hover:bg-indigo-500 text-white rounded-lg transition-colors font-semibold"
           >
             {project ? 'Save Changes' : 'Create Project'}
           </button>

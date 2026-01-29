@@ -69,20 +69,20 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-brand-dark border border-slate-700 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-cc-bg border border-cc-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="p-6 border-b border-slate-700">
+        <div className="p-6 border-b border-cc-border">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-brand-orange/20 rounded-lg text-brand-orange">
+              <div className="p-2 bg-cc-accent/20 rounded-lg text-cc-accent">
                 <StepIcon size={24} />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-brand-light">{stepInfo[currentStep].title}</h2>
-                <p className="text-sm text-brand-muted">{stepInfo[currentStep].description}</p>
+                <h2 className="text-2xl font-bold text-cc-text">{stepInfo[currentStep].title}</h2>
+                <p className="text-sm text-cc-muted">{stepInfo[currentStep].description}</p>
               </div>
             </div>
-            <button onClick={onCancel} className="text-brand-muted hover:text-brand-light transition-colors">
+            <button onClick={onCancel} className="text-cc-muted hover:text-cc-text transition-colors">
               <X size={24} />
             </button>
           </div>
@@ -93,7 +93,7 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
               <div key={step} className="flex items-center flex-1">
                 <div
                   className={`h-2 rounded-full flex-1 transition-all ${
-                    index <= currentStepIndex ? 'bg-brand-orange' : 'bg-slate-700'
+                    index <= currentStepIndex ? 'bg-cc-accent' : 'bg-cc-border'
                   }`}
                 />
                 {index < steps.length - 2 && <div className="w-2" />}
@@ -107,7 +107,7 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
           {currentStep === 'property' && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-brand-light mb-2">
+                <label className="block text-sm font-medium text-cc-text mb-2">
                   Property Address *
                 </label>
                 <input
@@ -119,7 +119,7 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-brand-light mb-2">
+                <label className="block text-sm font-medium text-cc-text mb-2">
                   Unit Number
                 </label>
                 <input
@@ -132,7 +132,7 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-brand-light mb-2">
+                  <label className="block text-sm font-medium text-cc-text mb-2">
                     Purchase Price
                   </label>
                   <input
@@ -144,7 +144,7 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-brand-light mb-2">
+                  <label className="block text-sm font-medium text-cc-text mb-2">
                     Current Market Value *
                   </label>
                   <input
@@ -162,7 +162,7 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
           {currentStep === 'mortgage' && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-brand-light mb-2">
+                <label className="block text-sm font-medium text-cc-text mb-2">
                   Loan Principal *
                 </label>
                 <input
@@ -175,7 +175,7 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-brand-light mb-2">
+                  <label className="block text-sm font-medium text-cc-text mb-2">
                     Interest Rate (%) *
                   </label>
                   <input
@@ -188,7 +188,7 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-brand-light mb-2">
+                  <label className="block text-sm font-medium text-cc-text mb-2">
                     Monthly Payment *
                   </label>
                   <input
@@ -206,7 +206,7 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
           {currentStep === 'rental' && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-brand-light mb-2">
+                <label className="block text-sm font-medium text-cc-text mb-2">
                   Monthly Rent *
                 </label>
                 <input
@@ -219,7 +219,7 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-brand-light mb-2">
+                  <label className="block text-sm font-medium text-cc-text mb-2">
                     Monthly Property Tax
                   </label>
                   <input
@@ -231,7 +231,7 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-brand-light mb-2">
+                  <label className="block text-sm font-medium text-cc-text mb-2">
                     Monthly Insurance
                   </label>
                   <input
@@ -249,7 +249,7 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
           {currentStep === 'tenant' && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-brand-light mb-2">
+                <label className="block text-sm font-medium text-cc-text mb-2">
                   Tenant Name *
                 </label>
                 <input
@@ -262,7 +262,7 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-brand-light mb-2">
+                  <label className="block text-sm font-medium text-cc-text mb-2">
                     Lease Start Date
                   </label>
                   <input
@@ -273,7 +273,7 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-brand-light mb-2">
+                  <label className="block text-sm font-medium text-cc-text mb-2">
                     Lease End Date
                   </label>
                   <input
@@ -285,7 +285,7 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-brand-light mb-2">
+                <label className="block text-sm font-medium text-cc-text mb-2">
                   Monthly Rent *
                 </label>
                 <input
@@ -304,8 +304,8 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
               <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Check size={48} className="text-green-400" />
               </div>
-              <h3 className="text-xl font-bold text-brand-light mb-2">All Set!</h3>
-              <p className="text-brand-muted max-w-md mx-auto">
+              <h3 className="text-xl font-bold text-cc-text mb-2">All Set!</h3>
+              <p className="text-cc-muted max-w-md mx-auto">
                 Your property has been configured. You can now use the financial analysis tools and manage your rental property.
               </p>
             </div>
@@ -313,7 +313,7 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-slate-700 flex items-center justify-between">
+        <div className="p-6 border-t border-cc-border flex items-center justify-between">
           <button
             onClick={handleBack}
             disabled={currentStepIndex === 0}

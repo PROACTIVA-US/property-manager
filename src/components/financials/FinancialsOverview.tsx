@@ -38,7 +38,7 @@ function ValueSlider({
   step,
   onChange,
   formatValue = (v: number) => formatCurrency(v, 0),
-  color = 'brand-orange',
+  color = 'cc-accent',
 }: {
   label: string;
   value: number;
@@ -52,7 +52,7 @@ function ValueSlider({
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center">
-        <span className="text-sm text-brand-muted">{label}</span>
+        <span className="text-sm text-cc-muted">{label}</span>
         <span className={`font-bold text-${color}`}>{formatValue(value)}</span>
       </div>
       <input
@@ -62,7 +62,7 @@ function ValueSlider({
         step={step}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
-        className={`w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-${color}`}
+        className={`w-full h-2 bg-cc-border rounded-lg appearance-none cursor-pointer accent-${color}`}
       />
     </div>
   );
@@ -166,8 +166,8 @@ export default function FinancialsOverview() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="animate-spin text-brand-muted" size={24} />
-        <span className="ml-2 text-brand-muted text-sm">Loading financials...</span>
+        <Loader2 className="animate-spin text-cc-muted" size={24} />
+        <span className="ml-2 text-cc-muted text-sm">Loading financials...</span>
       </div>
     );
   }
@@ -180,7 +180,7 @@ export default function FinancialsOverview() {
           <div className="p-2 bg-green-500/20 rounded-lg">
             <TrendingUp className="text-green-400" size={20} />
           </div>
-          <h2 className="text-xl font-bold text-brand-light">Rental Property Income</h2>
+          <h2 className="text-xl font-bold text-cc-text">Rental Property Income</h2>
         </div>
 
         <div className="card bg-green-500/5 border border-green-500/20">
@@ -198,7 +198,7 @@ export default function FinancialsOverview() {
             </div>
             <div className="flex items-center justify-between bg-green-500/10 rounded-lg p-4">
               <div>
-                <p className="text-sm text-brand-muted">Annual Rental Income</p>
+                <p className="text-sm text-cc-muted">Annual Rental Income</p>
                 <p className="text-3xl font-bold text-green-400">{fmtCurrency(annualRentalIncome)}</p>
               </div>
               <Home className="text-green-400/50" size={40} />
@@ -213,37 +213,37 @@ export default function FinancialsOverview() {
           <div className="p-2 bg-red-500/20 rounded-lg">
             <TrendingDown className="text-red-400" size={20} />
           </div>
-          <h2 className="text-xl font-bold text-brand-light">Rental Property Expenses</h2>
-          <span className="text-xs text-brand-muted">(excludes personal office space)</span>
+          <h2 className="text-xl font-bold text-cc-text">Rental Property Expenses</h2>
+          <span className="text-xs text-cc-muted">(excludes personal office space)</span>
         </div>
 
         <div className="card bg-red-500/5 border border-red-500/20">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-brand-dark/50 rounded-lg p-3">
-              <p className="text-xs text-brand-muted uppercase">Mortgage P&I</p>
-              <p className="text-lg font-bold text-brand-light">{fmtCurrency(propertyExpenses.mortgage)}</p>
+            <div className="bg-cc-bg/50 rounded-lg p-3">
+              <p className="text-xs text-cc-muted uppercase">Mortgage P&I</p>
+              <p className="text-lg font-bold text-cc-text">{fmtCurrency(propertyExpenses.mortgage)}</p>
             </div>
-            <div className="bg-brand-dark/50 rounded-lg p-3">
-              <p className="text-xs text-brand-muted uppercase">Property Tax</p>
-              <p className="text-lg font-bold text-brand-light">{fmtCurrency(propertyExpenses.propertyTax)}</p>
+            <div className="bg-cc-bg/50 rounded-lg p-3">
+              <p className="text-xs text-cc-muted uppercase">Property Tax</p>
+              <p className="text-lg font-bold text-cc-text">{fmtCurrency(propertyExpenses.propertyTax)}</p>
             </div>
-            <div className="bg-brand-dark/50 rounded-lg p-3">
-              <p className="text-xs text-brand-muted uppercase">Insurance</p>
-              <p className="text-lg font-bold text-brand-light">{fmtCurrency(propertyExpenses.insurance)}</p>
+            <div className="bg-cc-bg/50 rounded-lg p-3">
+              <p className="text-xs text-cc-muted uppercase">Insurance</p>
+              <p className="text-lg font-bold text-cc-text">{fmtCurrency(propertyExpenses.insurance)}</p>
             </div>
-            <div className="bg-brand-dark/50 rounded-lg p-3">
-              <p className="text-xs text-brand-muted uppercase">Maintenance</p>
-              <p className="text-lg font-bold text-brand-light">{fmtCurrency(propertyExpenses.maintenance)}</p>
+            <div className="bg-cc-bg/50 rounded-lg p-3">
+              <p className="text-xs text-cc-muted uppercase">Maintenance</p>
+              <p className="text-lg font-bold text-cc-text">{fmtCurrency(propertyExpenses.maintenance)}</p>
             </div>
           </div>
 
           <div className="flex items-center justify-between bg-red-500/10 rounded-lg p-4">
             <div>
-              <p className="text-sm text-brand-muted">Total Monthly Expenses</p>
+              <p className="text-sm text-cc-muted">Total Monthly Expenses</p>
               <p className="text-3xl font-bold text-red-400">{fmtCurrency(totalPropertyExpenses)}</p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-brand-muted">Annual</p>
+              <p className="text-sm text-cc-muted">Annual</p>
               <p className="text-xl font-bold text-red-400">{fmtCurrency(totalPropertyExpenses * 12)}</p>
             </div>
           </div>
@@ -253,13 +253,13 @@ export default function FinancialsOverview() {
       {/* ========== SECTION 3: NET RENTAL CASH FLOW ========== */}
       <section>
         <div className="flex items-center gap-3 mb-4">
-          <div className={`p-2 rounded-lg ${netRentalCashFlow >= 0 ? 'bg-brand-orange/20' : 'bg-slate-600'}`}>
-            <DollarSign className={netRentalCashFlow >= 0 ? 'text-brand-orange' : 'text-slate-400'} size={20} />
+          <div className={`p-2 rounded-lg ${netRentalCashFlow >= 0 ? 'bg-cc-accent/20' : 'bg-cc-border'}`}>
+            <DollarSign className={netRentalCashFlow >= 0 ? 'text-cc-accent' : 'text-slate-400'} size={20} />
           </div>
-          <h2 className="text-xl font-bold text-brand-light">Net Rental Cash Flow</h2>
+          <h2 className="text-xl font-bold text-cc-text">Net Rental Cash Flow</h2>
         </div>
 
-        <div className={`card ${netRentalCashFlow >= 0 ? 'bg-brand-orange/5 border border-brand-orange/20' : 'bg-slate-800/50'}`}>
+        <div className={`card ${netRentalCashFlow >= 0 ? 'bg-cc-accent/5 border border-cc-accent/20' : 'bg-slate-800/50'}`}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-green-500/10 rounded-lg p-4 text-center">
               <p className="text-sm text-green-400 mb-1">Monthly Income</p>
@@ -269,12 +269,12 @@ export default function FinancialsOverview() {
               <p className="text-sm text-red-400 mb-1">Monthly Expenses</p>
               <p className="text-2xl font-bold text-red-400">-{fmtCurrency(totalPropertyExpenses)}</p>
             </div>
-            <div className={`rounded-lg p-4 text-center ${netRentalCashFlow >= 0 ? 'bg-brand-orange/10' : 'bg-slate-700'}`}>
-              <p className={`text-sm mb-1 ${netRentalCashFlow >= 0 ? 'text-brand-orange' : 'text-slate-400'}`}>Net Cash Flow</p>
-              <p className={`text-2xl font-bold ${netRentalCashFlow >= 0 ? 'text-brand-orange' : 'text-red-400'}`}>
+            <div className={`rounded-lg p-4 text-center ${netRentalCashFlow >= 0 ? 'bg-cc-accent/10' : 'bg-cc-border'}`}>
+              <p className={`text-sm mb-1 ${netRentalCashFlow >= 0 ? 'text-cc-accent' : 'text-slate-400'}`}>Net Cash Flow</p>
+              <p className={`text-2xl font-bold ${netRentalCashFlow >= 0 ? 'text-cc-accent' : 'text-red-400'}`}>
                 {netRentalCashFlow >= 0 ? '+' : ''}{fmtCurrency(netRentalCashFlow)}
               </p>
-              <p className="text-xs text-brand-muted mt-1">
+              <p className="text-xs text-cc-muted mt-1">
                 {fmtCurrency(netRentalCashFlow * 12)}/year
               </p>
             </div>
@@ -291,35 +291,35 @@ export default function FinancialsOverview() {
           <div className="p-2 bg-blue-500/20 rounded-lg">
             <Calculator className="text-blue-400" size={20} />
           </div>
-          <h2 className="text-xl font-bold text-brand-light flex-1">Mortgage Payoff Analysis</h2>
-          {showMortgageDetails ? <ChevronUp className="text-brand-muted" /> : <ChevronDown className="text-brand-muted" />}
+          <h2 className="text-xl font-bold text-cc-text flex-1">Mortgage Payoff Analysis</h2>
+          {showMortgageDetails ? <ChevronUp className="text-cc-muted" /> : <ChevronDown className="text-cc-muted" />}
         </button>
 
         {showMortgageDetails && (
           <div className="card bg-blue-500/5 border border-blue-500/20 space-y-6">
             {/* Current Status */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-brand-dark/50 rounded-lg p-4">
-                <p className="text-xs text-brand-muted uppercase">Current Principal</p>
+              <div className="bg-cc-bg/50 rounded-lg p-4">
+                <p className="text-xs text-cc-muted uppercase">Current Principal</p>
                 <p className="text-xl font-bold text-blue-400">{fmtCurrency(currentPrincipal)}</p>
-                <p className="text-xs text-brand-muted">dynamically calculated</p>
+                <p className="text-xs text-cc-muted">dynamically calculated</p>
               </div>
-              <div className="bg-brand-dark/50 rounded-lg p-4">
-                <p className="text-xs text-brand-muted uppercase">Interest Rate</p>
-                <p className="text-xl font-bold text-brand-light">{settings.mortgage.interestRate}%</p>
+              <div className="bg-cc-bg/50 rounded-lg p-4">
+                <p className="text-xs text-cc-muted uppercase">Interest Rate</p>
+                <p className="text-xl font-bold text-cc-text">{settings.mortgage.interestRate}%</p>
               </div>
-              <div className="bg-brand-dark/50 rounded-lg p-4">
-                <p className="text-xs text-brand-muted uppercase">Original Payoff</p>
-                <p className="text-xl font-bold text-brand-light">{fmtDate(comparison.originalPayoffDate)}</p>
+              <div className="bg-cc-bg/50 rounded-lg p-4">
+                <p className="text-xs text-cc-muted uppercase">Original Payoff</p>
+                <p className="text-xl font-bold text-cc-text">{fmtDate(comparison.originalPayoffDate)}</p>
               </div>
-              <div className="bg-brand-dark/50 rounded-lg p-4">
-                <p className="text-xs text-brand-muted uppercase">Monthly P&I</p>
-                <p className="text-xl font-bold text-brand-light">{fmtCurrency(settings.mortgage.monthlyPAndI)}</p>
+              <div className="bg-cc-bg/50 rounded-lg p-4">
+                <p className="text-xs text-cc-muted uppercase">Monthly P&I</p>
+                <p className="text-xl font-bold text-cc-text">{fmtCurrency(settings.mortgage.monthlyPAndI)}</p>
               </div>
             </div>
 
             {/* Extra Payment Slider */}
-            <div className="bg-brand-dark/30 rounded-lg p-4">
+            <div className="bg-cc-bg/30 rounded-lg p-4">
               <ValueSlider
                 label="Extra Monthly Payment"
                 value={extraPayment}
@@ -348,16 +348,16 @@ export default function FinancialsOverview() {
                   <p className="text-xs text-green-400 uppercase">Interest Saved</p>
                   <p className="text-xl font-bold text-green-400">{fmtCurrency(comparison.interestSaved)}</p>
                 </div>
-                <div className="bg-brand-dark/50 rounded-lg p-4">
-                  <p className="text-xs text-brand-muted uppercase">Total Interest</p>
-                  <p className="text-xl font-bold text-brand-light">{fmtCurrency(comparison.acceleratedTotalInterest)}</p>
+                <div className="bg-cc-bg/50 rounded-lg p-4">
+                  <p className="text-xs text-cc-muted uppercase">Total Interest</p>
+                  <p className="text-xl font-bold text-cc-text">{fmtCurrency(comparison.acceleratedTotalInterest)}</p>
                 </div>
               </div>
             )}
 
             {/* Balance Chart */}
             <div>
-              <h4 className="text-sm font-medium text-brand-muted mb-3">Principal Balance Over Time</h4>
+              <h4 className="text-sm font-medium text-cc-muted mb-3">Principal Balance Over Time</h4>
               <div className="h-[250px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -427,8 +427,8 @@ export default function FinancialsOverview() {
           <div className="p-2 bg-purple-500/20 rounded-lg">
             <Briefcase className="text-purple-400" size={20} />
           </div>
-          <h2 className="text-xl font-bold text-brand-light">Personal Income vs Office Space</h2>
-          <span className="text-xs text-brand-muted">(separate from rental property)</span>
+          <h2 className="text-xl font-bold text-cc-text">Personal Income vs Office Space</h2>
+          <span className="text-xs text-cc-muted">(separate from rental property)</span>
         </div>
 
         <div className="card bg-purple-500/5 border border-purple-500/20">
@@ -474,7 +474,7 @@ export default function FinancialsOverview() {
             </div>
           </div>
 
-          <div className="mt-4 text-sm text-brand-muted bg-brand-dark/30 rounded-lg p-3">
+          <div className="mt-4 text-sm text-cc-muted bg-cc-bg/30 rounded-lg p-3">
             <p>
               <strong>Note:</strong> Office space expenses are separate from your rental property finances.
               This section tracks your personal income against your office/workspace costs.
@@ -485,28 +485,28 @@ export default function FinancialsOverview() {
 
       {/* ========== COMBINED SUMMARY ========== */}
       <section>
-        <div className="card bg-gradient-to-br from-brand-navy to-slate-800/50 border border-slate-700">
-          <h3 className="text-lg font-bold text-brand-light mb-4">Combined Financial Summary</h3>
+        <div className="card bg-gradient-to-br from-cc-surface to-slate-800/50 border border-cc-border">
+          <h3 className="text-lg font-bold text-cc-text mb-4">Combined Financial Summary</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
-              <p className="text-xs text-brand-muted uppercase mb-1">Rental Net (Annual)</p>
+              <p className="text-xs text-cc-muted uppercase mb-1">Rental Net (Annual)</p>
               <p className={`text-xl font-bold ${netRentalCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                 {fmtCurrency(netRentalCashFlow * 12)}
               </p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-brand-muted uppercase mb-1">Personal Net (Annual)</p>
+              <p className="text-xs text-cc-muted uppercase mb-1">Personal Net (Annual)</p>
               <p className="text-xl font-bold text-purple-400">{fmtCurrency(netPersonalAfterOffice)}</p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-brand-muted uppercase mb-1">Total Net Income</p>
-              <p className="text-xl font-bold text-brand-orange">
+              <p className="text-xs text-cc-muted uppercase mb-1">Total Net Income</p>
+              <p className="text-xl font-bold text-cc-accent">
                 {fmtCurrency((netRentalCashFlow * 12) + netPersonalAfterOffice)}
               </p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-brand-muted uppercase mb-1">Current Equity</p>
-              <p className="text-xl font-bold text-brand-light">
+              <p className="text-xs text-cc-muted uppercase mb-1">Current Equity</p>
+              <p className="text-xl font-bold text-cc-text">
                 {fmtCurrency(settings.property.currentMarketValue - currentPrincipal)}
               </p>
             </div>

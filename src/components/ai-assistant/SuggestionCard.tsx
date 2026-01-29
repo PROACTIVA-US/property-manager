@@ -25,9 +25,9 @@ const TYPE_COLORS: Record<Suggestion['type'], { bg: string; text: string; border
     border: 'border-blue-500/30',
   },
   reminder: {
-    bg: 'bg-orange-500/10',
-    text: 'text-orange-400',
-    border: 'border-orange-500/30',
+    bg: 'bg-indigo-400/10',
+    text: 'text-indigo-300',
+    border: 'border-indigo-400/30',
   },
   'next-step': {
     bg: 'bg-green-500/10',

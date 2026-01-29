@@ -175,7 +175,7 @@ export default function Financials() {
         return (
           <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-brand-light">Property & Mortgage Details</h2>
+              <h2 className="text-xl font-bold text-cc-text">Property & Mortgage Details</h2>
               <ImportExportButtons section="property-mortgage" />
             </div>
 
@@ -188,41 +188,41 @@ export default function Financials() {
             <div className="space-y-6">
               {/* Property Summary */}
               <div>
-                <h3 className="text-lg font-medium text-brand-light mb-4 flex items-center gap-2">
-                  <Building2 className="text-brand-orange" size={18} />
+                <h3 className="text-lg font-medium text-cc-text mb-4 flex items-center gap-2">
+                  <Building2 className="text-cc-accent" size={18} />
                   Property Information
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-brand-navy/30 rounded-lg p-4">
-                    <div className="text-xs text-brand-muted uppercase mb-1">Address</div>
-                    <div className="text-brand-light font-medium">{settings.property.address || 'Not set'}</div>
+                  <div className="bg-cc-surface/30 rounded-lg p-4">
+                    <div className="text-xs text-cc-muted uppercase mb-1">Address</div>
+                    <div className="text-cc-text font-medium">{settings.property.address || 'Not set'}</div>
                   </div>
-                  <div className="bg-brand-navy/30 rounded-lg p-4">
-                    <div className="text-xs text-brand-muted uppercase mb-1">Current Market Value</div>
-                    <div className="text-brand-light font-medium">{settings.property.currentMarketValue ? `$${settings.property.currentMarketValue.toLocaleString()}` : 'Not set'}</div>
+                  <div className="bg-cc-surface/30 rounded-lg p-4">
+                    <div className="text-xs text-cc-muted uppercase mb-1">Current Market Value</div>
+                    <div className="text-cc-text font-medium">{settings.property.currentMarketValue ? `$${settings.property.currentMarketValue.toLocaleString()}` : 'Not set'}</div>
                   </div>
                 </div>
-                <Link to="/settings?tab=property" className="inline-flex items-center gap-1 text-brand-orange hover:underline text-sm font-medium mt-3">
+                <Link to="/settings?tab=property" className="inline-flex items-center gap-1 text-cc-accent hover:underline text-sm font-medium mt-3">
                   Edit Property Details &rarr;
                 </Link>
               </div>
 
-              <div className="border-t border-slate-700 pt-6">
-                <h3 className="text-lg font-medium text-brand-light mb-4 flex items-center gap-2">
-                  <DollarSign className="text-brand-orange" size={18} />
+              <div className="border-t border-cc-border pt-6">
+                <h3 className="text-lg font-medium text-cc-text mb-4 flex items-center gap-2">
+                  <DollarSign className="text-cc-accent" size={18} />
                   Mortgage Details
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-brand-navy/30 rounded-lg p-4">
-                    <div className="text-xs text-brand-muted uppercase mb-1">Principal</div>
-                    <div className="text-brand-light font-medium">{settings.mortgage.principal ? `$${settings.mortgage.principal.toLocaleString()}` : 'Not set'}</div>
+                  <div className="bg-cc-surface/30 rounded-lg p-4">
+                    <div className="text-xs text-cc-muted uppercase mb-1">Principal</div>
+                    <div className="text-cc-text font-medium">{settings.mortgage.principal ? `$${settings.mortgage.principal.toLocaleString()}` : 'Not set'}</div>
                   </div>
-                  <div className="bg-brand-navy/30 rounded-lg p-4">
-                    <div className="text-xs text-brand-muted uppercase mb-1">Interest Rate</div>
-                    <div className="text-brand-light font-medium">{settings.mortgage.interestRate ? `${settings.mortgage.interestRate}%` : 'Not set'}</div>
+                  <div className="bg-cc-surface/30 rounded-lg p-4">
+                    <div className="text-xs text-cc-muted uppercase mb-1">Interest Rate</div>
+                    <div className="text-cc-text font-medium">{settings.mortgage.interestRate ? `${settings.mortgage.interestRate}%` : 'Not set'}</div>
                   </div>
                 </div>
-                <Link to="/settings?tab=mortgage" className="inline-flex items-center gap-1 text-brand-orange hover:underline text-sm font-medium mt-3">
+                <Link to="/settings?tab=mortgage" className="inline-flex items-center gap-1 text-cc-accent hover:underline text-sm font-medium mt-3">
                   Edit Mortgage Details &rarr;
                 </Link>
               </div>
@@ -234,7 +234,7 @@ export default function Financials() {
         return (
           <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-brand-light">Rental Income & Expenses</h2>
+              <h2 className="text-xl font-bold text-cc-text">Rental Income & Expenses</h2>
               <ImportExportButtons section="rental" />
             </div>
 
@@ -246,26 +246,26 @@ export default function Financials() {
 
             {/* Rental Summary */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-brand-navy/30 rounded-lg p-4">
-                <div className="text-xs text-brand-muted uppercase mb-1">Monthly Rent</div>
-                <div className="text-brand-light font-medium">{settings.rentalIncome.monthlyRent ? `$${settings.rentalIncome.monthlyRent.toLocaleString()}` : 'Not set'}</div>
+              <div className="bg-cc-surface/30 rounded-lg p-4">
+                <div className="text-xs text-cc-muted uppercase mb-1">Monthly Rent</div>
+                <div className="text-cc-text font-medium">{settings.rentalIncome.monthlyRent ? `$${settings.rentalIncome.monthlyRent.toLocaleString()}` : 'Not set'}</div>
               </div>
-              <div className="bg-brand-navy/30 rounded-lg p-4">
-                <div className="text-xs text-brand-muted uppercase mb-1">Monthly Property Tax</div>
-                <div className="text-brand-light font-medium">{settings.rentalIncome.monthlyPropertyTax ? `$${settings.rentalIncome.monthlyPropertyTax.toLocaleString()}/mo` : 'Not set'}</div>
+              <div className="bg-cc-surface/30 rounded-lg p-4">
+                <div className="text-xs text-cc-muted uppercase mb-1">Monthly Property Tax</div>
+                <div className="text-cc-text font-medium">{settings.rentalIncome.monthlyPropertyTax ? `$${settings.rentalIncome.monthlyPropertyTax.toLocaleString()}/mo` : 'Not set'}</div>
               </div>
-              <div className="bg-brand-navy/30 rounded-lg p-4">
-                <div className="text-xs text-brand-muted uppercase mb-1">Monthly Insurance</div>
-                <div className="text-brand-light font-medium">{settings.rentalIncome.monthlyInsurance ? `$${settings.rentalIncome.monthlyInsurance.toLocaleString()}/mo` : 'Not set'}</div>
+              <div className="bg-cc-surface/30 rounded-lg p-4">
+                <div className="text-xs text-cc-muted uppercase mb-1">Monthly Insurance</div>
+                <div className="text-cc-text font-medium">{settings.rentalIncome.monthlyInsurance ? `$${settings.rentalIncome.monthlyInsurance.toLocaleString()}/mo` : 'Not set'}</div>
               </div>
             </div>
-            <Link to="/settings?tab=rental" className="inline-flex items-center gap-1 text-brand-orange hover:underline text-sm font-medium">
+            <Link to="/settings?tab=rental" className="inline-flex items-center gap-1 text-cc-accent hover:underline text-sm font-medium">
               Edit Rental Details &rarr;
             </Link>
 
             {/* Cash Flow Analysis */}
-            <div className="border-t border-slate-700 pt-6">
-              <h3 className="text-lg font-medium text-brand-light mb-4">Cash Flow Analysis</h3>
+            <div className="border-t border-cc-border pt-6">
+              <h3 className="text-lg font-medium text-cc-text mb-4">Cash Flow Analysis</h3>
               <FinancialComparison
                 initialProperty={property}
                 initialPersonal={personal}
@@ -278,7 +278,7 @@ export default function Financials() {
         return (
           <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-brand-light">Tax Planning</h2>
+              <h2 className="text-xl font-bold text-cc-text">Tax Planning</h2>
               <ImportExportButtons section="tax" />
             </div>
 
@@ -290,27 +290,27 @@ export default function Financials() {
 
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-medium text-brand-light mb-4 flex items-center gap-2">
-                  <FileText className="text-brand-orange" size={18} />
+                <h3 className="text-lg font-medium text-cc-text mb-4 flex items-center gap-2">
+                  <FileText className="text-cc-accent" size={18} />
                   Tax Information
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-brand-navy/30 rounded-lg p-4">
-                    <div className="text-xs text-brand-muted uppercase mb-1">Filing Status</div>
-                    <div className="text-brand-light font-medium capitalize">{settings.taxInfo.filingStatus || 'Not set'}</div>
+                  <div className="bg-cc-surface/30 rounded-lg p-4">
+                    <div className="text-xs text-cc-muted uppercase mb-1">Filing Status</div>
+                    <div className="text-cc-text font-medium capitalize">{settings.taxInfo.filingStatus || 'Not set'}</div>
                   </div>
-                  <div className="bg-brand-navy/30 rounded-lg p-4">
-                    <div className="text-xs text-brand-muted uppercase mb-1">Annual Income</div>
-                    <div className="text-brand-light font-medium">{settings.taxInfo.annualIncome ? `$${settings.taxInfo.annualIncome.toLocaleString()}` : 'Not set'}</div>
+                  <div className="bg-cc-surface/30 rounded-lg p-4">
+                    <div className="text-xs text-cc-muted uppercase mb-1">Annual Income</div>
+                    <div className="text-cc-text font-medium">{settings.taxInfo.annualIncome ? `$${settings.taxInfo.annualIncome.toLocaleString()}` : 'Not set'}</div>
                   </div>
                 </div>
-                <Link to="/settings?tab=tax" className="inline-flex items-center gap-1 text-brand-orange hover:underline text-sm font-medium mt-3">
+                <Link to="/settings?tab=tax" className="inline-flex items-center gap-1 text-cc-accent hover:underline text-sm font-medium mt-3">
                   Edit Tax Information &rarr;
                 </Link>
               </div>
 
-              <div className="border-t border-slate-700 pt-6">
-                <h3 className="text-lg font-medium text-brand-light mb-4">Tax Analysis & Estimates</h3>
+              <div className="border-t border-cc-border pt-6">
+                <h3 className="text-lg font-medium text-cc-text mb-4">Tax Analysis & Estimates</h3>
                 <TaxAnalysis
                   initialProperty={property}
                   initialTaxInputs={taxInputs}
@@ -324,26 +324,26 @@ export default function Financials() {
         return (
           <div className="p-6 space-y-6">
             <div>
-              <h2 className="text-xl font-bold text-brand-light">Financial Projections</h2>
-              <p className="text-sm text-brand-muted mt-1">
+              <h2 className="text-xl font-bold text-cc-text">Financial Projections</h2>
+              <p className="text-sm text-cc-muted mt-1">
                 Long-term analysis tools to help with investment decisions
               </p>
             </div>
 
             {/* Keep vs Sell - Expandable Section */}
-            <div className="border border-slate-700 rounded-lg overflow-hidden">
+            <div className="border border-cc-border rounded-lg overflow-hidden">
               <button
                 onClick={() => setExpandedSections(prev => ({ ...prev, keepvssell: !prev.keepvssell }))}
-                className="w-full flex items-center justify-between px-4 py-3 bg-slate-700/50 hover:bg-slate-700 transition-colors"
+                className="w-full flex items-center justify-between px-4 py-3 bg-cc-border/50 hover:bg-cc-border transition-colors"
               >
-                <span className="flex items-center gap-2 text-sm font-medium text-brand-light">
-                  <Scale size={16} className="text-brand-orange" />
+                <span className="flex items-center gap-2 text-sm font-medium text-cc-text">
+                  <Scale size={16} className="text-cc-accent" />
                   Keep vs Sell Analysis
                 </span>
                 {expandedSections.keepvssell ? (
-                  <ChevronDown size={16} className="text-brand-muted" />
+                  <ChevronDown size={16} className="text-cc-muted" />
                 ) : (
-                  <ChevronRight size={16} className="text-brand-muted" />
+                  <ChevronRight size={16} className="text-cc-muted" />
                 )}
               </button>
               {expandedSections.keepvssell && (
@@ -357,19 +357,19 @@ export default function Financials() {
             </div>
 
             {/* Mortgage Payoff - Expandable Section */}
-            <div className="border border-slate-700 rounded-lg overflow-hidden">
+            <div className="border border-cc-border rounded-lg overflow-hidden">
               <button
                 onClick={() => setExpandedSections(prev => ({ ...prev, mortgage: !prev.mortgage }))}
-                className="w-full flex items-center justify-between px-4 py-3 bg-slate-700/50 hover:bg-slate-700 transition-colors"
+                className="w-full flex items-center justify-between px-4 py-3 bg-cc-border/50 hover:bg-cc-border transition-colors"
               >
-                <span className="flex items-center gap-2 text-sm font-medium text-brand-light">
-                  <Calculator size={16} className="text-brand-orange" />
+                <span className="flex items-center gap-2 text-sm font-medium text-cc-text">
+                  <Calculator size={16} className="text-cc-accent" />
                   Mortgage Payoff Calculator
                 </span>
                 {expandedSections.mortgage ? (
-                  <ChevronDown size={16} className="text-brand-muted" />
+                  <ChevronDown size={16} className="text-cc-muted" />
                 ) : (
-                  <ChevronRight size={16} className="text-brand-muted" />
+                  <ChevronRight size={16} className="text-cc-muted" />
                 )}
               </button>
               {expandedSections.mortgage && (
@@ -392,14 +392,14 @@ export default function Financials() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-brand-light">Financial Analysis Suite</h1>
-        <p className="text-brand-muted mt-1">
+        <h1 className="text-3xl font-bold text-cc-text">Financial Analysis Suite</h1>
+        <p className="text-cc-muted mt-1">
           Manage your property finances and analyze investment performance
         </p>
       </div>
 
       {/* Tab Navigation */}
-      <div className="border-b border-slate-700/50">
+      <div className="border-b border-cc-border/50">
         <nav className="flex gap-1 overflow-x-auto pb-px" aria-label="Financial analysis tabs">
           {tabs.map((tab) => {
             const Icon = tab.icon as React.ElementType<{ size?: number }>;
@@ -410,8 +410,8 @@ export default function Financials() {
                 onClick={() => handleTabChange(tab.id)}
                 className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                   isActive
-                    ? 'border-brand-orange text-brand-orange'
-                    : 'border-transparent text-brand-muted hover:text-brand-light hover:border-slate-600'
+                    ? 'border-cc-accent text-cc-accent'
+                    : 'border-transparent text-cc-muted hover:text-cc-text hover:border-cc-border'
                 }`}
                 aria-current={isActive ? 'page' : undefined}
               >
@@ -425,7 +425,7 @@ export default function Financials() {
 
       {/* Tab Description */}
       {activeTabData && (
-        <div className="flex items-center gap-2 text-sm text-brand-muted">
+        <div className="flex items-center gap-2 text-sm text-cc-muted">
           <Info size={14} />
           {activeTabData.description}
         </div>
@@ -437,14 +437,14 @@ export default function Financials() {
       </div>
 
       {/* Educational Disclaimer */}
-      <div className="card bg-gradient-to-r from-brand-navy/50 to-slate-800/50 border-l-4 border-brand-orange">
+      <div className="card bg-gradient-to-r from-cc-surface/50 to-slate-800/50 border-l-4 border-cc-accent">
         <div className="flex items-start gap-3">
-          <Info className="w-5 h-5 text-brand-orange shrink-0 mt-0.5" />
+          <Info className="w-5 h-5 text-cc-accent shrink-0 mt-0.5" />
           <div className="text-sm">
-            <p className="text-brand-light font-medium mb-1">Educational Tool Disclaimer</p>
-            <p className="text-brand-muted">
+            <p className="text-cc-text font-medium mb-1">Educational Tool Disclaimer</p>
+            <p className="text-cc-muted">
               All calculations, projections, and analysis provided in this suite are for
-              <strong className="text-brand-light"> educational and informational purposes only</strong>.
+              <strong className="text-cc-text"> educational and informational purposes only</strong>.
               They are based on simplified models and assumptions that may not reflect your actual situation.
               This tool does not constitute financial, tax, legal, or investment advice.
               Always consult with qualified professionals (CPA, financial advisor, attorney)

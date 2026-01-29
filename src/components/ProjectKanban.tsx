@@ -176,7 +176,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
       case 'urgent':
         return 'text-red-400 bg-red-500/20';
       case 'high':
-        return 'text-orange-400 bg-orange-500/20';
+        return 'text-indigo-300 bg-indigo-400/20';
       case 'medium':
         return 'text-yellow-400 bg-yellow-500/20';
       case 'low':
@@ -191,7 +191,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
       slate: 'border-slate-500/50 bg-slate-500/10',
       yellow: 'border-yellow-500/50 bg-yellow-500/10',
       blue: 'border-blue-500/50 bg-blue-500/10',
-      orange: 'border-brand-orange/50 bg-brand-orange/10',
+      orange: 'border-cc-accent/50 bg-cc-accent/10',
       purple: 'border-purple-500/50 bg-purple-500/10',
       green: 'border-green-500/50 bg-green-500/10',
       red: 'border-red-500/50 bg-red-500/10',
@@ -204,7 +204,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
       slate: 'text-slate-400',
       yellow: 'text-yellow-400',
       blue: 'text-blue-400',
-      orange: 'text-brand-orange',
+      orange: 'text-cc-accent',
       purple: 'text-purple-400',
       green: 'text-green-400',
       red: 'text-red-400',
@@ -217,8 +217,8 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="animate-spin text-brand-muted" size={24} />
-        <span className="ml-2 text-brand-muted text-sm">Loading projects...</span>
+        <Loader2 className="animate-spin text-cc-muted" size={24} />
+        <span className="ml-2 text-cc-muted text-sm">Loading projects...</span>
       </div>
     );
   }
@@ -229,7 +229,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <span className="text-sm text-brand-muted">
+            <span className="text-sm text-cc-muted">
               {stats.activeCount} active project{stats.activeCount !== 1 ? 's' : ''}
             </span>
           </div>
@@ -252,7 +252,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
                 <h4 className={cn('text-sm font-semibold', getStageHeaderColor(stage.color))}>
                   {stage.label}
                 </h4>
-                <span className="text-xs text-brand-muted">
+                <span className="text-xs text-cc-muted">
                   {getProjectsByStage(stage.id).length}
                 </span>
               </div>
@@ -262,9 +262,9 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
                   <div
                     key={project.id}
                     onClick={() => handleProjectClick(project)}
-                    className="bg-brand-dark/50 rounded-lg p-2 cursor-pointer hover:bg-brand-dark transition-colors"
+                    className="bg-cc-bg/50 rounded-lg p-2 cursor-pointer hover:bg-cc-bg transition-colors"
                   >
-                    <p className="text-sm font-medium text-brand-light truncate">
+                    <p className="text-sm font-medium text-cc-text truncate">
                       {project.title}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
@@ -272,7 +272,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
                         {PRIORITY_LABELS[project.priority]}
                       </span>
                       {project.primaryVendorId && (
-                        <span className="text-[10px] text-brand-muted truncate">
+                        <span className="text-[10px] text-cc-muted truncate">
                           {getVendorById(project.primaryVendorId)?.name}
                         </span>
                       )}
@@ -280,12 +280,12 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
                   </div>
                 ))}
                 {getProjectsByStage(stage.id).length > 3 && (
-                  <p className="text-xs text-brand-muted text-center">
+                  <p className="text-xs text-cc-muted text-center">
                     +{getProjectsByStage(stage.id).length - 3} more
                   </p>
                 )}
                 {getProjectsByStage(stage.id).length === 0 && (
-                  <p className="text-xs text-brand-muted text-center py-2">No projects</p>
+                  <p className="text-xs text-cc-muted text-center py-2">No projects</p>
                 )}
               </div>
             </div>
@@ -328,8 +328,8 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-brand-light">Project Board</h2>
-          <p className="text-sm text-brand-muted">
+          <h2 className="text-xl font-bold text-cc-text">Project Board</h2>
+          <p className="text-sm text-cc-muted">
             {stats.activeCount} active, {stats.completedCount} completed
           </p>
         </div>
@@ -356,7 +356,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
             className={cn(
               'flex-shrink-0 w-72 rounded-xl border-2 transition-colors',
               getStageColor(stage.color),
-              dragOverStage === stage.id && 'ring-2 ring-brand-orange'
+              dragOverStage === stage.id && 'ring-2 ring-cc-accent'
             )}
             onDragOver={e => handleDragOver(e, stage.id)}
             onDragLeave={handleDragLeave}
@@ -368,11 +368,11 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
                 <h3 className={cn('font-semibold', getStageHeaderColor(stage.color))}>
                   {stage.label}
                 </h3>
-                <span className="w-6 h-6 flex items-center justify-center rounded-full bg-white/10 text-xs text-brand-light">
+                <span className="w-6 h-6 flex items-center justify-center rounded-full bg-white/10 text-xs text-cc-text">
                   {getProjectsByStage(stage.id).length}
                 </span>
               </div>
-              <p className="text-xs text-brand-muted mt-1">{stage.description}</p>
+              <p className="text-xs text-cc-muted mt-1">{stage.description}</p>
             </div>
 
             {/* Project Cards */}
@@ -389,7 +389,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
                     onDragStart={e => handleDragStart(e, project)}
                     onDragEnd={handleDragEnd}
                     className={cn(
-                      'bg-brand-dark rounded-lg p-3 cursor-grab active:cursor-grabbing',
+                      'bg-cc-bg rounded-lg p-3 cursor-grab active:cursor-grabbing',
                       'border border-white/10 hover:border-white/20 transition-all',
                       'shadow-lg hover:shadow-xl',
                       draggedProject?.id === project.id && 'opacity-50'
@@ -398,9 +398,9 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
                     {/* Card Header */}
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="flex items-center gap-2 min-w-0">
-                        <GripVertical size={14} className="text-brand-muted flex-shrink-0" />
+                        <GripVertical size={14} className="text-cc-muted flex-shrink-0" />
                         <h4
-                          className="font-medium text-brand-light truncate cursor-pointer hover:text-brand-orange"
+                          className="font-medium text-cc-text truncate cursor-pointer hover:text-cc-accent"
                           onClick={() => handleProjectClick(project)}
                         >
                           {project.title}
@@ -420,23 +420,23 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
                               setDeleteConfirmId(null);
                             }
                           }}
-                          className="p-1 text-brand-muted hover:text-brand-light rounded"
+                          className="p-1 text-cc-muted hover:text-cc-text rounded"
                         >
                           <MoreVertical size={14} />
                         </button>
 
                         {menuOpenId === project.id && (
-                          <div className="absolute right-0 top-6 z-50 bg-brand-dark border border-white/20 rounded-lg shadow-xl py-1 min-w-[140px]">
+                          <div className="absolute right-0 top-6 z-50 bg-cc-bg border border-white/20 rounded-lg shadow-xl py-1 min-w-[140px]">
                             <button
                               onClick={() => handleProjectClick(project)}
-                              className="w-full px-3 py-2 text-left text-sm text-brand-light hover:bg-white/10 flex items-center gap-2"
+                              className="w-full px-3 py-2 text-left text-sm text-cc-text hover:bg-white/10 flex items-center gap-2"
                             >
                               <Eye size={14} />
                               View Details
                             </button>
                             <button
                               onClick={() => handleEdit(project)}
-                              className="w-full px-3 py-2 text-left text-sm text-brand-light hover:bg-white/10 flex items-center gap-2"
+                              className="w-full px-3 py-2 text-left text-sm text-cc-text hover:bg-white/10 flex items-center gap-2"
                             >
                               <Edit2 size={14} />
                               Edit
@@ -453,7 +453,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
                                   </button>
                                   <button
                                     onClick={() => setDeleteConfirmId(null)}
-                                    className="px-2 py-1 bg-slate-600 text-white text-xs rounded hover:bg-slate-500"
+                                    className="px-2 py-1 bg-cc-border text-white text-xs rounded hover:bg-slate-500"
                                   >
                                     Cancel
                                   </button>
@@ -475,7 +475,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
 
                     {/* Category & Priority */}
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-brand-muted">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-cc-muted">
                         {CATEGORY_LABELS[project.category]}
                       </span>
                       <span className={cn('text-[10px] px-1.5 py-0.5 rounded', getPriorityColor(project.priority))}>
@@ -490,19 +490,19 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
                     </div>
 
                     {/* Description Preview */}
-                    <p className="text-xs text-brand-muted line-clamp-2 mb-3">
+                    <p className="text-xs text-cc-muted line-clamp-2 mb-3">
                       {project.description}
                     </p>
 
                     {/* Footer */}
-                    <div className="flex items-center justify-between text-xs text-brand-muted pt-2 border-t border-white/10">
+                    <div className="flex items-center justify-between text-xs text-cc-muted pt-2 border-t border-white/10">
                       {vendor ? (
                         <div className="flex items-center gap-1 truncate">
                           <Wrench size={12} />
                           <span className="truncate">{vendor.name}</span>
                         </div>
                       ) : (
-                        <span className="text-brand-muted/50">No vendor</span>
+                        <span className="text-cc-muted/50">No vendor</span>
                       )}
 
                       <div className="flex items-center gap-2">
@@ -531,7 +531,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
               })}
 
               {getProjectsByStage(stage.id).length === 0 && (
-                <div className="text-center py-8 text-brand-muted text-sm">
+                <div className="text-center py-8 text-cc-muted text-sm">
                   No projects in this stage
                 </div>
               )}
