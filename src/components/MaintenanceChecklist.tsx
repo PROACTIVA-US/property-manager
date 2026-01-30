@@ -56,11 +56,18 @@ const INITIAL_FORM_DATA: TaskFormData = {
   notes: '',
 };
 
+/**
+ * @role-visibility owner, pm
+ * Property Maintenance Checklist - task management for property maintenance.
+ * Only visible to property owners and property managers (not tenants).
+ */
 export default function MaintenanceChecklist() {
   const { user } = useAuth();
   const isPM = user?.role === 'pm';
   const isOwner = user?.role === 'owner';
+  const isTenant = user?.role === 'tenant';
 
+  // All hooks must be called before any early returns (React rules of hooks)
   const [tasks, setTasks] = useState<MaintenanceTask[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<Set<TaskCategory>>(
     new Set(CATEGORY_ORDER)
@@ -119,6 +126,11 @@ export default function MaintenanceChecklist() {
   }, [filteredTasks]);
 
   const stats = useMemo(() => getTaskStats(tasks), [tasks]);
+
+  // Maintenance Checklist is owner/pm only - tenants should not see
+  if (isTenant) {
+    return null;
+  }
 
   const toggleCategory = (category: TaskCategory) => {
     const newExpanded = new Set(expandedCategories);

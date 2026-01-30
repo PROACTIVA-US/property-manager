@@ -82,7 +82,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { name: 'Messages', href: '/messages', icon: MessageSquare, roles: ['owner', 'pm', 'tenant'], badge: unreadCount },
     { name: 'Financials', href: '/financials', icon: Calculator, roles: ['owner', 'pm', 'tenant'] },
     { name: 'Documents', href: '/documents', icon: FileText, roles: ['owner', 'pm', 'tenant'] },
-    { name: 'People', href: '/tenants', icon: Users, roles: ['owner', 'pm', 'tenant'] },
+    { name: 'People', href: '/tenants', icon: Users, roles: ['owner', 'pm'] }, // Tenant Management - not visible to tenants
   ];
 
   // Settings and Vendors are accessed from within other sections or via contextual links

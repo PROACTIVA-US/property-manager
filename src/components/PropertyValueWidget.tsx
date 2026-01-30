@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { TrendingUp, RefreshCw, ExternalLink, AlertCircle } from 'lucide-react';
 import { loadSettings, updateProperty } from '../lib/settings';
+import { useAuth } from '../contexts/AuthContext';
 import {
   loadZillowEstimate,
   saveZillowEstimate,
@@ -9,7 +10,13 @@ import {
   type ZillowEstimate,
 } from '../lib/zillow';
 
+/**
+ * @role-visibility owner-only
+ * Zillow Integration widget - displays property value estimates from Zillow.
+ * Only visible to property owners (not PM or tenant).
+ */
 export default function PropertyValueWidget() {
+  const { user } = useAuth();
   const [estimate, setEstimate] = useState<ZillowEstimate | null>(null);
   const [manualValue, setManualValue] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
@@ -20,6 +27,11 @@ export default function PropertyValueWidget() {
     const savedEstimate = loadZillowEstimate();
     setEstimate(savedEstimate);
   }, []);
+
+  // Zillow Integration is owner-only - tenants and PMs should not see property values
+  if (user?.role !== 'owner') {
+    return null;
+  }
 
   const handleManualUpdate = () => {
     const value = parseFloat(manualValue.replace(/[^0-9.]/g, ''));
