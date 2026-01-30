@@ -54,7 +54,7 @@ export default function BOMCategoryExpander({ categoryGroup }: BOMCategoryExpand
               {categoryGroup.name}
             </h4>
             <p className="text-sm text-gray-500">
-              {categoryGroup.itemCount} {categoryGroup.itemCount === 1 ? 'item' : 'items'}
+              {categoryGroup.itemCount} {categoryGroup.itemCount === 1 ? 'material' : 'materials'}
             </p>
           </div>
         </div>

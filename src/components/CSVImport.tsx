@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { Upload, Download, AlertCircle, CheckCircle, FileText } from 'lucide-react';
 
 interface CSVImportProps {
-  onDataImported: (data: any[]) => void;
+  onRecordsImported: (records: any[]) => void;
   templateColumns: string[];
   title: string;
   description: string;
 }
 
-export default function CSVImport({ onDataImported, templateColumns, title, description }: CSVImportProps) {
+export default function CSVImport({ onRecordsImported, templateColumns, title, description }: CSVImportProps) {
   const [importing, setImporting] = useState(false);
   const [importMessage, setImportMessage] = useState('');
   const [importSuccess, setImportSuccess] = useState(false);
@@ -55,15 +55,15 @@ export default function CSVImport({ onDataImported, templateColumns, title, desc
 
     try {
       const text = await file.text();
-      const data = parseCSV(text);
+      const records = parseCSV(text);
 
-      if (data.length === 0) {
-        throw new Error('No data found in CSV file');
+      if (records.length === 0) {
+        throw new Error('No records found in CSV file');
       }
 
-      onDataImported(data);
+      onRecordsImported(records);
       setImportSuccess(true);
-      setImportMessage(`✓ Successfully imported ${data.length} rows`);
+      setImportMessage(`✓ Successfully imported ${records.length} rows`);
       setTimeout(() => setImportMessage(''), 5000);
     } catch (error: any) {
       setImportSuccess(false);

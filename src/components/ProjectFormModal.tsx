@@ -106,7 +106,7 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
     }
 
     if (!user) {
-      setErrors({ general: 'User not authenticated' });
+      setErrors({ general: 'Property manager not authenticated' });
       return;
     }
 

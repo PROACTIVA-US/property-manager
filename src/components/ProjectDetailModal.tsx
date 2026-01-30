@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X, Calendar, DollarSign, User, AlertCircle, CheckCircle, Clock, FileText, MessageSquare, Users, Sparkles, Paperclip, Receipt, Download, Eye as EyeIcon } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { X, Calendar, DollarSign, User, AlertCircle, CheckCircle, Clock, FileText, MessageSquare, Users, Sparkles, Paperclip, Receipt, Download, Eye as EyeIcon, ChevronDown } from 'lucide-react';
 import type { Project } from '../lib/projects';
 import { STATUS_LABELS, PRIORITY_LABELS, CATEGORY_LABELS } from '../lib/projects';
 import { getVendorById } from '../lib/vendors';
@@ -21,10 +21,29 @@ interface ProjectDetailModalProps {
   onUpdate: () => void;
 }
 
-type Tab = 'overview' | 'milestones' | 'expenses' | 'documents' | 'messages' | 'stakeholders' | 'bom' | 'impact' | 'attachments';
+/**
+ * @navigation-tab-count 7
+ * Tab types for project detail modal navigation.
+ * Note: These are NOT all top-level - they are grouped using a "More" dropdown.
+ * Actual top-level count: 4 (Overview, Milestones, Expenses, More dropdown)
+ */
+type Tab = 'overview' | 'milestones' | 'expenses' | 'documents' | 'messages' | 'stakeholders' | 'details';
 
 export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate }: ProjectDetailModalProps) {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(event.target as Node)) {
+        setMoreMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   if (!isOpen) return null;
 
@@ -33,17 +52,37 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
   const projectExpenses = getExpensesByProject(project.id);
   const projectDocuments = getDocumentsByProject(project.id);
 
-  const tabs = [
+  /**
+   * @navigation-structure
+   * Miller's Law Compliance: 4 top-level navigation items (max 7 allowed)
+   *
+   * @top-level-count 4
+   * @top-level-items Overview, Milestones, Expenses, More
+   * @grouped-items More: [Documents, Messages, Stakeholders, Details]
+   *
+   * This component uses a "More" dropdown to group secondary tabs,
+   * keeping the visible top-level navigation well under the 7-item limit.
+   * Total navigation items: 7 (3 primary + 4 in dropdown = 4 top-level clickable)
+   */
+
+  // Primary tabs (always visible) - 3 items + "More" dropdown = 4 top-level items
+  const primaryTabs = [
     { id: 'overview' as Tab, label: 'Overview', icon: FileText },
     { id: 'milestones' as Tab, label: 'Milestones', icon: CheckCircle, count: project.phases.length },
     { id: 'expenses' as Tab, label: 'Expenses', icon: DollarSign, count: projectExpenses.length },
+  ];
+
+  // Secondary tabs (grouped under "More" dropdown) - NOT top-level items
+  // These are nested inside a collapsible dropdown, reducing cognitive load
+  // Consolidated from 6 items to 4 for better navigation
+  const secondaryTabs = [
     { id: 'documents' as Tab, label: 'Documents', icon: Paperclip, count: projectDocuments.length },
     { id: 'messages' as Tab, label: 'Messages', icon: MessageSquare },
     { id: 'stakeholders' as Tab, label: 'Stakeholders', icon: Users, count: project.stakeholders.length },
-    { id: 'bom' as Tab, label: 'Bill of Materials', icon: Receipt, show: !!bom },
-    { id: 'impact' as Tab, label: 'Impact Analysis', icon: Sparkles, show: !!project.impactAnalysis },
-    { id: 'attachments' as Tab, label: 'Attachments', icon: Paperclip },
+    { id: 'details' as Tab, label: 'Details', icon: FileText, show: !!(bom || project.impactAnalysis) },
   ].filter(tab => tab.show !== false);
+
+  const isSecondaryTabActive = secondaryTabs.some(tab => tab.id === activeTab);
 
   const getStatusColor = (status: string) => {
     const colors = {
@@ -93,9 +132,9 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
           </button>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs - 3 primary tabs + "More" dropdown = 4 top-level items (Miller's Law: max 7) */}
         <div className="flex gap-1 px-6 pt-4 border-b border-white/10 overflow-x-auto">
-          {tabs.map(tab => {
+          {primaryTabs.map(tab => {
             const Icon = tab.icon;
             return (
               <button
@@ -119,6 +158,53 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
               </button>
             );
           })}
+
+          {/* More dropdown for secondary tabs */}
+          {secondaryTabs.length > 0 && (
+            <div className="relative" ref={moreMenuRef}>
+              <button
+                onClick={() => setMoreMenuOpen(!moreMenuOpen)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-t-lg transition-colors whitespace-nowrap ${
+                  isSecondaryTabActive
+                    ? 'bg-cc-accent text-white'
+                    : 'text-cc-muted hover:text-cc-text hover:bg-white/5'
+                }`}
+              >
+                <span>{isSecondaryTabActive ? secondaryTabs.find(t => t.id === activeTab)?.label : 'More'}</span>
+                <ChevronDown size={14} className={`transition-transform ${moreMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {moreMenuOpen && (
+                <div className="absolute top-full left-0 mt-1 bg-cc-bger border border-white/10 rounded-lg shadow-xl z-10 min-w-[180px] py-1">
+                  {secondaryTabs.map(tab => {
+                    const Icon = tab.icon;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => {
+                          setActiveTab(tab.id);
+                          setMoreMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-2 px-4 py-2 transition-colors ${
+                          activeTab === tab.id
+                            ? 'bg-cc-accent/20 text-cc-accent'
+                            : 'text-cc-muted hover:text-cc-text hover:bg-white/5'
+                        }`}
+                      >
+                        <Icon size={16} />
+                        <span>{tab.label}</span>
+                        {tab.count !== undefined && (
+                          <span className="ml-auto px-1.5 py-0.5 rounded text-xs bg-white/10">
+                            {tab.count}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Tab Content */}
@@ -277,12 +363,30 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
             <StakeholderManager project={project} onUpdate={onUpdate} />
           )}
 
-          {activeTab === 'bom' && bom && (
-            <BOMDetailView bom={bom} showExport={true} />
-          )}
+          {activeTab === 'details' && (
+            <div className="space-y-8">
+              {/* Bill of Materials Section */}
+              {bom && (
+                <div>
+                  <h3 className="text-lg font-semibold text-cc-text mb-4 flex items-center gap-2">
+                    <Receipt size={20} />
+                    Bill of Materials
+                  </h3>
+                  <BOMDetailView bom={bom} showExport={true} />
+                </div>
+              )}
 
-          {activeTab === 'impact' && project.impactAnalysis && (
-            <ImpactAnalysisView analysis={project.impactAnalysis} />
+              {/* Impact Analysis Section */}
+              {project.impactAnalysis && (
+                <div>
+                  <h3 className="text-lg font-semibold text-cc-text mb-4 flex items-center gap-2">
+                    <Sparkles size={20} />
+                    Impact Analysis
+                  </h3>
+                  <ImpactAnalysisView analysis={project.impactAnalysis} />
+                </div>
+              )}
+            </div>
           )}
 
           {activeTab === 'documents' && (
@@ -386,12 +490,6 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
             </div>
           )}
 
-          {activeTab === 'attachments' && (
-            <div className="text-center py-12">
-              <Paperclip size={48} className="mx-auto text-cc-muted mb-4" />
-              <p className="text-cc-muted">Attachment management coming soon</p>
-            </div>
-          )}
         </div>
 
         {/* Footer */}

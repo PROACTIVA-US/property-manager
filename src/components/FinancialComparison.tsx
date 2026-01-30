@@ -19,6 +19,9 @@ import {
   Wallet,
   PiggyBank,
   Info,
+  ChevronDown,
+  ChevronRight,
+  BarChart3,
 } from 'lucide-react';
 import {
   type PropertyFinancials,
@@ -42,6 +45,8 @@ export default function FinancialComparison({
   const [property, setProperty] = useState<PropertyFinancials>(initialProperty);
   const [personal, setPersonal] = useState<PersonalExpenses>(initialPersonal);
   const [showInputs, setShowInputs] = useState(false);
+  const [showCharts, setShowCharts] = useState(true);
+  const [showMetrics, setShowMetrics] = useState(true);
 
   // Calculate derived values
   const cashFlow = useMemo(() => calculateCashFlow(property), [property]);
@@ -244,141 +249,179 @@ export default function FinancialComparison({
         </div>
       )}
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Monthly Cash Flow */}
-        <div className="card !p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <div className={`p-1.5 rounded-lg ${isPositiveCashFlow ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-              {isPositiveCashFlow ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-            </div>
-            <span className="text-xs text-cc-muted uppercase">Cash Flow</span>
-          </div>
-          <p className={`text-xl font-bold ${isPositiveCashFlow ? 'text-green-400' : 'text-red-400'}`}>
-            {formatCurrency(monthlyCashFlow)}
-            <span className="text-xs font-normal text-cc-muted">/mo</span>
-          </p>
-        </div>
+      {/* Key Metrics - Collapsible */}
+      <div className="card">
+        <button
+          onClick={() => setShowMetrics(!showMetrics)}
+          className="flex items-center justify-between w-full text-left"
+        >
+          <h4 className="font-semibold text-cc-accent flex items-center gap-2">
+            <DollarSign size={18} />
+            Key Metrics
+          </h4>
+          {showMetrics ? (
+            <ChevronDown size={20} className="text-cc-muted" />
+          ) : (
+            <ChevronRight size={20} className="text-cc-muted" />
+          )}
+        </button>
 
-        {/* Monthly Advantage */}
-        <div className="card !p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <div className={`p-1.5 rounded-lg ${isPositiveAdvantage ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-              <PiggyBank size={16} />
+        {showMetrics && (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+            {/* Monthly Cash Flow */}
+            <div className="bg-cc-bg/50 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className={`p-1.5 rounded-lg ${isPositiveCashFlow ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                  {isPositiveCashFlow ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                </div>
+                <span className="text-xs text-cc-muted uppercase">Cash Flow</span>
+              </div>
+              <p className={`text-xl font-bold ${isPositiveCashFlow ? 'text-green-400' : 'text-red-400'}`}>
+                {formatCurrency(monthlyCashFlow)}
+                <span className="text-xs font-normal text-cc-muted">/mo</span>
+              </p>
             </div>
-            <span className="text-xs text-cc-muted uppercase">Net Benefit</span>
-          </div>
-          <p className={`text-xl font-bold ${isPositiveAdvantage ? 'text-green-400' : 'text-red-400'}`}>
-            {formatCurrency(comparison.monthlyAdvantage)}
-            <span className="text-xs font-normal text-cc-muted">/mo</span>
-          </p>
-        </div>
 
-        {/* Cap Rate */}
-        <div className="card !p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400">
-              <DollarSign size={16} />
+            {/* Monthly Advantage */}
+            <div className="bg-cc-bg/50 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className={`p-1.5 rounded-lg ${isPositiveAdvantage ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                  <PiggyBank size={16} />
+                </div>
+                <span className="text-xs text-cc-muted uppercase">Net Benefit</span>
+              </div>
+              <p className={`text-xl font-bold ${isPositiveAdvantage ? 'text-green-400' : 'text-red-400'}`}>
+                {formatCurrency(comparison.monthlyAdvantage)}
+                <span className="text-xs font-normal text-cc-muted">/mo</span>
+              </p>
             </div>
-            <span className="text-xs text-cc-muted uppercase">Cap Rate</span>
-          </div>
-          <p className="text-xl font-bold text-cc-text">
-            {cashFlow.capRate.toFixed(1)}%
-          </p>
-        </div>
 
-        {/* Cash on Cash */}
-        <div className="card !p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="p-1.5 rounded-lg bg-purple-500/20 text-purple-400">
-              <TrendingUp size={16} />
+            {/* Cap Rate */}
+            <div className="bg-cc-bg/50 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400">
+                  <DollarSign size={16} />
+                </div>
+                <span className="text-xs text-cc-muted uppercase">Cap Rate</span>
+              </div>
+              <p className="text-xl font-bold text-cc-text">
+                {cashFlow.capRate.toFixed(1)}%
+              </p>
             </div>
-            <span className="text-xs text-cc-muted uppercase">Cash on Cash</span>
+
+            {/* Cash on Cash */}
+            <div className="bg-cc-bg/50 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1.5 rounded-lg bg-purple-500/20 text-purple-400">
+                  <TrendingUp size={16} />
+                </div>
+                <span className="text-xs text-cc-muted uppercase">Cash on Cash</span>
+              </div>
+              <p className="text-xl font-bold text-cc-text">
+                {cashFlow.cashOnCashReturn.toFixed(1)}%
+              </p>
+            </div>
           </div>
-          <p className="text-xl font-bold text-cc-text">
-            {cashFlow.cashOnCashReturn.toFixed(1)}%
-          </p>
-        </div>
+        )}
       </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Income vs Expenses Bar Chart */}
-        <div className="card">
-          <h4 className="font-semibold text-cc-accent mb-4">Income vs Expenses</h4>
-          <div className="h-[250px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={comparisonData} margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" />
-                <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
-                <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(val) => `$${val/1000}k`} />
-                <Tooltip
-                  formatter={(val: number) => formatCurrency(val)}
-                  contentStyle={{
-                    backgroundColor: '#1a1a2e',
-                    borderRadius: '8px',
-                    border: '1px solid #334155',
-                    color: '#fff'
-                  }}
-                />
-                <Bar dataKey="Rental" fill="#ff8c42" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Personal" fill="#64748b" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="flex justify-center gap-6 mt-2 text-xs">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-cc-accent" />
-              <span className="text-cc-muted">Rental Property</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-slate-500" />
-              <span className="text-cc-muted">Personal Housing</span>
-            </div>
-          </div>
-        </div>
+      {/* Charts Section - Collapsible */}
+      <div className="card">
+        <button
+          onClick={() => setShowCharts(!showCharts)}
+          className="flex items-center justify-between w-full text-left"
+        >
+          <h4 className="font-semibold text-cc-accent flex items-center gap-2">
+            <BarChart3 size={18} />
+            Detailed Charts
+          </h4>
+          {showCharts ? (
+            <ChevronDown size={20} className="text-cc-muted" />
+          ) : (
+            <ChevronRight size={20} className="text-cc-muted" />
+          )}
+        </button>
 
-        {/* Expense Breakdown Pie Chart */}
-        <div className="card">
-          <h4 className="font-semibold text-cc-accent mb-4">Operating Expense Breakdown</h4>
-          <div className="h-[250px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={expenseData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={80}
-                  paddingAngle={2}
-                >
-                  {expenseData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(val: number) => formatCurrency(val)}
-                  contentStyle={{
-                    backgroundColor: '#1a1a2e',
-                    borderRadius: '8px',
-                    border: '1px solid #334155',
-                    color: '#fff'
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="flex flex-wrap justify-center gap-3 mt-2">
-            {expenseData.map((item) => (
-              <div key={item.name} className="flex items-center gap-1.5 text-xs">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                <span className="text-cc-muted">{item.name}</span>
+        {showCharts && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+            {/* Income vs Expenses Bar Chart */}
+            <div className="bg-cc-bg/50 rounded-lg p-4">
+              <h5 className="font-medium text-cc-text mb-4">Income vs Expenses</h5>
+              <div className="h-[250px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={comparisonData} margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" />
+                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} />
+                    <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(val) => `$${val/1000}k`} />
+                    <Tooltip
+                      formatter={(val: number) => formatCurrency(val)}
+                      contentStyle={{
+                        backgroundColor: '#1a1a2e',
+                        borderRadius: '8px',
+                        border: '1px solid #334155',
+                        color: '#fff'
+                      }}
+                    />
+                    <Bar dataKey="Rental" fill="#ff8c42" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="Personal" fill="#64748b" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
-            ))}
+              <div className="flex justify-center gap-6 mt-2 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-cc-accent" />
+                  <span className="text-cc-muted">Rental Property</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded bg-slate-500" />
+                  <span className="text-cc-muted">Personal Housing</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Expense Breakdown Pie Chart */}
+            <div className="bg-cc-bg/50 rounded-lg p-4">
+              <h5 className="font-medium text-cc-text mb-4">Operating Expense Breakdown</h5>
+              <div className="h-[250px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={expenseData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={50}
+                      outerRadius={80}
+                      paddingAngle={2}
+                    >
+                      {expenseData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(val: number) => formatCurrency(val)}
+                      contentStyle={{
+                        backgroundColor: '#1a1a2e',
+                        borderRadius: '8px',
+                        border: '1px solid #334155',
+                        color: '#fff'
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex flex-wrap justify-center gap-3 mt-2">
+                {expenseData.map((item) => (
+                  <div key={item.name} className="flex items-center gap-1.5 text-xs">
+                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                    <span className="text-cc-muted">{item.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Summary Analysis */}

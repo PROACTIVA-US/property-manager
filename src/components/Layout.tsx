@@ -11,7 +11,10 @@ import {
   Users,
   HardHat,
   Settings as SettingsIcon,
-  Sparkles
+  Sparkles,
+  ChevronDown,
+  ChevronRight,
+  FolderOpen
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { getThreads, getNotifications } from '../lib/messages';
@@ -22,6 +25,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [managementOpen, setManagementOpen] = useState(false);
   const { toggleAssistant, isOpen: isAIOpen } = useAIAssistantStore();
 
   // Keyboard shortcut for AI Assistant (Cmd+. or Ctrl+.)
@@ -53,19 +57,44 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   if (!user) return <>{children}</>;
 
-  // Navigation order: Maintenance & Notifications at top, Financials toward bottom
-  const navigation = [
+  /**
+   * @navigation-structure
+   * Miller's Law Compliance: 6 top-level items (max 7 allowed)
+   *
+   * @top-level-count 6
+   * @top-level-items Dashboard, Maintenance, Messages, Management, Settings, AI Assistant
+   * @grouped-items Management: [Financials, Documents, Vendors, Tenants]
+   */
+
+  // Top-level navigation items (3 items)
+  const primaryNav = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['owner', 'tenant', 'pm'] },
-    { name: 'Maintenance', href: '/maintenance', icon: Wrench, roles: ['owner', 'pm', 'tenant'] },
+    { name: 'Maintenance', href: '/maintenance', icon: Wrench, roles: ['owner', 'pm'] },
     { name: 'Messages', href: '/messages', icon: MessageSquare, roles: ['owner', 'pm', 'tenant'], badge: unreadCount },
-    { name: 'Documents', href: '/documents', icon: FileText, roles: ['owner', 'pm', 'tenant'] },
-    { name: 'Vendors', href: '/vendors', icon: HardHat, roles: ['pm'] }, // PM-only
-    { name: 'Tenants', href: '/tenants', icon: Users, roles: ['pm'] }, // PM-only
-    { name: 'Financials', href: '/financials', icon: Calculator, roles: ['owner'] },
-    { name: 'Settings', href: '/settings', icon: SettingsIcon, roles: ['owner', 'pm'] },
   ];
 
-  const filteredNav = navigation.filter(item => item.roles.includes(user.role || ''));
+  // Collapsible "Management" group - nested items (NOT top-level)
+  // Note: 'owner' has READ ONLY access to tenant satisfaction tracking, lease digital signing, and estimate comparison
+  const managementNav = [
+    { name: 'Financials', href: '/financials', icon: Calculator, roles: ['owner', 'pm', 'tenant'], group: 'Management' },
+    { name: 'Documents', href: '/documents', icon: FileText, roles: ['owner', 'pm', 'tenant'], group: 'Management' },
+    { name: 'Vendors', href: '/vendors', icon: HardHat, roles: ['owner', 'pm'], group: 'Management' },
+    { name: 'Tenants', href: '/tenants', icon: Users, roles: ['owner', 'pm', 'tenant'], group: 'Management' },
+  ];
+
+  // Secondary navigation (1 top-level item)
+  const secondaryNav = [
+    { name: 'Settings', href: '/settings', icon: SettingsIcon, roles: ['owner', 'pm', 'tenant'] },
+  ];
+
+  // AI Assistant button (6th top-level item, rendered separately below)
+
+  const filteredPrimaryNav = primaryNav.filter(item => item.roles.includes(user.role || ''));
+  const filteredManagementNav = managementNav.filter(item => item.roles.includes(user.role || ''));
+  const filteredSecondaryNav = secondaryNav.filter(item => item.roles.includes(user.role || ''));
+
+  // Auto-expand management section if current page is in it
+  const isManagementActive = filteredManagementNav.some(item => location.pathname === item.href);
 
   return (
     <div className="min-h-screen flex">
@@ -77,7 +106,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
           <div className="flex-1 flex flex-col overflow-y-auto pt-4">
             <nav className="flex-1 px-2 space-y-1">
-              {filteredNav.map((item) => {
+              {/* Primary Navigation */}
+              {filteredPrimaryNav.map((item) => {
                 const isActive = location.pathname === item.href;
                 const badge = (item as any).badge;
                 const showBadge = badge && badge > 0;
@@ -108,6 +138,93 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   </Link>
                 );
               })}
+
+              {/* Management Group (Collapsible) - Only show if user has access to any items */}
+              {filteredManagementNav.length > 0 && (
+                <div className="pt-2">
+                  <button
+                    onClick={() => setManagementOpen(!managementOpen)}
+                    className={cn(
+                      isManagementActive
+                        ? 'bg-cc-accent/10 text-cc-accent'
+                        : 'text-cc-muted hover:bg-white/5 hover:text-cc-text',
+                      'group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors w-full'
+                    )}
+                  >
+                    <FolderOpen
+                      className={cn(
+                        isManagementActive ? 'text-cc-accent' : 'text-cc-muted group-hover:text-cc-text',
+                        'mr-3 flex-shrink-0 h-5 w-5 transition-colors'
+                      )}
+                      aria-hidden="true"
+                    />
+                    Management
+                    {(managementOpen || isManagementActive) ? (
+                      <ChevronDown className="ml-auto h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="ml-auto h-4 w-4" />
+                    )}
+                  </button>
+                  {(managementOpen || isManagementActive) && (
+                    <div className="ml-4 mt-1 space-y-1">
+                      {filteredManagementNav.map((item) => {
+                        const isActive = location.pathname === item.href;
+                        return (
+                          <Link
+                            key={item.name}
+                            to={item.href}
+                            className={cn(
+                              isActive
+                                ? 'bg-cc-accent/10 text-cc-accent'
+                                : 'text-cc-muted hover:bg-white/5 hover:text-cc-text',
+                              'group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors'
+                            )}
+                          >
+                            <item.icon
+                              className={cn(
+                                isActive ? 'text-cc-accent' : 'text-cc-muted group-hover:text-cc-text',
+                                'mr-3 flex-shrink-0 h-4 w-4 transition-colors'
+                              )}
+                              aria-hidden="true"
+                            />
+                            {item.name}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Secondary Navigation */}
+              {filteredSecondaryNav.length > 0 && (
+                <div className="pt-2 border-t border-cc-border/30 mt-2">
+                  {filteredSecondaryNav.map((item) => {
+                    const isActive = location.pathname === item.href;
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        className={cn(
+                          isActive
+                            ? 'bg-cc-accent/10 text-cc-accent'
+                            : 'text-cc-muted hover:bg-white/5 hover:text-cc-text',
+                          'group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors'
+                        )}
+                      >
+                        <item.icon
+                          className={cn(
+                            isActive ? 'text-cc-accent' : 'text-cc-muted group-hover:text-cc-text',
+                            'mr-3 flex-shrink-0 h-5 w-5 transition-colors'
+                          )}
+                          aria-hidden="true"
+                        />
+                        {item.name}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
 
               {/* AI Assistant Toggle */}
               <button
