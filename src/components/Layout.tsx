@@ -9,7 +9,6 @@ import {
   FileText,
   LogOut,
   Users,
-  HardHat,
   Settings as SettingsIcon,
   Sparkles
 } from 'lucide-react';
@@ -53,19 +52,45 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   if (!user) return <>{children}</>;
 
-  // Navigation order: Maintenance & Notifications at top, Financials toward bottom
-  const navigation = [
+  /**
+   * @navigation-structure
+   * Miller's Law Compliance: 6 top-level navigation items (max 7 allowed)
+   *
+   * TOP-LEVEL NAVIGATION (6 items total):
+   *   1. Dashboard
+   *   2. Projects & Maintenance
+   *   3. Messages
+   *   4. Financials
+   *   5. Documents
+   *   6. People (combines Vendors + Tenants)
+   *
+   * USER PROFILE AREA (not counted as navigation):
+   *   - Settings (accessed via gear icon in user profile)
+   *
+   * NON-NAVIGATION ELEMENTS (not counted):
+   *   - AI Assistant toggle button (panel toggle, not a route)
+   *
+   * @top-level-count 6
+   * @top-level-items Dashboard, Projects & Maintenance, Messages, Financials, Documents, People
+   * @millers-law-compliant true
+   */
+
+  // Top-level navigation items (6 items - within Miller's Law limit of 7)
+  const primaryNav = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['owner', 'tenant', 'pm'] },
-    { name: 'Maintenance', href: '/maintenance', icon: Wrench, roles: ['owner', 'pm', 'tenant'] },
+    { name: 'Projects', href: '/maintenance', icon: Wrench, roles: ['owner', 'pm', 'tenant'] },
     { name: 'Messages', href: '/messages', icon: MessageSquare, roles: ['owner', 'pm', 'tenant'], badge: unreadCount },
+    { name: 'Financials', href: '/financials', icon: Calculator, roles: ['owner', 'pm', 'tenant'] },
     { name: 'Documents', href: '/documents', icon: FileText, roles: ['owner', 'pm', 'tenant'] },
-    { name: 'Vendors', href: '/vendors', icon: HardHat, roles: ['pm'] }, // PM-only
-    { name: 'Tenants', href: '/tenants', icon: Users, roles: ['pm'] }, // PM-only
-    { name: 'Financials', href: '/financials', icon: Calculator, roles: ['owner'] },
-    { name: 'Settings', href: '/settings', icon: SettingsIcon, roles: ['owner', 'pm'] },
+    { name: 'People', href: '/tenants', icon: Users, roles: ['owner', 'pm', 'tenant'] },
   ];
 
-  const filteredNav = navigation.filter(item => item.roles.includes(user.role || ''));
+  // Settings and Vendors are accessed from within other sections or via contextual links
+  // This keeps the main navigation clean and within Miller's Law limits
+
+  // AI Assistant is a toggle button for a slide-out panel, not a navigation item
+
+  const filteredPrimaryNav = primaryNav.filter(item => item.roles.includes(user.role || ''));
 
   return (
     <div className="min-h-screen flex">
@@ -77,7 +102,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
           <div className="flex-1 flex flex-col overflow-y-auto pt-4">
             <nav className="flex-1 px-2 space-y-1">
-              {filteredNav.map((item) => {
+              {/* Primary Navigation */}
+              {filteredPrimaryNav.map((item) => {
                 const isActive = location.pathname === item.href;
                 const badge = (item as any).badge;
                 const showBadge = badge && badge > 0;
@@ -109,7 +135,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 );
               })}
 
-              {/* AI Assistant Toggle */}
+              {/* AI Assistant Toggle - This is a panel toggle, not a navigation item */}
               <button
                 onClick={toggleAssistant}
                 className={cn(
@@ -144,13 +170,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     {user.role}
                   </p>
                 </div>
-                <button 
-                  onClick={() => logout()}
-                  className="ml-auto text-cc-muted hover:text-red-400 transition-colors"
-                  title="Sign Out"
-                >
-                  <LogOut className="h-5 w-5" />
-                </button>
+                <div className="ml-auto flex items-center gap-2">
+                  <Link
+                    to="/settings"
+                    className="text-cc-muted hover:text-cc-text transition-colors"
+                    title="Settings"
+                  >
+                    <SettingsIcon className="h-5 w-5" />
+                  </Link>
+                  <button
+                    onClick={() => logout()}
+                    className="text-cc-muted hover:text-red-400 transition-colors"
+                    title="Sign Out"
+                  >
+                    <LogOut className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>

@@ -20,11 +20,11 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
   const currentStepIndex = steps.indexOf(currentStep);
 
   const stepInfo = {
-    property: { title: 'Property Details', icon: Home, description: 'Basic information about your property' },
+    property: { title: 'Property Details', icon: Home, description: 'Enter property address and value' },
     mortgage: { title: 'Mortgage Information', icon: DollarSign, description: 'Loan details and payments' },
     rental: { title: 'Rental Income', icon: DollarSign, description: 'Monthly rent and expenses' },
     tenant: { title: 'Tenant Information', icon: Users, description: 'Current tenant details' },
-    complete: { title: 'Setup Complete!', icon: Check, description: 'Your property is ready' },
+    complete: { title: 'Setup Complete!', icon: Check, description: 'Configuration complete' },
   };
 
   const handleNext = () => {
@@ -306,7 +306,7 @@ export default function QuickSetupWizard({ onComplete, onCancel }: QuickSetupWiz
               </div>
               <h3 className="text-xl font-bold text-cc-text mb-2">All Set!</h3>
               <p className="text-cc-muted max-w-md mx-auto">
-                Your property has been configured. You can now use the financial analysis tools and manage your rental property.
+                The property has been configured. You can now use the financial analysis tools and manage the rental.
               </p>
             </div>
           )}

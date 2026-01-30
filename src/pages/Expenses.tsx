@@ -140,7 +140,7 @@ export default function Expenses() {
         title="Import Expenses from CSV"
         description="Upload a CSV file with your expense data. Download the template to see the expected format."
         templateColumns={['date', 'description', 'category', 'amount', 'isCapitalImprovement']}
-        onDataImported={handleCSVImport}
+        onRecordsImported={handleCSVImport}
       />
 
       {/* Add Expense Form */}
