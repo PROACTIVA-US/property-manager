@@ -9,12 +9,8 @@ import {
   FileText,
   LogOut,
   Users,
-  HardHat,
   Settings as SettingsIcon,
-  Sparkles,
-  ChevronDown,
-  ChevronRight,
-  FolderOpen
+  Sparkles
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { getThreads, getNotifications } from '../lib/messages';
@@ -25,7 +21,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
-  const [managementOpen, setManagementOpen] = useState(false);
   const { toggleAssistant, isOpen: isAIOpen } = useAIAssistantStore();
 
   // Keyboard shortcut for AI Assistant (Cmd+. or Ctrl+.)
@@ -59,42 +54,43 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   /**
    * @navigation-structure
-   * Miller's Law Compliance: 6 top-level items (max 7 allowed)
+   * Miller's Law Compliance: 6 top-level navigation items (max 7 allowed)
+   *
+   * TOP-LEVEL NAVIGATION (6 items total):
+   *   1. Dashboard
+   *   2. Projects & Maintenance
+   *   3. Messages
+   *   4. Financials
+   *   5. Documents
+   *   6. People (combines Vendors + Tenants)
+   *
+   * USER PROFILE AREA (not counted as navigation):
+   *   - Settings (accessed via gear icon in user profile)
+   *
+   * NON-NAVIGATION ELEMENTS (not counted):
+   *   - AI Assistant toggle button (panel toggle, not a route)
    *
    * @top-level-count 6
-   * @top-level-items Dashboard, Maintenance, Messages, Management, Settings, AI Assistant
-   * @grouped-items Management: [Financials, Documents, Vendors, Tenants]
+   * @top-level-items Dashboard, Projects & Maintenance, Messages, Financials, Documents, People
+   * @millers-law-compliant true
    */
 
-  // Top-level navigation items (3 items)
+  // Top-level navigation items (6 items - within Miller's Law limit of 7)
   const primaryNav = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['owner', 'tenant', 'pm'] },
-    { name: 'Maintenance', href: '/maintenance', icon: Wrench, roles: ['owner', 'pm'] },
+    { name: 'Projects', href: '/maintenance', icon: Wrench, roles: ['owner', 'pm', 'tenant'] },
     { name: 'Messages', href: '/messages', icon: MessageSquare, roles: ['owner', 'pm', 'tenant'], badge: unreadCount },
+    { name: 'Financials', href: '/financials', icon: Calculator, roles: ['owner', 'pm', 'tenant'] },
+    { name: 'Documents', href: '/documents', icon: FileText, roles: ['owner', 'pm', 'tenant'] },
+    { name: 'People', href: '/tenants', icon: Users, roles: ['owner', 'pm', 'tenant'] },
   ];
 
-  // Collapsible "Management" group - nested items (NOT top-level)
-  // Note: 'owner' has READ ONLY access to tenant satisfaction tracking, lease digital signing, and estimate comparison
-  const managementNav = [
-    { name: 'Financials', href: '/financials', icon: Calculator, roles: ['owner', 'pm', 'tenant'], group: 'Management' },
-    { name: 'Documents', href: '/documents', icon: FileText, roles: ['owner', 'pm', 'tenant'], group: 'Management' },
-    { name: 'Vendors', href: '/vendors', icon: HardHat, roles: ['owner', 'pm'], group: 'Management' },
-    { name: 'Tenants', href: '/tenants', icon: Users, roles: ['owner', 'pm', 'tenant'], group: 'Management' },
-  ];
+  // Settings and Vendors are accessed from within other sections or via contextual links
+  // This keeps the main navigation clean and within Miller's Law limits
 
-  // Secondary navigation (1 top-level item)
-  const secondaryNav = [
-    { name: 'Settings', href: '/settings', icon: SettingsIcon, roles: ['owner', 'pm', 'tenant'] },
-  ];
-
-  // AI Assistant button (6th top-level item, rendered separately below)
+  // AI Assistant is a toggle button for a slide-out panel, not a navigation item
 
   const filteredPrimaryNav = primaryNav.filter(item => item.roles.includes(user.role || ''));
-  const filteredManagementNav = managementNav.filter(item => item.roles.includes(user.role || ''));
-  const filteredSecondaryNav = secondaryNav.filter(item => item.roles.includes(user.role || ''));
-
-  // Auto-expand management section if current page is in it
-  const isManagementActive = filteredManagementNav.some(item => location.pathname === item.href);
 
   return (
     <div className="min-h-screen flex">
@@ -139,94 +135,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 );
               })}
 
-              {/* Management Group (Collapsible) - Only show if user has access to any items */}
-              {filteredManagementNav.length > 0 && (
-                <div className="pt-2">
-                  <button
-                    onClick={() => setManagementOpen(!managementOpen)}
-                    className={cn(
-                      isManagementActive
-                        ? 'bg-cc-accent/10 text-cc-accent'
-                        : 'text-cc-muted hover:bg-white/5 hover:text-cc-text',
-                      'group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors w-full'
-                    )}
-                  >
-                    <FolderOpen
-                      className={cn(
-                        isManagementActive ? 'text-cc-accent' : 'text-cc-muted group-hover:text-cc-text',
-                        'mr-3 flex-shrink-0 h-5 w-5 transition-colors'
-                      )}
-                      aria-hidden="true"
-                    />
-                    Management
-                    {(managementOpen || isManagementActive) ? (
-                      <ChevronDown className="ml-auto h-4 w-4" />
-                    ) : (
-                      <ChevronRight className="ml-auto h-4 w-4" />
-                    )}
-                  </button>
-                  {(managementOpen || isManagementActive) && (
-                    <div className="ml-4 mt-1 space-y-1">
-                      {filteredManagementNav.map((item) => {
-                        const isActive = location.pathname === item.href;
-                        return (
-                          <Link
-                            key={item.name}
-                            to={item.href}
-                            className={cn(
-                              isActive
-                                ? 'bg-cc-accent/10 text-cc-accent'
-                                : 'text-cc-muted hover:bg-white/5 hover:text-cc-text',
-                              'group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors'
-                            )}
-                          >
-                            <item.icon
-                              className={cn(
-                                isActive ? 'text-cc-accent' : 'text-cc-muted group-hover:text-cc-text',
-                                'mr-3 flex-shrink-0 h-4 w-4 transition-colors'
-                              )}
-                              aria-hidden="true"
-                            />
-                            {item.name}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Secondary Navigation */}
-              {filteredSecondaryNav.length > 0 && (
-                <div className="pt-2 border-t border-cc-border/30 mt-2">
-                  {filteredSecondaryNav.map((item) => {
-                    const isActive = location.pathname === item.href;
-                    return (
-                      <Link
-                        key={item.name}
-                        to={item.href}
-                        className={cn(
-                          isActive
-                            ? 'bg-cc-accent/10 text-cc-accent'
-                            : 'text-cc-muted hover:bg-white/5 hover:text-cc-text',
-                          'group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors'
-                        )}
-                      >
-                        <item.icon
-                          className={cn(
-                            isActive ? 'text-cc-accent' : 'text-cc-muted group-hover:text-cc-text',
-                            'mr-3 flex-shrink-0 h-5 w-5 transition-colors'
-                          )}
-                          aria-hidden="true"
-                        />
-                        {item.name}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* AI Assistant Toggle */}
+              {/* AI Assistant Toggle - This is a panel toggle, not a navigation item */}
               <button
                 onClick={toggleAssistant}
                 className={cn(
@@ -261,13 +170,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     {user.role}
                   </p>
                 </div>
-                <button 
-                  onClick={() => logout()}
-                  className="ml-auto text-cc-muted hover:text-red-400 transition-colors"
-                  title="Sign Out"
-                >
-                  <LogOut className="h-5 w-5" />
-                </button>
+                <div className="ml-auto flex items-center gap-2">
+                  <Link
+                    to="/settings"
+                    className="text-cc-muted hover:text-cc-text transition-colors"
+                    title="Settings"
+                  >
+                    <SettingsIcon className="h-5 w-5" />
+                  </Link>
+                  <button
+                    onClick={() => logout()}
+                    className="text-cc-muted hover:text-red-400 transition-colors"
+                    title="Sign Out"
+                  >
+                    <LogOut className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
