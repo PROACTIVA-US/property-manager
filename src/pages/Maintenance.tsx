@@ -138,17 +138,20 @@ export default function Maintenance() {
       {/* Tabs */}
       <div className="border-b border-cc-border/50">
         <nav className="flex gap-1" aria-label="Maintenance tabs">
-          <button
-            onClick={() => setActiveTab('tasks')}
-            className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === 'tasks'
-                ? 'border-cc-accent text-cc-accent'
-                : 'border-transparent text-cc-muted hover:text-cc-text hover:border-cc-border'
-            }`}
-          >
-            <ClipboardList size={16} />
-            Tasks & Checklist
-          </button>
+          {/* Tasks & Checklist tab - Owner and PM only (tenants should not see maintenance checklist) */}
+          {isOwnerOrPM && (
+            <button
+              onClick={() => setActiveTab('tasks')}
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'tasks'
+                  ? 'border-cc-accent text-cc-accent'
+                  : 'border-transparent text-cc-muted hover:text-cc-text hover:border-cc-border'
+              }`}
+            >
+              <ClipboardList size={16} />
+              Tasks & Checklist
+            </button>
+          )}
           {isOwnerOrPM && (
             <button
               onClick={() => setActiveTab('costs')}
@@ -171,7 +174,19 @@ export default function Maintenance() {
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'tasks' && <MaintenanceChecklist />}
+      {/* Maintenance Checklist - Owner and PM only (tenants should not see) */}
+      {activeTab === 'tasks' && isOwnerOrPM && <MaintenanceChecklist />}
+
+      {/* Tenant view - show project summary instead of checklist */}
+      {!isOwnerOrPM && (
+        <div className="card !p-6 text-center">
+          <Wrench size={48} className="mx-auto text-cc-muted mb-4" />
+          <h3 className="text-lg font-medium text-cc-text mb-2">Maintenance Projects</h3>
+          <p className="text-cc-muted">
+            View your submitted maintenance requests and their status in the Messages section.
+          </p>
+        </div>
+      )}
 
       {activeTab === 'costs' && isOwnerOrPM && (
         <div className="space-y-6">
