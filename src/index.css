@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* TeachAssist color scheme */
+  /* TeachAssist color scheme - Dark mode (default) */
   --color-cc-bg: #0a0b0d;        /* Main background */
   --color-cc-surface: #12141a;   /* Card/panel background */
   --color-cc-border: #1e2028;    /* Borders */
@@ -15,14 +15,38 @@
     color-scheme: dark;
   }
 
+  /* Light mode overrides */
+  :root.light {
+    color-scheme: light;
+    --color-cc-bg: #ffffff;
+    --color-cc-surface: #f8fafc;
+    --color-cc-border: #e2e8f0;
+    --color-cc-text: #1e293b;
+    --color-cc-muted: #64748b;
+    --color-cc-accent: #6366f1;
+  }
+
+  /* Dark mode (explicit class) */
+  :root.dark {
+    color-scheme: dark;
+    --color-cc-bg: #0a0b0d;
+    --color-cc-surface: #12141a;
+    --color-cc-border: #1e2028;
+    --color-cc-text: #e5e5e5;
+    --color-cc-muted: #8b8d98;
+    --color-cc-accent: #6366f1;
+  }
+
   body {
     @apply bg-cc-bg text-cc-text antialiased;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 }
 
 @layer components {
   .card {
     @apply bg-cc-surface border border-cc-border rounded-xl p-6 shadow-xl;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
   }
 
   .card-gradient {
@@ -39,5 +63,14 @@
 
   .input-field {
     @apply bg-cc-bg border border-cc-border rounded-lg px-3 py-2 text-cc-text focus:outline-none focus:border-cc-accent transition-colors;
+  }
+
+  /* Light mode specific adjustments */
+  :root.light .card {
+    @apply shadow-lg shadow-gray-200/50;
+  }
+
+  :root.light .btn-primary {
+    @apply shadow-md shadow-indigo-200/50;
   }
 }

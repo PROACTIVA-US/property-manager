@@ -17,6 +17,7 @@ import {
 import { cn } from '../lib/utils';
 import { getThreads, getNotifications } from '../lib/messages';
 import AIAssistant from './ai-assistant/AIAssistant';
+import ThemeToggle from './ThemeToggle';
 import { useAIAssistantStore } from '../stores/aiAssistantStore';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -184,6 +185,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   >
                     <SettingsIcon className="h-5 w-5" />
                   </Link>
+                  <ThemeToggle variant="button" />
                   <button
                     onClick={() => logout()}
                     className="text-cc-muted hover:text-red-400 transition-colors"
