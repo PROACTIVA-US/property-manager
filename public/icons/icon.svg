@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#0a0b0d"/>
+
+  <!-- House shape -->
+  <path d="M256 96L96 224v192c0 17.7 14.3 32 32 32h96v-128h64v128h96c17.7 0 32-14.3 32-32V224L256 96z" fill="#6366f1"/>
+
+  <!-- Door -->
+  <rect x="216" y="320" width="80" height="128" rx="4" fill="#0a0b0d"/>
+
+  <!-- Window left -->
+  <rect x="144" y="264" width="64" height="64" rx="8" fill="#818cf8" opacity="0.7"/>
+
+  <!-- Window right -->
+  <rect x="304" y="264" width="64" height="64" rx="8" fill="#818cf8" opacity="0.7"/>
+
+  <!-- Roof accent -->
+  <path d="M256 96L96 224h320L256 96z" fill="#818cf8" opacity="0.3"/>
+
+  <!-- Chimney -->
+  <rect x="340" y="160" width="40" height="80" rx="4" fill="#6366f1"/>
+</svg>
