@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Layout from './components/Layout';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import LoginPage from './pages/Login';
+import AuthCallback from './pages/AuthCallback';
 import WelcomePage from './pages/WelcomePage';
 import Dashboard from './pages/Dashboard';
 import Financials from './pages/Financials';
@@ -81,6 +82,7 @@ export default function App() {
         <ContextualTip />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
 
           <Route path="/" element={
             <ProtectedRoute>
