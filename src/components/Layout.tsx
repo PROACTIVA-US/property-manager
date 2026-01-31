@@ -11,7 +11,8 @@ import {
   Users,
   Settings as SettingsIcon,
   Sparkles,
-  HardHat
+  HardHat,
+  AlertCircle
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { getThreads, getNotifications } from '../lib/messages';
@@ -79,6 +80,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   // Top-level navigation items (7 items - within Miller's Law limit of 7)
   const primaryNav = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['owner', 'tenant', 'pm'] },
+    { name: 'Issues', href: '/issues', icon: AlertCircle, roles: ['owner', 'pm', 'tenant'] }, // Issue Tracking
     { name: 'Projects', href: '/maintenance', icon: Wrench, roles: ['owner', 'pm', 'tenant'] },
     { name: 'Messages', href: '/messages', icon: MessageSquare, roles: ['owner', 'pm', 'tenant'], badge: unreadCount },
     { name: 'Financials', href: '/financials', icon: Calculator, roles: ['owner', 'pm', 'tenant'] },
