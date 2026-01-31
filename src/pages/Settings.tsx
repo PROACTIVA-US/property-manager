@@ -18,6 +18,7 @@ import {
   FileText,
 } from 'lucide-react';
 import type { SettingsData } from '../lib/settings';
+import { useTheme } from '../contexts/ThemeContext';
 import { loadSettings } from '../lib/settings';
 import OwnerForm from '../components/settings/OwnerForm';
 import PMForm from '../components/settings/PMForm';
@@ -49,7 +50,6 @@ const tabs: Tab[] = [
   { id: 'security', label: 'Security & Data', description: 'Data storage and app information', icon: Shield, group: 'preferences' },
 ];
 
-type Theme = 'dark' | 'light' | 'system';
 
 export default function Settings() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -58,9 +58,7 @@ export default function Settings() {
     initialTab && tabs.find(t => t.id === initialTab) ? initialTab : 'account'
   );
   const [settings, setSettings] = useState<SettingsData>(loadSettings());
-  const [theme, setTheme] = useState<Theme>(() => {
-    return (localStorage.getItem('propertyManager_theme') as Theme) || 'dark';
-  });
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     setSettings(loadSettings());
@@ -75,11 +73,8 @@ export default function Settings() {
     setSettings(loadSettings());
   };
 
-  const handleThemeChange = (newTheme: Theme) => {
+  const handleThemeChange = (newTheme: 'light' | 'dark' | 'system') => {
     setTheme(newTheme);
-    localStorage.setItem('propertyManager_theme', newTheme);
-    // In a full implementation, this would update the document class
-    // document.documentElement.classList.toggle('dark', newTheme === 'dark');
   };
 
   const formatBytes = (bytes: number) => {
@@ -289,7 +284,7 @@ export default function Settings() {
                 </button>
               </div>
               <p className="text-xs text-cc-muted mt-2">
-                Note: Light theme is coming soon. Currently optimized for dark mode.
+                Theme changes apply instantly across the app.
               </p>
             </div>
           </div>
