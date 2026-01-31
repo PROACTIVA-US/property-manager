@@ -31,6 +31,7 @@ import { cn } from '../lib/utils';
 import ProjectDetailModal from './ProjectDetailModal';
 import ProjectFormModal from './ProjectFormModal';
 import SmartProjectCreator from './bom/SmartProjectCreator';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ProjectKanbanProps {
   compact?: boolean;
@@ -38,6 +39,8 @@ interface ProjectKanbanProps {
 }
 
 export default function ProjectKanban({ compact = false, onProjectSelect }: ProjectKanbanProps) {
+  const { user } = useAuth();
+  const isPM = user?.role === 'pm';
   const [projects, setProjects] = useState<Project[]>([]);
   const [draggedProject, setDraggedProject] = useState<Project | null>(null);
   const [dragOverStage, setDragOverStage] = useState<ProjectStatus | null>(null);
@@ -234,10 +237,12 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
             </span>
           </div>
           <div className="flex gap-2">
-            <button onClick={handleAICreatorOpen} className="btn-primary text-xs flex items-center gap-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-              <Sparkles size={14} />
-              AI Create
-            </button>
+            {isPM && (
+              <button onClick={handleAICreatorOpen} className="btn-primary text-xs flex items-center gap-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                <Sparkles size={14} />
+                AI Create
+              </button>
+            )}
             <button onClick={handleAddProject} className="btn-primary text-xs flex items-center gap-1">
               <Plus size={14} />
               Manual
@@ -334,13 +339,15 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
           </p>
         </div>
         <div className="flex gap-3">
-          <button
-            onClick={handleAICreatorOpen}
-            className="btn-primary flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-          >
-            <Sparkles size={18} />
-            Create with AI
-          </button>
+          {isPM && (
+            <button
+              onClick={handleAICreatorOpen}
+              className="btn-primary flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            >
+              <Sparkles size={18} />
+              Create with AI
+            </button>
+          )}
           <button onClick={handleAddProject} className="btn-secondary flex items-center gap-2">
             <Plus size={18} />
             New Project
