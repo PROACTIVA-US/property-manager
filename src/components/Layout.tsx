@@ -10,7 +10,8 @@ import {
   LogOut,
   Users,
   Settings as SettingsIcon,
-  Sparkles
+  Sparkles,
+  HardHat
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { getThreads, getNotifications } from '../lib/messages';
@@ -75,7 +76,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
    * @millers-law-compliant true
    */
 
-  // Top-level navigation items (6 items - within Miller's Law limit of 7)
+  // Top-level navigation items (7 items - within Miller's Law limit of 7)
   const primaryNav = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['owner', 'tenant', 'pm'] },
     { name: 'Projects', href: '/maintenance', icon: Wrench, roles: ['owner', 'pm', 'tenant'] },
@@ -83,6 +84,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { name: 'Financials', href: '/financials', icon: Calculator, roles: ['owner', 'pm', 'tenant'] },
     { name: 'Documents', href: '/documents', icon: FileText, roles: ['owner', 'pm', 'tenant'] },
     { name: 'People', href: '/tenants', icon: Users, roles: ['owner', 'pm'] }, // Tenant Management - not visible to tenants
+    { name: 'Vendors', href: '/vendors', icon: HardHat, roles: ['owner', 'pm'] }, // Vendor Management - owner has full access
   ];
 
   // Settings and Vendors are accessed from within other sections or via contextual links
@@ -101,6 +103,30 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <h1 className="text-xl font-bold text-cc-accent">PropertyMgr</h1>
           </div>
           <div className="flex-1 flex flex-col overflow-y-auto pt-4">
+            {/* AI Assistant Toggle - At top of sidebar for quick access */}
+            <div className="px-2 mb-4">
+              <button
+                onClick={toggleAssistant}
+                className={cn(
+                  isAIOpen
+                    ? 'bg-purple-500/10 text-purple-400 border-purple-500/30'
+                    : 'text-cc-muted hover:bg-white/5 hover:text-cc-text border-cc-border/50',
+                  'group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors w-full border'
+                )}
+                title="AI Assistant (⌘+.)"
+              >
+                <Sparkles
+                  className={cn(
+                    isAIOpen ? 'text-purple-400' : 'text-cc-muted group-hover:text-cc-text',
+                    'mr-3 flex-shrink-0 h-5 w-5 transition-colors'
+                  )}
+                  aria-hidden="true"
+                />
+                AI Assistant
+                <span className="ml-auto text-xs text-cc-muted">⌘.</span>
+              </button>
+            </div>
+
             <nav className="flex-1 px-2 space-y-1">
               {/* Primary Navigation */}
               {filteredPrimaryNav.map((item) => {
@@ -134,28 +160,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   </Link>
                 );
               })}
-
-              {/* AI Assistant Toggle - This is a panel toggle, not a navigation item */}
-              <button
-                onClick={toggleAssistant}
-                className={cn(
-                  isAIOpen
-                    ? 'bg-purple-500/10 text-purple-400'
-                    : 'text-cc-muted hover:bg-white/5 hover:text-cc-text',
-                  'group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors w-full mt-4 border-t border-cc-border/50 pt-4'
-                )}
-                title="AI Assistant (⌘+.)"
-              >
-                <Sparkles
-                  className={cn(
-                    isAIOpen ? 'text-purple-400' : 'text-cc-muted group-hover:text-cc-text',
-                    'mr-3 flex-shrink-0 h-5 w-5 transition-colors'
-                  )}
-                  aria-hidden="true"
-                />
-                AI Assistant
-                <span className="ml-auto text-xs text-cc-muted">⌘.</span>
-              </button>
             </nav>
           </div>
           <div className="flex-shrink-0 flex border-t border-cc-border/50 p-4 bg-cc-bg/30">
