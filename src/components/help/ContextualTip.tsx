@@ -35,18 +35,20 @@ export default function ContextualTip() {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 max-w-md bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 rounded-lg p-4 shadow-lg z-30 animate-slide-up">
+    <div className="fixed bottom-4 right-4 left-4 sm:left-auto max-w-md bg-cc-surface border border-cc-accent/30 rounded-lg p-4 shadow-2xl z-30 animate-slide-up">
+      {/* Gradient accent bar at top */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-t-lg" />
       <div className="flex items-start gap-3">
-        <div className="p-2 bg-indigo-500/20 rounded-lg flex-shrink-0">
-          <Lightbulb className="w-5 h-5 text-indigo-400" />
+        <div className="p-2 bg-cc-accent/20 rounded-lg flex-shrink-0">
+          <Lightbulb className="w-5 h-5 text-cc-accent" />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-100 mb-1">{tip.title}</h3>
-          <p className="text-sm text-gray-300 mb-3">{tip.message}</p>
+          <h3 className="font-semibold text-cc-text mb-1">{tip.title}</h3>
+          <p className="text-sm text-cc-muted mb-3">{tip.message}</p>
           {tip.actionText && (
             <button
               onClick={handleAction}
-              className="inline-flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+              className="inline-flex items-center gap-2 text-sm text-cc-accent hover:text-indigo-400 transition-colors"
             >
               {tip.actionText}
               <ArrowRight className="w-3 h-3" />
@@ -56,9 +58,9 @@ export default function ContextualTip() {
         {tip.dismissable && (
           <button
             onClick={handleDismiss}
-            className="p-1 hover:bg-gray-800 rounded transition-colors flex-shrink-0"
+            className="p-1 hover:bg-cc-border rounded transition-colors flex-shrink-0"
           >
-            <X className="w-4 h-4 text-gray-400" />
+            <X className="w-4 h-4 text-cc-muted" />
           </button>
         )}
       </div>

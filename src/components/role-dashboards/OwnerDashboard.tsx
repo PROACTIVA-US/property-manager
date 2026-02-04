@@ -6,36 +6,46 @@ import TaxAnalysis from '../TaxAnalysis';
 import KeepVsSell from '../KeepVsSell';
 import PropertyValueWidget from '../PropertyValueWidget';
 import {
-  Bot,
   DollarSign,
   TrendingUp,
-  HelpCircle,
   Calculator,
   Scale,
   FileText,
   ChevronRight,
   Sparkles,
   Pencil,
+  X,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
-  DEFAULT_PROPERTY_FINANCIALS,
-  DEFAULT_PERSONAL_EXPENSES,
-  DEFAULT_TAX_INPUTS,
-  calculateCashFlow,
+  getPropertyFinancials,
+  getPersonalExpenses,
+  getTaxInputs,
+  calculateSimpleCashFlow,
   formatCurrency,
 } from '../../lib/financials';
+import { loadSettings } from '../../lib/settings';
 
 type AnalysisView = 'overview' | 'comparison' | 'tax' | 'keepvssell' | 'mortgage';
+type DetailModal = 'cashflow' | 'equity' | 'property' | null;
 
 export default function OwnerDashboard() {
   const { user } = useAuth();
   const [activeView, setActiveView] = useState<AnalysisView>('overview');
+  const [detailModal, setDetailModal] = useState<DetailModal>(null);
 
-  // Calculate summary metrics using defaults
-  const cashFlow = calculateCashFlow(DEFAULT_PROPERTY_FINANCIALS);
-  const monthlyCashFlow = cashFlow.cashFlowBeforeTax / 12;
-  const equity = DEFAULT_PROPERTY_FINANCIALS.currentMarketValue - DEFAULT_PROPERTY_FINANCIALS.mortgageBalance;
+  // Load live data from settings
+  const settings = loadSettings();
+  const propertyFinancials = getPropertyFinancials();
+  const personalExpenses = getPersonalExpenses();
+  const taxInputs = getTaxInputs();
+
+  // Calculate simple cash flow: Rent - PITI - Utilities
+  const simpleCashFlow = calculateSimpleCashFlow();
+  const monthlyCashFlow = simpleCashFlow.monthlyNetCashFlow;
+
+  // Calculate equity using live property values
+  const equity = settings.property.currentMarketValue - settings.mortgage.principal;
 
   const analysisTools = [
     {
@@ -73,22 +83,22 @@ export default function OwnerDashboard() {
       case 'comparison':
         return (
           <FinancialComparison
-            initialProperty={DEFAULT_PROPERTY_FINANCIALS}
-            initialPersonal={DEFAULT_PERSONAL_EXPENSES}
+            initialProperty={propertyFinancials}
+            initialPersonal={personalExpenses}
           />
         );
       case 'tax':
         return (
           <TaxAnalysis
-            initialProperty={DEFAULT_PROPERTY_FINANCIALS}
-            initialTaxInputs={DEFAULT_TAX_INPUTS}
+            initialProperty={propertyFinancials}
+            initialTaxInputs={taxInputs}
           />
         );
       case 'keepvssell':
         return (
           <KeepVsSell
-            initialProperty={DEFAULT_PROPERTY_FINANCIALS}
-            initialTaxInputs={DEFAULT_TAX_INPUTS}
+            initialProperty={propertyFinancials}
+            initialTaxInputs={taxInputs}
           />
         );
       case 'mortgage':
@@ -96,6 +106,132 @@ export default function OwnerDashboard() {
       default:
         return null;
     }
+  };
+
+  const renderDetailModal = () => {
+    if (!detailModal) return null;
+
+    const modalContent = () => {
+      switch (detailModal) {
+        case 'cashflow':
+          return (
+            <>
+              <h3 className="text-lg font-bold text-cc-accent mb-4">Net Cash Flow Breakdown</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
+                  <span className="text-cc-text">Monthly Rental Income</span>
+                  <span className="font-semibold text-green-400">+{formatCurrency(simpleCashFlow.monthlyRent)}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
+                  <div>
+                    <span className="text-cc-text">PITI Payment</span>
+                    <p className="text-xs text-cc-muted">Principal + Interest + Tax + Insurance</p>
+                  </div>
+                  <span className="font-semibold text-red-400">-{formatCurrency(simpleCashFlow.monthlyPITI)}</span>
+                </div>
+                {simpleCashFlow.monthlyUtilities > 0 && (
+                  <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
+                    <span className="text-cc-text">Utilities (Owner-Paid)</span>
+                    <span className="font-semibold text-red-400">-{formatCurrency(simpleCashFlow.monthlyUtilities)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center py-3 bg-cc-bg/50 rounded-lg px-3 mt-4">
+                  <span className="font-bold text-cc-text">Net Monthly Cash Flow</span>
+                  <span className={`font-bold text-lg ${monthlyCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {monthlyCashFlow >= 0 ? '+' : ''}{formatCurrency(monthlyCashFlow)}
+                  </span>
+                </div>
+              </div>
+              <Link to="/settings?tab=rental" className="btn-secondary w-full mt-4 text-center block">
+                Edit Rental Settings
+              </Link>
+            </>
+          );
+        case 'equity':
+          return (
+            <>
+              <h3 className="text-lg font-bold text-cc-accent mb-4">Equity Breakdown</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
+                  <span className="text-cc-text">Current Market Value</span>
+                  <span className="font-semibold text-cc-text">{formatCurrency(settings.property.currentMarketValue)}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
+                  <span className="text-cc-text">Remaining Mortgage Balance</span>
+                  <span className="font-semibold text-red-400">-{formatCurrency(settings.mortgage.principal)}</span>
+                </div>
+                <div className="flex justify-between items-center py-3 bg-cc-bg/50 rounded-lg px-3 mt-4">
+                  <span className="font-bold text-cc-text">Total Equity</span>
+                  <span className="font-bold text-lg text-green-400">{formatCurrency(equity)}</span>
+                </div>
+                <div className="mt-4 pt-4 border-t border-cc-border/50 text-sm text-cc-muted">
+                  <div className="flex justify-between">
+                    <span>Original Purchase Price</span>
+                    <span>{formatCurrency(settings.property.purchasePrice)}</span>
+                  </div>
+                  <div className="flex justify-between mt-1">
+                    <span>Appreciation</span>
+                    <span className="text-green-400">+{formatCurrency(settings.property.currentMarketValue - settings.property.purchasePrice)}</span>
+                  </div>
+                </div>
+              </div>
+              <Link to="/settings?tab=property" className="btn-secondary w-full mt-4 text-center block">
+                Edit Property Value
+              </Link>
+            </>
+          );
+        case 'property':
+          return (
+            <>
+              <h3 className="text-lg font-bold text-cc-accent mb-4">Property Details</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
+                  <span className="text-cc-text">Address</span>
+                  <span className="font-semibold text-cc-text text-right text-sm">{settings.property.address}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
+                  <span className="text-cc-text">Current Value</span>
+                  <span className="font-semibold text-cc-text">{formatCurrency(settings.property.currentMarketValue)}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
+                  <span className="text-cc-text">Purchase Price</span>
+                  <span className="font-semibold text-cc-text">{formatCurrency(settings.property.purchasePrice)}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
+                  <span className="text-cc-text">Mortgage Balance</span>
+                  <span className="font-semibold text-cc-text">{formatCurrency(settings.mortgage.principal)}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
+                  <span className="text-cc-text">Monthly PITI</span>
+                  <span className="font-semibold text-cc-text">{formatCurrency(settings.mortgage.totalMonthlyPayment)}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
+                  <span className="text-cc-text">Monthly Rent</span>
+                  <span className="font-semibold text-green-400">{formatCurrency(settings.rentalIncome.monthlyRent)}</span>
+                </div>
+              </div>
+              <Link to="/settings" className="btn-secondary w-full mt-4 text-center block">
+                Edit All Settings
+              </Link>
+            </>
+          );
+        default:
+          return null;
+      }
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setDetailModal(null)}>
+        <div className="bg-cc-surface border border-cc-border rounded-xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="flex justify-end mb-2">
+            <button onClick={() => setDetailModal(null)} className="text-cc-muted hover:text-cc-text transition-colors">
+              <X size={20} />
+            </button>
+          </div>
+          {modalContent()}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -108,25 +244,25 @@ export default function OwnerDashboard() {
             Financial health and property insights for {user?.displayName}
           </p>
         </div>
-        <button className="btn-primary flex items-center gap-2 bg-gradient-to-r from-purple-600 to-cc-surface border border-purple-400/30">
-          <Bot size={18} />
-          Ask Gem
-        </button>
       </div>
 
       {/* Overview Mode */}
       {activeView === 'overview' && (
         <>
           {/* High-level metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="card bg-gradient-to-br from-cc-surface to-slate-800 group relative">
-              <Link
-                to="/settings?tab=rental"
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+            <button
+              onClick={() => setDetailModal('cashflow')}
+              className="card bg-gradient-to-br from-cc-surface to-slate-800 group relative text-left hover:border-cc-accent/50 transition-colors cursor-pointer"
+            >
+              <div
                 className="absolute top-3 right-3 p-1.5 bg-cc-border/50 rounded-lg text-cc-muted hover:text-cc-accent hover:bg-cc-border transition-all opacity-0 group-hover:opacity-100"
-                title="Edit rental income and expenses"
+                onClick={(e) => { e.stopPropagation(); }}
               >
-                <Pencil size={14} />
-              </Link>
+                <Link to="/settings?tab=rental" title="Edit rental income and expenses">
+                  <Pencil size={14} />
+                </Link>
+              </div>
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 bg-green-500/20 rounded-lg text-green-400">
                   <DollarSign size={24} />
@@ -139,18 +275,23 @@ export default function OwnerDashboard() {
               </p>
               <p className={`text-xs mt-2 flex items-center gap-1 ${monthlyCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                 <TrendingUp size={12} />
-                {monthlyCashFlow >= 0 ? 'Positive cash flow' : 'Negative cash flow'}
+                Rent ({formatCurrency(simpleCashFlow.monthlyRent)}) - PITI ({formatCurrency(simpleCashFlow.monthlyPITI)})
               </p>
-            </div>
+              <p className="text-xs text-cc-muted mt-1">Click for breakdown →</p>
+            </button>
 
-            <div className="card group relative">
-              <Link
-                to="/settings?tab=property"
+            <button
+              onClick={() => setDetailModal('equity')}
+              className="card group relative text-left hover:border-cc-accent/50 transition-colors cursor-pointer"
+            >
+              <div
                 className="absolute top-3 right-3 p-1.5 bg-cc-border/50 rounded-lg text-cc-muted hover:text-cc-accent hover:bg-cc-border transition-all opacity-0 group-hover:opacity-100"
-                title="Edit property value and mortgage"
+                onClick={(e) => { e.stopPropagation(); }}
               >
-                <Pencil size={14} />
-              </Link>
+                <Link to="/settings?tab=property" title="Edit property value and mortgage">
+                  <Pencil size={14} />
+                </Link>
+              </div>
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
                   <TrendingUp size={24} />
@@ -158,31 +299,20 @@ export default function OwnerDashboard() {
                 <h3 className="font-semibold text-cc-text">Equity Built</h3>
               </div>
               <p className="text-3xl font-bold text-cc-text">{formatCurrency(equity)}</p>
-              <p className="text-xs text-cc-muted mt-2">Current equity position</p>
-            </div>
-
-            <div className="card relative overflow-hidden group cursor-pointer hover:border-cc-accent/50 transition-colors">
-              <div className="absolute -right-4 -top-4 bg-cc-accent/10 w-24 h-24 rounded-full group-hover:bg-cc-accent/20 transition-all" />
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-cc-accent/20 rounded-lg text-cc-accent">
-                  <HelpCircle size={24} />
-                </div>
-                <h3 className="font-semibold text-cc-text">Ask Gem</h3>
-              </div>
-              <p className="text-sm text-cc-muted mb-3">
-                "Am I losing money this month?"<br />
-                "Show me repair costs for 2024."
+              <p className="text-xs text-cc-muted mt-2">
+                Value ({formatCurrency(settings.property.currentMarketValue)}) - Mortgage ({formatCurrency(settings.mortgage.principal)})
               </p>
-              <span className="text-xs text-cc-accent font-medium">Start Chat &rarr;</span>
-            </div>
+              <p className="text-xs text-cc-muted mt-1">Click for breakdown →</p>
+            </button>
+
           </div>
 
           {/* Property Value Widget */}
-          <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1">
+          <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div className="xl:col-span-1">
               <PropertyValueWidget />
             </div>
-            <div className="lg:col-span-2">
+            <div className="xl:col-span-2">
               <div className="card h-full">
                 <h3 className="text-lg font-bold text-cc-text mb-2">Market Insights</h3>
                 <p className="text-sm text-cc-muted mb-4">
@@ -192,19 +322,19 @@ export default function OwnerDashboard() {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-cc-muted">Purchase Price</span>
                     <span className="text-cc-text font-medium">
-                      {formatCurrency(DEFAULT_PROPERTY_FINANCIALS.purchasePrice)}
+                      {formatCurrency(settings.property.purchasePrice)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-cc-muted">Current Value</span>
                     <span className="text-cc-text font-medium">
-                      {formatCurrency(DEFAULT_PROPERTY_FINANCIALS.currentMarketValue)}
+                      {formatCurrency(settings.property.currentMarketValue)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm pt-3 border-t border-cc-border">
                     <span className="text-cc-muted">Appreciation</span>
                     <span className="text-green-400 font-bold">
-                      +{formatCurrency(equity)}
+                      +{formatCurrency(settings.property.currentMarketValue - settings.property.purchasePrice)}
                     </span>
                   </div>
                 </div>
@@ -231,7 +361,7 @@ export default function OwnerDashboard() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {analysisTools.map((tool) => {
                 const Icon = tool.icon;
                 return (
@@ -257,45 +387,50 @@ export default function OwnerDashboard() {
           <section>
             <div className="flex items-center gap-2 mb-4">
               <h2 className="text-xl font-bold text-cc-text">Quick Cash Flow Summary</h2>
+              <span className="text-xs text-cc-muted">(Rent - PITI)</span>
             </div>
-            <div className="card">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <button
+              onClick={() => setDetailModal('cashflow')}
+              className="card w-full text-left hover:border-cc-accent/50 transition-colors cursor-pointer"
+            >
+              <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
                 <div>
-                  <p className="text-xs text-cc-muted uppercase mb-1">Gross Rental Income</p>
-                  <p className="text-lg font-semibold text-cc-text">
-                    {formatCurrency(DEFAULT_PROPERTY_FINANCIALS.monthlyRentalIncome)}/mo
+                  <p className="text-xs text-cc-muted uppercase mb-1">Rental Income</p>
+                  <p className="text-base sm:text-lg font-semibold text-green-400">
+                    +{formatCurrency(simpleCashFlow.monthlyRent)}/mo
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-cc-muted uppercase mb-1">Operating Expenses</p>
-                  <p className="text-lg font-semibold text-red-400">
-                    -{formatCurrency(cashFlow.operatingExpenses / 12)}/mo
+                  <p className="text-xs text-cc-muted uppercase mb-1">PITI Payment</p>
+                  <p className="text-base sm:text-lg font-semibold text-red-400">
+                    -{formatCurrency(simpleCashFlow.monthlyPITI)}/mo
                   </p>
                 </div>
-                <div>
-                  <p className="text-xs text-cc-muted uppercase mb-1">Debt Service</p>
-                  <p className="text-lg font-semibold text-red-400">
-                    -{formatCurrency(DEFAULT_PROPERTY_FINANCIALS.monthlyMortgagePayment)}/mo
-                  </p>
-                </div>
+                {simpleCashFlow.monthlyUtilities > 0 && (
+                  <div>
+                    <p className="text-xs text-cc-muted uppercase mb-1">Utilities</p>
+                    <p className="text-base sm:text-lg font-semibold text-red-400">
+                      -{formatCurrency(simpleCashFlow.monthlyUtilities)}/mo
+                    </p>
+                  </div>
+                )}
                 <div>
                   <p className="text-xs text-cc-muted uppercase mb-1">Net Cash Flow</p>
-                  <p className={`text-lg font-bold ${monthlyCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  <p className={`text-base sm:text-lg font-bold ${monthlyCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                     {monthlyCashFlow >= 0 ? '+' : ''}{formatCurrency(monthlyCashFlow)}/mo
                   </p>
                 </div>
               </div>
               <div className="mt-4 pt-4 border-t border-cc-border/50 flex flex-wrap gap-4 text-sm">
                 <div className="flex items-center gap-2">
-                  <span className="text-cc-muted">Cap Rate:</span>
-                  <span className="font-medium text-cc-text">{cashFlow.capRate.toFixed(1)}%</span>
+                  <span className="text-cc-muted">Annual Net:</span>
+                  <span className={`font-medium ${simpleCashFlow.annualNetCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {simpleCashFlow.annualNetCashFlow >= 0 ? '+' : ''}{formatCurrency(simpleCashFlow.annualNetCashFlow)}/yr
+                  </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-cc-muted">Cash on Cash:</span>
-                  <span className="font-medium text-cc-text">{cashFlow.cashOnCashReturn.toFixed(1)}%</span>
-                </div>
+                <span className="text-xs text-cc-muted ml-auto">Click for details →</span>
               </div>
-            </div>
+            </button>
           </section>
         </>
       )}
@@ -323,6 +458,9 @@ export default function OwnerDashboard() {
         Financial analysis tools are for educational purposes only. Consult qualified professionals
         for actual financial, tax, and investment decisions.
       </p>
+
+      {/* Detail Modals */}
+      {renderDetailModal()}
     </div>
   );
 }

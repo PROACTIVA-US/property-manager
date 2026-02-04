@@ -109,8 +109,8 @@ export interface SettingsData {
 
 export const DEFAULT_OWNER: OwnerData = {
   name: 'Shanie Holman',
-  email: 'shanie@email.com',
-  phone: '(555) 100-0002',
+  email: 'Shanieh@comcast.net',
+  phone: '(425) 445-3257',
   entityType: 'individual',
   entityName: '',
   businessAddress: '',
@@ -118,9 +118,9 @@ export const DEFAULT_OWNER: OwnerData = {
 };
 
 export const DEFAULT_PM: PMData = {
-  name: 'Dan Connolly',
-  email: 'dan@propertymanager.com',
-  phone: '(555) 100-0001',
+  name: 'Daniel D. Connolly',
+  email: 'Danieldconnolly@gmail.com',
+  phone: '(425) 444-1113',
   companyName: 'Connolly Property Management',
   licenseNumber: 'PM-2024-0001',
   managementFeePercent: 0,
@@ -154,14 +154,14 @@ export const DEFAULT_MORTGAGE: MortgageData = {
 };
 
 export const DEFAULT_RENTAL_INCOME: RentalIncomeData = {
-  monthlyRent: 2400,
+  monthlyRent: 3300, // $3,000 base + $300 utilities included
   monthlyPropertyTax: 350,
   monthlyInsurance: 150,
   monthlyHOA: 0,
   monthlyMaintenanceReserve: 200,
-  monthlyVacancyReserve: 120, // 5% of rent
+  monthlyVacancyReserve: 165, // 5% of rent
   monthlyManagementFee: 0, // Self-managed
-  includesUtilities: false,
+  includesUtilities: true, // Utilities included in rent ($300/mo for Cable, Electric, Heat, Internet, Gas, Trash, Water)
 };
 
 export const DEFAULT_TAX_INFO: TaxInfoData = {
@@ -174,16 +174,16 @@ export const DEFAULT_TAX_INFO: TaxInfoData = {
 };
 
 export const DEFAULT_TENANT: TenantData = {
-  name: 'Gregg Marshall',
+  name: 'Gregg Marshall & Miranti Marshall',
   email: 'gregg.marshall@email.com',
   phone: '(555) 123-4567',
-  leaseStartDate: '2024-07-01',
-  leaseEndDate: '2025-06-30',
-  monthlyRent: 2400,
-  securityDeposit: 4800,
-  emergencyContact: 'Sarah Marshall',
+  leaseStartDate: '2023-05-06',
+  leaseEndDate: '2026-05-06',
+  monthlyRent: 3300, // $3,000 base + $300 utilities
+  securityDeposit: 700,
+  emergencyContact: 'Miranti Marshall',
   emergencyContactPhone: '(555) 987-6543',
-  moveInDate: '2024-06-28',
+  moveInDate: '2023-05-06',
 };
 
 export const DEFAULT_PERSONAL_EXPENSES: PersonalExpensesData = {

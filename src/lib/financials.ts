@@ -648,6 +648,44 @@ export function getTaxInputs(): TaxInputs {
 }
 
 // ============================================================================
+// Simple Cash Flow (for dashboard display)
+// ============================================================================
+
+export interface SimpleCashFlow {
+  monthlyRent: number;
+  monthlyPITI: number;        // Principal + Interest + Tax + Insurance
+  monthlyUtilities: number;
+  monthlyNetCashFlow: number;
+  annualNetCashFlow: number;
+}
+
+/**
+ * Calculate simple net cash flow: Rent - PITI - Utilities
+ * This is the straightforward view for property owners
+ */
+export function calculateSimpleCashFlow(): SimpleCashFlow {
+  const settings = loadSettings();
+
+  const monthlyRent = settings.rentalIncome.monthlyRent;
+
+  // PITI = Principal & Interest + Property Tax + Insurance (from escrow or separate)
+  const monthlyPITI = settings.mortgage.totalMonthlyPayment; // This includes escrow for taxes/insurance
+
+  // Utilities (if owner pays - per lease, $300/mo for Cable, Electric, Heat, Internet, Gas, Trash, Water)
+  const monthlyUtilities = settings.rentalIncome.includesUtilities ? 300 : 0;
+
+  const monthlyNetCashFlow = monthlyRent - monthlyPITI - monthlyUtilities;
+
+  return {
+    monthlyRent,
+    monthlyPITI,
+    monthlyUtilities,
+    monthlyNetCashFlow,
+    annualNetCashFlow: monthlyNetCashFlow * 12,
+  };
+}
+
+// ============================================================================
 // Formatting Utilities
 // ============================================================================
 
@@ -679,17 +717,18 @@ export function formatNumber(value: number, decimals: number = 0): string {
 // Default Values for Demo/Testing
 // ============================================================================
 
+// NOTE: These defaults should match settings.ts - prefer using getPropertyFinancials() for live data
 export const DEFAULT_PROPERTY_FINANCIALS: PropertyFinancials = {
   purchasePrice: 350000,
-  currentMarketValue: 420000,
-  mortgageBalance: 280000,
-  monthlyMortgagePayment: 1800,
+  currentMarketValue: 1089100, // Matches DEFAULT_PROPERTY in settings.ts
+  mortgageBalance: 59957.41,  // Matches DEFAULT_MORTGAGE.principal in settings.ts
+  monthlyMortgagePayment: 1336.39, // P&I only - matches DEFAULT_MORTGAGE.monthlyPAndI
   monthlyPropertyTax: 350,
   monthlyInsurance: 150,
   monthlyHOA: 0,
-  monthlyRentalIncome: 2400,
+  monthlyRentalIncome: 3300, // $3,000 base + $300 utilities - per lease agreement
   monthlyMaintenanceReserve: 200,
-  monthlyVacancyReserve: 120, // 5% of rent
+  monthlyVacancyReserve: 165, // 5% of rent
   monthlyManagementFee: 0,    // Self-managed
   yearsOwned: 5,
   annualAppreciationRate: 0.03,

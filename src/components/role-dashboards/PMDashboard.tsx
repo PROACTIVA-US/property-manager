@@ -50,58 +50,58 @@ export default function PMDashboard() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Left Column - Main Tasks */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="xl:col-span-2 space-y-6">
 
           {/* Quick Stats Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="card bg-gradient-to-br from-cc-surface to-blue-900/50">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-cc-accent/20 rounded-lg text-cc-accent">
-                  <AlertTriangle size={20} />
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+            <div className="card bg-gradient-to-br from-cc-surface to-blue-900/50 p-4">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                <div className="p-1.5 sm:p-2 bg-cc-accent/20 rounded-lg text-cc-accent">
+                  <AlertTriangle size={18} className="sm:w-5 sm:h-5" />
                 </div>
-                <h3 className="font-semibold text-cc-text">Active Issues</h3>
+                <h3 className="font-semibold text-cc-text text-sm sm:text-base truncate">Active Issues</h3>
               </div>
-              <p className="text-2xl font-bold text-cc-text">1</p>
-              <p className="text-xs text-cc-muted mt-1">HVAC Maintenance Required</p>
+              <p className="text-xl sm:text-2xl font-bold text-cc-text">1</p>
+              <p className="text-xs text-cc-muted mt-1 truncate">HVAC Maintenance Required</p>
             </div>
 
-            <Link to="/messages" className="card hover:bg-cc-surface/70 transition-colors">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
-                  <MessageSquare size={20} />
+            <Link to="/messages" className="card hover:bg-cc-surface/70 transition-colors p-4">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                <div className="p-1.5 sm:p-2 bg-blue-500/20 rounded-lg text-blue-400">
+                  <MessageSquare size={18} className="sm:w-5 sm:h-5" />
                 </div>
-                <h3 className="font-semibold text-cc-text">Messages</h3>
+                <h3 className="font-semibold text-cc-text text-sm sm:text-base truncate">Messages</h3>
               </div>
-              <p className="text-2xl font-bold text-cc-text">{unreadCount}</p>
-              <p className="text-xs text-cc-muted mt-1">
+              <p className="text-xl sm:text-2xl font-bold text-cc-text">{unreadCount}</p>
+              <p className="text-xs text-cc-muted mt-1 truncate">
                 {unreadCount > 0 ? 'Unread messages' : 'All caught up'}
               </p>
             </Link>
 
-            <Link to="/messages?tab=activity" className="card hover:bg-cc-surface/70 transition-colors">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-green-500/20 rounded-lg text-green-400">
-                  <Calendar size={20} />
+            <Link to="/messages?tab=activity" className="card hover:bg-cc-surface/70 transition-colors p-4">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                <div className="p-1.5 sm:p-2 bg-green-500/20 rounded-lg text-green-400">
+                  <Calendar size={18} className="sm:w-5 sm:h-5" />
                 </div>
-                <h3 className="font-semibold text-cc-text">Inspections</h3>
+                <h3 className="font-semibold text-cc-text text-sm sm:text-base truncate">Inspections</h3>
               </div>
-              <p className="text-2xl font-bold text-cc-text">{inspections.length}</p>
-              <p className="text-xs text-cc-muted mt-1">
+              <p className="text-xl sm:text-2xl font-bold text-cc-text">{inspections.length}</p>
+              <p className="text-xs text-cc-muted mt-1 truncate">
                 {inspections.length > 0 ? 'Pending inspections' : 'None scheduled'}
               </p>
             </Link>
 
-            <Link to="/messages?tab=activity" className="card hover:bg-cc-surface/70 transition-colors">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-yellow-500/20 rounded-lg text-yellow-400">
-                  <Star size={20} />
+            <Link to="/messages?tab=activity" className="card hover:bg-cc-surface/70 transition-colors p-4">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                <div className="p-1.5 sm:p-2 bg-yellow-500/20 rounded-lg text-yellow-400">
+                  <Star size={18} className="sm:w-5 sm:h-5" />
                 </div>
-                <h3 className="font-semibold text-cc-text">Satisfaction</h3>
+                <h3 className="font-semibold text-cc-text text-sm sm:text-base truncate">Satisfaction</h3>
               </div>
               <div className="flex items-center gap-2">
-                <p className="text-2xl font-bold text-cc-text">{satisfaction > 0 ? satisfaction.toFixed(1) : '--'}</p>
+                <p className="text-xl sm:text-2xl font-bold text-cc-text">{satisfaction > 0 ? satisfaction.toFixed(1) : '--'}</p>
                 <div className="flex">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
