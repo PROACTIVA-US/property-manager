@@ -21,6 +21,7 @@ import Responsibilities from './pages/Responsibilities';
 import Projects from './pages/Projects';
 import View3D from './pages/View3D';
 import IssuesPage from './pages/Issues';
+import Accounts from './pages/Accounts';
 import HelpCenter from './components/help/HelpCenter';
 import ContextualTip from './components/help/ContextualTip';
 import AIAssistant from './components/ai-assistant/AIAssistant';
@@ -99,6 +100,12 @@ export default function App() {
           <Route path="/financials" element={
             <ProtectedRoute>
               <Financials />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/accounts" element={
+            <ProtectedRoute>
+              <Accounts />
             </ProtectedRoute>
           } />
 

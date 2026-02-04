@@ -137,9 +137,12 @@ export default function FinancialsOverview() {
 
   // Calculate rental financials
   const monthlyRent = settings.rentalIncome.monthlyRent;
-  const annualRentalIncome = monthlyRent * 12;
+  const monthlyUtilities = settings.rentalIncome.monthlyUtilities || 0;
+  const totalMonthlyIncome = monthlyRent + monthlyUtilities;
+  const annualRentalIncome = totalMonthlyIncome * 12;
 
   // Property expenses (NO office space - this is rental property only)
+  // Include utilities as expense since owner pays and gets reimbursed
   const propertyExpenses = {
     mortgage: settings.mortgage.monthlyPAndI,
     propertyTax: settings.rentalIncome.monthlyPropertyTax,
@@ -148,9 +151,10 @@ export default function FinancialsOverview() {
     maintenance: settings.rentalIncome.monthlyMaintenanceReserve,
     vacancy: settings.rentalIncome.monthlyVacancyReserve,
     management: settings.rentalIncome.monthlyManagementFee,
+    utilities: monthlyUtilities, // Owner pays utilities, tenant reimburses
   };
   const totalPropertyExpenses = Object.values(propertyExpenses).reduce((a, b) => a + b, 0);
-  const netRentalCashFlow = monthlyRent - totalPropertyExpenses;
+  const netRentalCashFlow = totalMonthlyIncome - totalPropertyExpenses;
 
   // Personal income and office space (SEPARATE from rental)
   const personalMonthlyIncome = settings.personalExpenses.currentJobIncome;
@@ -184,25 +188,31 @@ export default function FinancialsOverview() {
         </div>
 
         <div className="card bg-green-500/5 border border-green-500/20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-cc-bg/50 rounded-lg p-4">
+              <p className="text-xs text-cc-muted uppercase mb-1">Monthly Rent</p>
+              <p className="text-2xl font-bold text-green-400">{fmtCurrency(monthlyRent)}</p>
+            </div>
+            <div className="bg-cc-bg/50 rounded-lg p-4">
+              <p className="text-xs text-cc-muted uppercase mb-1">Monthly Utilities</p>
+              <p className="text-2xl font-bold text-green-400">{fmtCurrency(monthlyUtilities)}</p>
+              <p className="text-xs text-cc-muted">Tenant reimbursement</p>
+            </div>
+            <div className="bg-green-500/10 rounded-lg p-4">
+              <p className="text-xs text-green-400 uppercase mb-1">Total Monthly</p>
+              <p className="text-2xl font-bold text-green-400">{fmtCurrency(totalMonthlyIncome)}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between bg-green-500/10 rounded-lg p-4">
             <div>
-              <ValueSlider
-                label="Monthly Rent"
-                value={monthlyRent}
-                min={500}
-                max={10000}
-                step={50}
-                onChange={(val) => handleSettingChange('rentalIncome', 'monthlyRent', val)}
-                color="green-400"
-              />
+              <p className="text-sm text-cc-muted">Annual Rental Income</p>
+              <p className="text-3xl font-bold text-green-400">{fmtCurrency(annualRentalIncome)}</p>
+              <p className="text-xs text-cc-muted mt-1">
+                ({fmtCurrency(monthlyRent)} rent + {fmtCurrency(monthlyUtilities)} utilities) × 12
+              </p>
             </div>
-            <div className="flex items-center justify-between bg-green-500/10 rounded-lg p-4">
-              <div>
-                <p className="text-sm text-cc-muted">Annual Rental Income</p>
-                <p className="text-3xl font-bold text-green-400">{fmtCurrency(annualRentalIncome)}</p>
-              </div>
-              <Home className="text-green-400/50" size={40} />
-            </div>
+            <Home className="text-green-400/50" size={40} />
           </div>
         </div>
       </section>
@@ -218,23 +228,43 @@ export default function FinancialsOverview() {
         </div>
 
         <div className="card bg-red-500/5 border border-red-500/20">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-cc-bg/50 rounded-lg p-3">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+            <a
+              href="/accounts?section=mortgage"
+              className="bg-cc-bg/50 hover:bg-blue-500/10 border border-transparent hover:border-blue-500/30 rounded-lg p-3 transition-colors cursor-pointer"
+            >
               <p className="text-xs text-cc-muted uppercase">Mortgage P&I</p>
               <p className="text-lg font-bold text-cc-text">{fmtCurrency(propertyExpenses.mortgage)}</p>
-            </div>
-            <div className="bg-cc-bg/50 rounded-lg p-3">
+              <p className="text-xs text-blue-400/70 opacity-0 hover:opacity-100">Details →</p>
+            </a>
+            <a
+              href="/accounts?section=property-tax"
+              className="bg-cc-bg/50 hover:bg-green-500/10 border border-transparent hover:border-green-500/30 rounded-lg p-3 transition-colors cursor-pointer"
+            >
               <p className="text-xs text-cc-muted uppercase">Property Tax</p>
               <p className="text-lg font-bold text-cc-text">{fmtCurrency(propertyExpenses.propertyTax)}</p>
-            </div>
-            <div className="bg-cc-bg/50 rounded-lg p-3">
+              <p className="text-xs text-green-400/70 opacity-0 hover:opacity-100">Details →</p>
+            </a>
+            <a
+              href="/accounts?section=insurance"
+              className="bg-cc-bg/50 hover:bg-purple-500/10 border border-transparent hover:border-purple-500/30 rounded-lg p-3 transition-colors cursor-pointer"
+            >
               <p className="text-xs text-cc-muted uppercase">Insurance</p>
               <p className="text-lg font-bold text-cc-text">{fmtCurrency(propertyExpenses.insurance)}</p>
-            </div>
+              <p className="text-xs text-purple-400/70 opacity-0 hover:opacity-100">Details →</p>
+            </a>
             <div className="bg-cc-bg/50 rounded-lg p-3">
               <p className="text-xs text-cc-muted uppercase">Maintenance</p>
               <p className="text-lg font-bold text-cc-text">{fmtCurrency(propertyExpenses.maintenance)}</p>
             </div>
+            <a
+              href="/accounts?section=utilities"
+              className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3 hover:bg-yellow-500/20 transition-colors cursor-pointer"
+            >
+              <p className="text-xs text-yellow-400 uppercase">Utilities</p>
+              <p className="text-lg font-bold text-yellow-400">{fmtCurrency(propertyExpenses.utilities)}</p>
+              <p className="text-xs text-yellow-400/70">Details →</p>
+            </a>
           </div>
 
           <div className="flex items-center justify-between bg-red-500/10 rounded-lg p-4">
@@ -263,7 +293,8 @@ export default function FinancialsOverview() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-green-500/10 rounded-lg p-4 text-center">
               <p className="text-sm text-green-400 mb-1">Monthly Income</p>
-              <p className="text-2xl font-bold text-green-400">+{fmtCurrency(monthlyRent)}</p>
+              <p className="text-2xl font-bold text-green-400">+{fmtCurrency(totalMonthlyIncome)}</p>
+              <p className="text-xs text-cc-muted">{fmtCurrency(monthlyRent)} + {fmtCurrency(monthlyUtilities)}</p>
             </div>
             <div className="bg-red-500/10 rounded-lg p-4 text-center">
               <p className="text-sm text-red-400 mb-1">Monthly Expenses</p>

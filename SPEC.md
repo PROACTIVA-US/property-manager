@@ -361,16 +361,41 @@ Kirkland, WA 98034
 ### Rental Income
 ```typescript
 {
-  monthlyRent: 2400,
-  securityDeposit: 4800,
-  petDeposit: 0,
-  leaseStartDate: '2024-01-15',
-  leaseEndDate: '2025-01-14',
-  paymentDueDay: 1,
-  lateFeeAmount: 50,
-  lateFeeGracePeriod: 5
+  monthlyRent: 3000,           // Base lease amount
+  monthlyUtilities: 300,       // Utilities paid separately by tenant
+  includesUtilities: true,     // If true, owner pays utilities (tenant reimburses)
+  monthlyPropertyTax: 350,
+  monthlyInsurance: 150,
+  monthlyHOA: 0,
+  monthlyMaintenanceReserve: 200,
+  monthlyVacancyReserve: 165,  // 5% of rent
+  monthlyManagementFee: 0      // Self-managed
 }
 ```
+
+### Utilities Tracking
+```typescript
+{
+  bills: UtilityBill[],        // Array of monthly utility bills
+  overageThreshold: 50         // Alert when actual exceeds stated by this amount
+}
+
+interface UtilityBill {
+  id: string;
+  month: string;               // YYYY-MM format
+  amount: number;
+  paidDate?: string;
+  status: 'pending' | 'paid' | 'overdue';
+  notes?: string;
+}
+```
+
+**Utility Tracking Features:**
+- Track actual monthly utility costs vs stated amount
+- Overage alerts when actual costs exceed threshold
+- Bill status tracking (pending, paid, overdue)
+- Integration with owner dashboard
+- Tenant portal displays utilities breakdown
 
 ### Tax Information
 ```typescript

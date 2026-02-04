@@ -5,6 +5,7 @@ import FinancialComparison from '../FinancialComparison';
 import TaxAnalysis from '../TaxAnalysis';
 import KeepVsSell from '../KeepVsSell';
 import PropertyValueWidget from '../PropertyValueWidget';
+import UtilityTracking from '../UtilityTracking';
 import {
   DollarSign,
   TrendingUp,
@@ -15,6 +16,7 @@ import {
   Sparkles,
   Pencil,
   X,
+  Zap,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
@@ -24,9 +26,9 @@ import {
   calculateSimpleCashFlow,
   formatCurrency,
 } from '../../lib/financials';
-import { loadSettings } from '../../lib/settings';
+import { loadSettings, checkUtilityOverages, getPendingUtilityBillsCount } from '../../lib/settings';
 
-type AnalysisView = 'overview' | 'comparison' | 'tax' | 'keepvssell' | 'mortgage';
+type AnalysisView = 'overview' | 'comparison' | 'tax' | 'keepvssell' | 'mortgage' | 'utilities';
 type DetailModal = 'cashflow' | 'equity' | 'property' | null;
 
 export default function OwnerDashboard() {
@@ -46,6 +48,10 @@ export default function OwnerDashboard() {
 
   // Calculate equity using live property values
   const equity = settings.property.currentMarketValue - settings.mortgage.principal;
+
+  // Utility tracking data
+  const utilityOverages = checkUtilityOverages();
+  const pendingUtilityBills = getPendingUtilityBillsCount();
 
   const analysisTools = [
     {
@@ -76,6 +82,15 @@ export default function OwnerDashboard() {
       icon: Calculator,
       color: 'bg-blue-500/20 text-blue-400',
     },
+    {
+      id: 'utilities' as const,
+      title: 'Utility Tracking',
+      description: 'Track actual utility costs',
+      icon: Zap,
+      color: 'bg-yellow-500/20 text-yellow-400',
+      badge: utilityOverages.length > 0 ? utilityOverages.length : (pendingUtilityBills > 0 ? pendingUtilityBills : undefined),
+      badgeColor: utilityOverages.length > 0 ? 'bg-red-500' : 'bg-yellow-500',
+    },
   ];
 
   const renderContent = () => {
@@ -103,6 +118,8 @@ export default function OwnerDashboard() {
         );
       case 'mortgage':
         return <MortgageCalculator />;
+      case 'utilities':
+        return <UtilityTracking onBack={() => setActiveView('overview')} />;
       default:
         return null;
     }
@@ -368,8 +385,13 @@ export default function OwnerDashboard() {
                   <button
                     key={tool.id}
                     onClick={() => setActiveView(tool.id)}
-                    className="card text-left hover:border-cc-accent/50 transition-all hover:scale-[1.02] group"
+                    className="card text-left hover:border-cc-accent/50 transition-all hover:scale-[1.02] group relative"
                   >
+                    {'badge' in tool && tool.badge !== undefined && (
+                      <span className={`absolute -top-2 -right-2 ${tool.badgeColor || 'bg-red-500'} text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center`}>
+                        {tool.badge}
+                      </span>
+                    )}
                     <div className={`p-2 rounded-lg w-fit ${tool.color} mb-3`}>
                       <Icon size={20} />
                     </div>

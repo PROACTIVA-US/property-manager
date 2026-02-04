@@ -18,6 +18,8 @@ export interface Lease {
   startDate: string;
   endDate: string;
   monthlyRent: number;
+  monthlyUtilities: number;
+  utilitiesPaidByOwner: boolean; // If true, tenant reimburses owner; if false, tenant pays providers directly
   securityDeposit: number;
   terms: string[];
   documentUrl?: string;
@@ -76,15 +78,16 @@ const MOCK_LEASE: Lease = {
   unitNumber: 'Apt 4B',
   startDate: '2024-07-01',
   endDate: '2025-06-30',
-  monthlyRent: 2400,
-  securityDeposit: 4800,
+  monthlyRent: 3000,
+  monthlyUtilities: 300,
+  utilitiesPaidByOwner: true,
+  securityDeposit: 700,
   terms: [
     'No smoking on premises',
     'Pets allowed with $500 deposit (max 2 pets)',
     'Quiet hours: 10 PM - 8 AM',
-    'Tenant responsible for utilities (electric, gas, internet)',
-    'Garbage and water included in rent',
-    'Parking space #42 assigned to unit',
+    'Tenant pays utilities separately to owner (Cable, Electric, Heat, Internet, Gas, Trash, Water)',
+    'Parking space assigned to unit',
     '30-day notice required for non-renewal',
     'Renters insurance required (min $100k liability)',
   ],
@@ -212,12 +215,12 @@ export function getCurrentBalance(): { amount: number; dueDate: string; status: 
 export function getLease(): Lease {
   initializeStorage();
 
-  // Try to load from settings first for dynamic data
+  // Try to load from settings first for dynamic data (propertyManager_settings_v1 is the new key)
   try {
-    const settingsData = localStorage.getItem('propertyManagerSettings');
+    const settingsData = localStorage.getItem('propertyManager_settings_v1');
     if (settingsData) {
       const settings = JSON.parse(settingsData);
-      if (settings.tenant && settings.property) {
+      if (settings.tenant && settings.property && settings.rentalIncome) {
         // Build lease from settings
         return {
           id: 'lease-001',
@@ -225,15 +228,18 @@ export function getLease(): Lease {
           unitNumber: settings.property.unitNumber || 'Apt 4B',
           startDate: settings.tenant.leaseStartDate || '2024-07-01',
           endDate: settings.tenant.leaseEndDate || '2025-06-30',
-          monthlyRent: settings.tenant.monthlyRent || 2400,
-          securityDeposit: settings.tenant.securityDeposit || 4800,
+          monthlyRent: settings.rentalIncome.monthlyRent || 3000,
+          monthlyUtilities: settings.rentalIncome.monthlyUtilities || 300,
+          utilitiesPaidByOwner: settings.rentalIncome.includesUtilities ?? true,
+          securityDeposit: settings.tenant.securityDeposit || 700,
           terms: [
             'No smoking on premises',
             'Pets allowed with $500 deposit (max 2 pets)',
             'Quiet hours: 10 PM - 8 AM',
-            'Tenant responsible for utilities (electric, gas, internet)',
-            'Garbage and water included in rent',
-            'Parking space #42 assigned to unit',
+            settings.rentalIncome.includesUtilities
+              ? 'Tenant pays utilities separately to owner (Cable, Electric, Heat, Internet, Gas, Trash, Water)'
+              : 'Tenant pays utilities directly to providers',
+            'Parking space assigned to unit',
             '30-day notice required for non-renewal',
             'Renters insurance required (min $100k liability)',
           ],

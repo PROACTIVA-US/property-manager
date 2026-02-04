@@ -82,6 +82,31 @@
     *   SLA tracking (time since issue reported)
     *   Overdue issue alerts
 
+### 3.7. Utility Tracking System
+
+*   **Separate Utility Payments:** Track utilities separately from lease rent payments.
+    *   Tenant pays lease and utilities as separate line items
+    *   Monthly utilities amount configurable in settings
+*   **Owner Pays/Tenant Reimburses Model:**
+    *   When enabled, owner pays utility bills and receives reimbursement from tenant
+    *   Total monthly income = Base Rent + Utilities Reimbursement
+*   **Utility Bill Tracking (Owner Portal):**
+    *   Record actual monthly utility bills
+    *   Track bill status (pending, paid, overdue)
+    *   View bill history with notes
+    *   Compare actual vs stated utility amounts
+*   **Overage Alert System:**
+    *   Configurable threshold for overage alerts (default: $50)
+    *   Notify owner when actual utility costs exceed stated amount
+    *   Alert displayed on owner dashboard
+*   **Tenant Portal Utilities View:**
+    *   Display monthly utilities amount
+    *   Show total monthly payment (Rent + Utilities)
+    *   Clear breakdown of payment components
+*   **Data Propagation:**
+    *   Utility settings sync to tenant portal automatically
+    *   Changes in owner settings reflected immediately across all views
+
 ### 3.4. Property and Document Management
 
 *   **Vendor Directory:** A comprehensive list showing all current vendors.

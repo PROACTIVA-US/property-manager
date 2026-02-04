@@ -40,7 +40,11 @@ export default function RentalIncomeForm({ initialData, mortgageData, onSave }: 
   };
 
   const operatingExpenses = calculateMonthlyOperatingExpenses(formData);
-  const netOperatingIncome = formData.monthlyRent - operatingExpenses;
+  // Total income = rent + utilities (if owner pays and receives reimbursement)
+  const totalMonthlyIncome = formData.monthlyRent + (formData.includesUtilities ? formData.monthlyUtilities : 0);
+  // Utilities expense (if owner pays)
+  const utilitiesExpense = formData.includesUtilities ? formData.monthlyUtilities : 0;
+  const netOperatingIncome = totalMonthlyIncome - operatingExpenses - utilitiesExpense;
   const cashFlow = mortgageData ? calculateMonthlyCashFlow(formData, mortgageData) : null;
 
   return (
@@ -55,21 +59,85 @@ export default function RentalIncomeForm({ initialData, mortgageData, onSave }: 
         </div>
       </div>
 
-      {/* Rental Income */}
-      <div>
-        <label className="block text-sm font-medium text-cc-text mb-2">
-          Monthly Rental Income *
-        </label>
-        <input
-          type="number"
-          value={formData.monthlyRent}
-          onChange={(e) => handleChange('monthlyRent', parseFloat(e.target.value) || 0)}
-          className="w-full px-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
-          required
-          min="0"
-          step="10"
-        />
-        <p className="text-xs text-cc-muted mt-1">{formatCurrency(formData.monthlyRent)}/month</p>
+      {/* Lease Income Section */}
+      <div className="space-y-3 p-4 bg-cc-surface/30 rounded-lg border border-cc-border/50">
+        <h4 className="text-sm font-bold text-cc-accent">Lease Income</h4>
+        <p className="text-xs text-cc-muted">Monthly rent amount from lease agreement</p>
+
+        <div>
+          <label className="block text-sm font-medium text-cc-text mb-2">
+            Monthly Rent Amount *
+          </label>
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-cc-muted">$</span>
+            <input
+              type="number"
+              value={formData.monthlyRent}
+              onChange={(e) => handleChange('monthlyRent', parseFloat(e.target.value) || 0)}
+              className="w-full pl-8 pr-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
+              required
+              min="0"
+              step="10"
+            />
+          </div>
+          <p className="text-xs text-cc-muted mt-1">{formatCurrency(formData.monthlyRent)}/month</p>
+        </div>
+      </div>
+
+      {/* Utilities Section */}
+      <div className="space-y-3 p-4 bg-cc-surface/30 rounded-lg border border-cc-border/50">
+        <h4 className="text-sm font-bold text-cc-accent">Utilities</h4>
+        <p className="text-xs text-cc-muted">Tenant pays lease and utilities separately</p>
+
+        <div>
+          <label className="block text-sm font-medium text-cc-text mb-2">
+            Monthly Utilities Amount
+          </label>
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-cc-muted">$</span>
+            <input
+              type="number"
+              value={formData.monthlyUtilities}
+              onChange={(e) => handleChange('monthlyUtilities', parseFloat(e.target.value) || 0)}
+              className="w-full pl-8 pr-4 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:border-cc-accent"
+              min="0"
+              step="10"
+            />
+          </div>
+          <p className="text-xs text-cc-muted mt-1">
+            {formatCurrency(formData.monthlyUtilities)}/month (Cable, Electric, Heat, Internet, Gas, Trash, Water)
+          </p>
+        </div>
+
+        <div className="pt-2">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={formData.includesUtilities}
+              onChange={(e) => handleChange('includesUtilities', e.target.checked)}
+              className="w-4 h-4 rounded border-cc-border bg-cc-bg text-cc-accent focus:ring-cc-accent"
+            />
+            <span className="text-sm text-cc-text">Owner pays utilities (tenant reimburses)</span>
+          </label>
+          <p className="text-xs text-cc-muted mt-1 ml-6">
+            {formData.includesUtilities
+              ? 'Owner pays utility bills and receives reimbursement from tenant'
+              : 'Tenant pays utilities directly to providers'}
+          </p>
+        </div>
+      </div>
+
+      {/* Total Monthly Income */}
+      <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/30">
+        <div className="flex justify-between items-center">
+          <span className="text-sm font-medium text-cc-text">Total Monthly Income:</span>
+          <span className="text-xl font-bold text-green-400">
+            {formatCurrency(formData.monthlyRent + formData.monthlyUtilities)}
+          </span>
+        </div>
+        <p className="text-xs text-cc-muted mt-1">
+          Lease: {formatCurrency(formData.monthlyRent)} + Utilities: {formatCurrency(formData.monthlyUtilities)}
+        </p>
       </div>
 
       {/* Operating Expenses */}
@@ -179,34 +247,25 @@ export default function RentalIncomeForm({ initialData, mortgageData, onSave }: 
         </div>
       </div>
 
-      {/* Utilities */}
-      <div>
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={formData.includesUtilities}
-            onChange={(e) => handleChange('includesUtilities', e.target.checked)}
-            className="w-4 h-4 rounded border-cc-border bg-cc-bg text-cc-accent focus:ring-cc-accent"
-          />
-          <span className="text-sm text-cc-text">Rent includes utilities</span>
-        </label>
-      </div>
-
       {/* Summary Card */}
       <div className="card bg-cc-surface/50 p-4">
         <h4 className="text-sm font-bold text-cc-accent mb-3">Financial Summary</h4>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
           <div>
-            <p className="text-cc-muted">Gross Rent</p>
+            <p className="text-cc-muted">Lease Income</p>
             <p className="font-bold text-green-400">{formatCurrency(formData.monthlyRent)}</p>
           </div>
           <div>
-            <p className="text-cc-muted">Operating Expenses</p>
-            <p className="font-bold text-red-400">-{formatCurrency(operatingExpenses)}</p>
+            <p className="text-cc-muted">Utilities Income</p>
+            <p className="font-bold text-green-400">{formatCurrency(formData.monthlyUtilities)}</p>
           </div>
           <div>
-            <p className="text-cc-muted">Net Operating Income</p>
-            <p className="font-bold text-cc-text">{formatCurrency(netOperatingIncome)}</p>
+            <p className="text-cc-muted">Total Income</p>
+            <p className="font-bold text-green-400">{formatCurrency(formData.monthlyRent + formData.monthlyUtilities)}</p>
+          </div>
+          <div>
+            <p className="text-cc-muted">Operating Expenses</p>
+            <p className="font-bold text-red-400">-{formatCurrency(operatingExpenses + formData.monthlyUtilities)}</p>
           </div>
           {cashFlow !== null && (
             <div>

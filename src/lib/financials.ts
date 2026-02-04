@@ -660,21 +660,33 @@ export interface SimpleCashFlow {
 }
 
 /**
- * Calculate simple net cash flow: Rent - PITI - Utilities
+ * Calculate simple net cash flow: Rent + Utilities Income - PITI - Utilities Expense
  * This is the straightforward view for property owners
+ *
+ * When includesUtilities is true: Owner pays utilities and receives reimbursement from tenant
+ * - Total income = rent + utilities reimbursement
+ * - Total expense = PITI + utilities paid
+ * - Net effect: utilities cancel out (income matches expense)
+ *
+ * When includesUtilities is false: Tenant pays utilities directly to providers
+ * - Owner only receives rent, no utilities expense
  */
 export function calculateSimpleCashFlow(): SimpleCashFlow {
   const settings = loadSettings();
 
+  // Base rent from lease
   const monthlyRent = settings.rentalIncome.monthlyRent;
 
   // PITI = Principal & Interest + Property Tax + Insurance (from escrow or separate)
   const monthlyPITI = settings.mortgage.totalMonthlyPayment; // This includes escrow for taxes/insurance
 
-  // Utilities (if owner pays - per lease, $300/mo for Cable, Electric, Heat, Internet, Gas, Trash, Water)
-  const monthlyUtilities = settings.rentalIncome.includesUtilities ? 300 : 0;
+  // Utilities expense (if owner pays - they also receive reimbursement from tenant)
+  const monthlyUtilities = settings.rentalIncome.includesUtilities
+    ? (settings.rentalIncome.monthlyUtilities || 0)
+    : 0;
 
-  const monthlyNetCashFlow = monthlyRent - monthlyPITI - monthlyUtilities;
+  // Net cash flow: rent - PITI (utilities cancel out since tenant reimburses)
+  const monthlyNetCashFlow = monthlyRent - monthlyPITI;
 
   return {
     monthlyRent,

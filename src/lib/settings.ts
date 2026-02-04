@@ -35,13 +35,14 @@ export interface MortgageData {
 
 export interface RentalIncomeData {
   monthlyRent: number;
+  monthlyUtilities: number; // Utilities paid by tenant separately (owner receives this)
   monthlyPropertyTax: number;
   monthlyInsurance: number;
   monthlyHOA: number;
   monthlyMaintenanceReserve: number;
   monthlyVacancyReserve: number; // Usually 5-8% of rent
   monthlyManagementFee: number; // Usually 8-10% of rent, or 0 if self-managed
-  includesUtilities: boolean;
+  includesUtilities: boolean; // If true, owner pays utilities; if false, tenant pays directly to providers
 }
 
 export interface TaxInfoData {
@@ -91,6 +92,42 @@ export interface PersonalExpensesData {
   currentJobIncome: number;
 }
 
+export interface UtilityBill {
+  id: string;
+  month: string; // YYYY-MM format
+  amount: number;
+  paidDate?: string; // ISO date when paid
+  status: 'pending' | 'paid' | 'overdue';
+  notes?: string;
+}
+
+export interface UtilitiesTrackingData {
+  bills: UtilityBill[];
+  overageThreshold: number; // Notify if actual exceeds stated by this amount
+  lastNotificationDate?: string; // ISO date of last overage notification
+}
+
+export interface AccountInfo {
+  providerName: string;
+  accountNumber?: string;
+  portalUrl?: string;
+  loginEmail?: string;
+  phone?: string;
+  notes?: string;
+}
+
+export interface UtilityProvider extends AccountInfo {
+  type: 'electric' | 'gas' | 'water' | 'trash' | 'internet' | 'cable' | 'other';
+  monthlyEstimate: number;
+}
+
+export interface PropertyAccounts {
+  mortgage: AccountInfo;
+  propertyTax: AccountInfo;
+  insurance: AccountInfo;
+  utilities: UtilityProvider[];
+}
+
 export interface SettingsData {
   owner: OwnerData;
   pm: PMData;
@@ -100,6 +137,8 @@ export interface SettingsData {
   taxInfo: TaxInfoData;
   tenant: TenantData;
   personalExpenses: PersonalExpensesData;
+  utilitiesTracking: UtilitiesTrackingData;
+  propertyAccounts: PropertyAccounts;
   lastUpdated: string; // ISO timestamp
 }
 
@@ -154,14 +193,15 @@ export const DEFAULT_MORTGAGE: MortgageData = {
 };
 
 export const DEFAULT_RENTAL_INCOME: RentalIncomeData = {
-  monthlyRent: 3300, // $3,000 base + $300 utilities included
+  monthlyRent: 3000, // Base rent amount
+  monthlyUtilities: 300, // Utilities paid by tenant separately (Cable, Electric, Heat, Internet, Gas, Trash, Water)
   monthlyPropertyTax: 350,
   monthlyInsurance: 150,
   monthlyHOA: 0,
   monthlyMaintenanceReserve: 200,
   monthlyVacancyReserve: 165, // 5% of rent
   monthlyManagementFee: 0, // Self-managed
-  includesUtilities: true, // Utilities included in rent ($300/mo for Cable, Electric, Heat, Internet, Gas, Trash, Water)
+  includesUtilities: true, // If true, owner pays utilities and receives reimbursement from tenant
 };
 
 export const DEFAULT_TAX_INFO: TaxInfoData = {
@@ -179,7 +219,7 @@ export const DEFAULT_TENANT: TenantData = {
   phone: '(555) 123-4567',
   leaseStartDate: '2023-05-06',
   leaseEndDate: '2026-05-06',
-  monthlyRent: 3300, // $3,000 base + $300 utilities
+  monthlyRent: 3000, // Base lease amount (utilities paid separately)
   securityDeposit: 700,
   emergencyContact: 'Miranti Marshall',
   emergencyContactPhone: '(555) 987-6543',
@@ -190,6 +230,46 @@ export const DEFAULT_PERSONAL_EXPENSES: PersonalExpensesData = {
   currentRentPayment: 1800, // Office space cost per month
   currentUtilityCosts: 0,
   currentJobIncome: 70000 / 12, // $70k annual income
+};
+
+export const DEFAULT_UTILITIES_TRACKING: UtilitiesTrackingData = {
+  bills: [],
+  overageThreshold: 50, // Notify if actual exceeds stated by $50 or more
+};
+
+export const DEFAULT_PROPERTY_ACCOUNTS: PropertyAccounts = {
+  mortgage: {
+    providerName: '',
+    accountNumber: '',
+    portalUrl: '',
+    loginEmail: '',
+    phone: '',
+    notes: '',
+  },
+  propertyTax: {
+    providerName: 'King County Treasury',
+    accountNumber: '',
+    portalUrl: 'https://kingcounty.gov/depts/finance-business-operations/treasury/property-tax.aspx',
+    loginEmail: '',
+    phone: '',
+    notes: '',
+  },
+  insurance: {
+    providerName: '',
+    accountNumber: '',
+    portalUrl: '',
+    loginEmail: '',
+    phone: '',
+    notes: '',
+  },
+  utilities: [
+    { type: 'electric', providerName: 'Puget Sound Energy', monthlyEstimate: 80, portalUrl: 'https://pse.com' },
+    { type: 'gas', providerName: 'Puget Sound Energy', monthlyEstimate: 50, portalUrl: 'https://pse.com' },
+    { type: 'water', providerName: 'Kirkland Water', monthlyEstimate: 40, portalUrl: '' },
+    { type: 'trash', providerName: 'Waste Management', monthlyEstimate: 35, portalUrl: 'https://wm.com' },
+    { type: 'internet', providerName: 'Xfinity', monthlyEstimate: 70, portalUrl: 'https://xfinity.com' },
+    { type: 'cable', providerName: '', monthlyEstimate: 0, portalUrl: '' },
+  ],
 };
 
 // ============================================================================
@@ -215,6 +295,8 @@ export function loadSettings(): SettingsData {
     taxInfo: DEFAULT_TAX_INFO,
     tenant: DEFAULT_TENANT,
     personalExpenses: DEFAULT_PERSONAL_EXPENSES,
+    utilitiesTracking: DEFAULT_UTILITIES_TRACKING,
+    propertyAccounts: DEFAULT_PROPERTY_ACCOUNTS,
     lastUpdated: new Date().toISOString(),
   };
 
@@ -233,6 +315,8 @@ export function loadSettings(): SettingsData {
         taxInfo: parsed.taxInfo || DEFAULT_TAX_INFO,
         tenant: parsed.tenant || DEFAULT_TENANT,
         personalExpenses: parsed.personalExpenses || DEFAULT_PERSONAL_EXPENSES,
+        utilitiesTracking: parsed.utilitiesTracking || DEFAULT_UTILITIES_TRACKING,
+        propertyAccounts: parsed.propertyAccounts || DEFAULT_PROPERTY_ACCOUNTS,
         lastUpdated: parsed.lastUpdated || new Date().toISOString(),
       };
     }
@@ -353,6 +437,8 @@ export function resetSettings(): SettingsData {
     taxInfo: DEFAULT_TAX_INFO,
     tenant: DEFAULT_TENANT,
     personalExpenses: DEFAULT_PERSONAL_EXPENSES,
+    utilitiesTracking: DEFAULT_UTILITIES_TRACKING,
+    propertyAccounts: DEFAULT_PROPERTY_ACCOUNTS,
     lastUpdated: new Date().toISOString(),
   };
   saveSettings(defaults);
@@ -477,4 +563,86 @@ export function validateSettings(settings: Partial<SettingsData>): string[] {
   }
 
   return errors;
+}
+
+// ============================================================================
+// Utility Bill Management Functions
+// ============================================================================
+
+/**
+ * Add a new utility bill
+ */
+export function addUtilityBill(bill: Omit<UtilityBill, 'id'>): UtilityBill {
+  const settings = loadSettings();
+  const newBill: UtilityBill = {
+    ...bill,
+    id: `util-${Date.now()}`,
+  };
+  settings.utilitiesTracking.bills.unshift(newBill);
+  saveSettings(settings);
+  return newBill;
+}
+
+/**
+ * Update an existing utility bill
+ */
+export function updateUtilityBill(id: string, updates: Partial<UtilityBill>): UtilityBill | null {
+  const settings = loadSettings();
+  const billIndex = settings.utilitiesTracking.bills.findIndex(b => b.id === id);
+  if (billIndex === -1) return null;
+
+  settings.utilitiesTracking.bills[billIndex] = {
+    ...settings.utilitiesTracking.bills[billIndex],
+    ...updates,
+  };
+  saveSettings(settings);
+  return settings.utilitiesTracking.bills[billIndex];
+}
+
+/**
+ * Get all utility bills
+ */
+export function getUtilityBills(): UtilityBill[] {
+  const settings = loadSettings();
+  return settings.utilitiesTracking.bills;
+}
+
+/**
+ * Check if any utility bill exceeds the stated amount and needs notification
+ */
+export interface UtilityOverageAlert {
+  bill: UtilityBill;
+  statedAmount: number;
+  overage: number;
+}
+
+export function checkUtilityOverages(): UtilityOverageAlert[] {
+  const settings = loadSettings();
+  const statedAmount = settings.rentalIncome.monthlyUtilities;
+  const threshold = settings.utilitiesTracking.overageThreshold;
+
+  return settings.utilitiesTracking.bills
+    .filter(bill => bill.amount > statedAmount + threshold)
+    .map(bill => ({
+      bill,
+      statedAmount,
+      overage: bill.amount - statedAmount,
+    }));
+}
+
+/**
+ * Update the overage threshold
+ */
+export function updateOverageThreshold(threshold: number): void {
+  const settings = loadSettings();
+  settings.utilitiesTracking.overageThreshold = threshold;
+  saveSettings(settings);
+}
+
+/**
+ * Get pending/unpaid utility bills count
+ */
+export function getPendingUtilityBillsCount(): number {
+  const settings = loadSettings();
+  return settings.utilitiesTracking.bills.filter(b => b.status !== 'paid').length;
 }

@@ -295,6 +295,36 @@ export default function TenantDashboard() {
         </div>
       </div>
 
+      {/* Monthly Payment Summary */}
+      <div className="card">
+        <h4 className="text-sm font-bold text-cc-muted uppercase tracking-wider mb-4">Monthly Payment Summary</h4>
+        <div className="space-y-3">
+          <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
+            <span className="text-cc-text">Lease (Rent)</span>
+            <span className="font-semibold text-cc-text">{formatCurrency(lease.monthlyRent)}</span>
+          </div>
+          {lease.monthlyUtilities > 0 && (
+            <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
+              <div>
+                <span className="text-cc-text">Utilities</span>
+                <p className="text-xs text-cc-muted">
+                  {lease.utilitiesPaidByOwner
+                    ? 'Paid to owner (Cable, Electric, Heat, Internet, Gas, Trash, Water)'
+                    : 'Paid directly to providers'}
+                </p>
+              </div>
+              <span className="font-semibold text-cc-text">{formatCurrency(lease.monthlyUtilities)}</span>
+            </div>
+          )}
+          <div className="flex justify-between items-center py-3 bg-cc-accent/10 rounded-lg px-3">
+            <span className="font-bold text-cc-text">Total Monthly Payment</span>
+            <span className="font-bold text-lg text-cc-accent">
+              {formatCurrency(lease.monthlyRent + (lease.utilitiesPaidByOwner ? lease.monthlyUtilities : 0))}
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Property Info Footer */}
       <div className="card bg-cc-bg/30">
         <h4 className="text-sm font-bold text-cc-muted uppercase tracking-wider mb-3">Property Information</h4>
