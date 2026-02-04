@@ -16,7 +16,8 @@ import {
   Menu,
   X,
   PanelLeftClose,
-  PanelLeft
+  PanelLeft,
+  CreditCard,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { getThreads, getNotifications } from '../lib/messages';
@@ -106,6 +107,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { name: 'Projects', href: '/maintenance', icon: Wrench, roles: ['owner', 'pm', 'tenant'] },
     { name: 'Messages', href: '/messages', icon: MessageSquare, roles: ['owner', 'pm', 'tenant'], badge: unreadCount },
     { name: 'Financials', href: '/financials', icon: Calculator, roles: ['owner', 'pm', 'tenant'] },
+    { name: 'Accounts', href: '/accounts', icon: CreditCard, roles: ['owner', 'pm'] }, // Property accounts - mortgage, insurance, utilities
     { name: 'Documents', href: '/documents', icon: FileText, roles: ['owner', 'pm', 'tenant'] },
     { name: 'People', href: '/tenants', icon: Users, roles: ['owner', 'pm'] }, // Tenant Management - not visible to tenants
     { name: 'Vendors', href: '/vendors', icon: HardHat, roles: ['owner', 'pm'] }, // Vendor Management - owner has full access

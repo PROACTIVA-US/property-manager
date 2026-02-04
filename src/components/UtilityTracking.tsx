@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Zap,
   Plus,
@@ -7,8 +7,21 @@ import {
   Clock,
   X,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  TrendingUp,
+  TrendingDown,
+  Minus,
 } from 'lucide-react';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine,
+} from 'recharts';
 import {
   addUtilityBill,
   updateUtilityBill,
@@ -19,6 +32,7 @@ import {
   type UtilityBill,
   type UtilityOverageAlert
 } from '../lib/settings';
+import { createUtilityOverageNotification } from '../lib/messages';
 
 interface UtilityTrackingProps {
   onBack?: () => void;
@@ -60,6 +74,13 @@ export default function UtilityTracking({ onBack }: UtilityTrackingProps) {
       status: 'pending',
       notes: newBillNotes || undefined,
     });
+
+    // Create notification if bill exceeds stated amount
+    const settings = loadSettings();
+    const threshold = settings.utilitiesTracking.overageThreshold || 0;
+    if (amount > statedAmount + threshold) {
+      createUtilityOverageNotification(newBillMonth, amount, statedAmount);
+    }
 
     // Reset form
     setNewBillAmount('');
@@ -103,6 +124,52 @@ export default function UtilityTracking({ onBack }: UtilityTrackingProps) {
     const date = new Date(parseInt(year), parseInt(monthNum) - 1);
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   };
+
+  const formatMonthShort = (month: string) => {
+    const [year, monthNum] = month.split('-');
+    const date = new Date(parseInt(year), parseInt(monthNum) - 1);
+    return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+  };
+
+  // Prepare chart data - sort bills by month and calculate trends
+  const chartData = useMemo(() => {
+    if (bills.length === 0) return [];
+
+    // Sort bills by month ascending
+    const sortedBills = [...bills].sort((a, b) => a.month.localeCompare(b.month));
+
+    return sortedBills.map(bill => ({
+      month: bill.month,
+      monthLabel: formatMonthShort(bill.month),
+      amount: bill.amount,
+      stated: statedAmount,
+      overage: Math.max(0, bill.amount - statedAmount),
+    }));
+  }, [bills, statedAmount]);
+
+  // Calculate trend
+  const trend = useMemo(() => {
+    if (bills.length < 2) return { direction: 'flat' as const, percentage: 0 };
+
+    const sortedBills = [...bills].sort((a, b) => a.month.localeCompare(b.month));
+    const recent = sortedBills.slice(-3);
+    const older = sortedBills.slice(0, -3);
+
+    if (older.length === 0) return { direction: 'flat' as const, percentage: 0 };
+
+    const recentAvg = recent.reduce((sum, b) => sum + b.amount, 0) / recent.length;
+    const olderAvg = older.reduce((sum, b) => sum + b.amount, 0) / older.length;
+
+    const change = ((recentAvg - olderAvg) / olderAvg) * 100;
+
+    return {
+      direction: change > 5 ? 'up' as const : change < -5 ? 'down' as const : 'flat' as const,
+      percentage: Math.abs(change),
+    };
+  }, [bills]);
+
+  const TrendIcon = trend.direction === 'up' ? TrendingUp : trend.direction === 'down' ? TrendingDown : Minus;
+  const trendColor = trend.direction === 'up' ? 'text-red-400' : trend.direction === 'down' ? 'text-green-400' : 'text-cc-muted';
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -158,6 +225,82 @@ export default function UtilityTracking({ onBack }: UtilityTrackingProps) {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Historical Trend Chart */}
+      {chartData.length >= 2 && (
+        <div className="card">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-cc-text">Utility Cost Trend</h3>
+            <div className={`flex items-center gap-2 ${trendColor}`}>
+              <TrendIcon size={18} />
+              <span className="text-sm font-medium">
+                {trend.direction === 'flat'
+                  ? 'Stable'
+                  : `${trend.direction === 'up' ? 'Up' : 'Down'} ${trend.percentage.toFixed(1)}%`}
+              </span>
+            </div>
+          </div>
+          <div className="h-[200px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#eab308" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#eab308" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                <XAxis
+                  dataKey="monthLabel"
+                  stroke="#94a3b8"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  stroke="#94a3b8"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(val) => `$${val}`}
+                />
+                <Tooltip
+                  formatter={(value: number, name: string) => [formatCurrency(value), name === 'amount' ? 'Actual' : name]}
+                  labelFormatter={(label) => `Month: ${label}`}
+                  contentStyle={{
+                    backgroundColor: '#1a1a2e',
+                    borderRadius: '8px',
+                    border: '1px solid #334155',
+                    color: '#fff',
+                  }}
+                />
+                <ReferenceLine
+                  y={statedAmount}
+                  stroke="#22c55e"
+                  strokeDasharray="5 5"
+                  label={{
+                    value: `Stated: ${formatCurrency(statedAmount)}`,
+                    position: 'right',
+                    fill: '#22c55e',
+                    fontSize: 11,
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="amount"
+                  stroke="#eab308"
+                  strokeWidth={2}
+                  fill="url(#colorAmount)"
+                  name="Actual"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+          <p className="text-xs text-cc-muted mt-2 text-center">
+            Green dashed line shows the stated utility amount ({formatCurrency(statedAmount)}/mo)
+          </p>
         </div>
       )}
 

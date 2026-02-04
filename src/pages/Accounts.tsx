@@ -17,7 +17,12 @@ import {
   Wifi,
   Tv,
   HelpCircle,
+  BarChart3,
+  ChevronDown,
+  ChevronUp,
+  type LucideIcon,
 } from 'lucide-react';
+import UtilityTracking from '../components/UtilityTracking';
 import {
   loadSettings,
   saveSettings,
@@ -27,7 +32,7 @@ import {
   type PropertyAccounts,
 } from '../lib/settings';
 
-const UTILITY_ICONS: Record<string, React.ElementType> = {
+const UTILITY_ICONS: Record<string, LucideIcon> = {
   electric: Zap,
   gas: Flame,
   water: Droplets,
@@ -50,7 +55,7 @@ const UTILITY_LABELS: Record<string, string> = {
 interface AccountCardProps {
   id: string;
   title: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   iconColor: string;
   account: AccountInfo;
   monthlyAmount?: number;
@@ -239,6 +244,7 @@ export default function Accounts() {
   const [settings, setSettings] = useState(loadSettings());
   const [editingUtility, setEditingUtility] = useState<number | null>(null);
   const [showAddUtility, setShowAddUtility] = useState(false);
+  const [showUtilityTracking, setShowUtilityTracking] = useState(false);
   const [newUtility, setNewUtility] = useState<Partial<UtilityProvider>>({
     type: 'other',
     providerName: '',
@@ -400,14 +406,35 @@ export default function Accounts() {
                 <p className="text-sm text-cc-muted">Total: {formatCurrency(totalUtilities)}/month</p>
               </div>
             </div>
-            <button
-              onClick={() => setShowAddUtility(true)}
-              className="flex items-center gap-2 px-3 py-2 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 rounded-lg transition-colors"
-            >
-              <Plus size={18} />
-              Add Utility
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowUtilityTracking(!showUtilityTracking)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                  showUtilityTracking
+                    ? 'bg-blue-500/20 text-blue-400'
+                    : 'bg-cc-surface hover:bg-cc-border text-cc-muted hover:text-cc-text'
+                }`}
+              >
+                <BarChart3 size={18} />
+                Track Bills
+                {showUtilityTracking ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </button>
+              <button
+                onClick={() => setShowAddUtility(true)}
+                className="flex items-center gap-2 px-3 py-2 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 rounded-lg transition-colors"
+              >
+                <Plus size={18} />
+                Add Utility
+              </button>
+            </div>
           </div>
+
+          {/* Utility Bill Tracking Panel */}
+          {showUtilityTracking && (
+            <div className="mb-6 p-4 bg-blue-500/5 border border-blue-500/20 rounded-lg">
+              <UtilityTracking onBack={() => setShowUtilityTracking(false)} />
+            </div>
+          )}
 
           {/* Add Utility Form */}
           {showAddUtility && (

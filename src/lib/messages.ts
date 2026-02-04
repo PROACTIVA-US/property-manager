@@ -54,12 +54,13 @@ export interface SatisfactionEntry {
 // Notification Types
 export interface Notification {
   id: string;
-  type: 'message' | 'inspection' | 'maintenance' | 'payment' | 'general';
+  type: 'message' | 'inspection' | 'maintenance' | 'payment' | 'general' | 'utility';
   title: string;
   body: string;
   read: boolean;
   timestamp: number;
   link?: string;
+  targetRoles?: ('owner' | 'pm' | 'tenant')[]; // Which roles should see this notification
 }
 
 // Storage Keys
@@ -280,6 +281,34 @@ export function getUnreadMessageCount(_userId: string): number {
   // userId reserved for future user-specific filtering
   const threads = getThreads();
   return threads.reduce((acc, t) => acc + t.unreadCount, 0);
+}
+
+// Create utility overage notification for both owner and tenant
+export function createUtilityOverageNotification(
+  month: string,
+  actualAmount: number,
+  statedAmount: number
+): Notification {
+  const overage = actualAmount - statedAmount;
+  const monthFormatted = new Date(month + '-01').toLocaleDateString('en-US', {
+    month: 'long',
+    year: 'numeric',
+  });
+
+  return addNotification({
+    type: 'utility',
+    title: 'Utility Overage Alert',
+    body: `${monthFormatted} utilities were $${actualAmount.toFixed(2)}, exceeding the stated $${statedAmount.toFixed(2)} by $${overage.toFixed(2)}.`,
+    link: '/accounts?section=utilities',
+    targetRoles: ['owner', 'tenant', 'pm'],
+  });
+}
+
+// Get notifications filtered by user role
+export function getNotificationsForRole(role: 'owner' | 'pm' | 'tenant'): Notification[] {
+  return getNotifications().filter(n =>
+    !n.targetRoles || n.targetRoles.includes(role)
+  );
 }
 
 // Default Data for Demo
