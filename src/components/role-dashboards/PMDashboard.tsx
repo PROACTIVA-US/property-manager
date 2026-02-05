@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import MaintenanceChecklist from '../MaintenanceChecklist';
 import VendorDirectory from '../VendorDirectory';
+import PMAlertBar from '../dashboard-alerts/PMAlertBar';
+import IssuesByPriority from '../dashboard-widgets/IssuesByPriority';
 import { AlertTriangle, Calendar, Loader2, MessageSquare, Star } from 'lucide-react';
 import { getVendors } from '../../lib/vendors';
 import { getThreads, getInspections, getAverageSatisfaction, type Thread, type Inspection } from '../../lib/messages';
 
 export default function PMDashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const vendors = getVendors();
   const activeVendors = vendors.filter(v => v.status !== 'inactive').length;
 
@@ -49,6 +52,9 @@ export default function PMDashboard() {
           Schedule Inspection
         </Link>
       </div>
+
+      {/* Alert Bar for High Priority Issues */}
+      <PMAlertBar onViewIssues={() => navigate('/issues')} />
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Left Column - Main Tasks */}
@@ -121,6 +127,9 @@ export default function PMDashboard() {
 
         {/* Right Column - Vendor & Tenant Info */}
         <div className="space-y-6">
+          {/* Issues by Priority */}
+          <IssuesByPriority onPriorityClick={(priority) => navigate(`/issues?priority=${priority}`)} />
+
           <div className="card">
             <h3 className="text-lg font-bold text-cc-accent mb-4">Current Tenant</h3>
             <div className="space-y-4">

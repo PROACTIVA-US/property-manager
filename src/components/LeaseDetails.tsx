@@ -55,7 +55,7 @@ export default function LeaseDetails({ onBack }: LeaseDetailsProps) {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-cc-text">Lease Details</h1>
+          <h1 className="text-2xl font-bold text-cc-text">Your Lease</h1>
           <p className="text-cc-muted mt-1">View your lease information and documents</p>
         </div>
       </div>

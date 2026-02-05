@@ -23,6 +23,9 @@ import Projects from './pages/Projects';
 import View3D from './pages/View3D';
 import IssuesPage from './pages/Issues';
 import Accounts from './pages/Accounts';
+import Inspections from './pages/Inspections';
+import Rent from './pages/Rent';
+import Leases from './pages/Leases';
 import HelpCenter from './components/help/HelpCenter';
 import ContextualTip from './components/help/ContextualTip';
 import AIAssistant from './components/ai-assistant/AIAssistant';
@@ -151,14 +154,11 @@ export default function App() {
             </ProtectedRoute>
           } />
 
-          {/* PM routes - placeholder pages for now */}
+          {/* PM routes */}
           <Route path="/inspections" element={
             <ProtectedRoute>
               <RoleBasedRoute allowedRoles={['pm']}>
-                <div className="p-4">
-                  <h2 className="text-xl font-bold text-cc-text">Inspections</h2>
-                  <p className="text-cc-muted">Schedule and track property inspections</p>
-                </div>
+                <Inspections />
               </RoleBasedRoute>
             </ProtectedRoute>
           } />
@@ -166,10 +166,7 @@ export default function App() {
           <Route path="/rent" element={
             <ProtectedRoute>
               <RoleBasedRoute allowedRoles={['pm']}>
-                <div className="p-4">
-                  <h2 className="text-xl font-bold text-cc-text">Rent Collection</h2>
-                  <p className="text-cc-muted">Track payments and delinquencies</p>
-                </div>
+                <Rent />
               </RoleBasedRoute>
             </ProtectedRoute>
           } />
@@ -177,10 +174,7 @@ export default function App() {
           <Route path="/leases" element={
             <ProtectedRoute>
               <RoleBasedRoute allowedRoles={['pm']}>
-                <div className="p-4">
-                  <h2 className="text-xl font-bold text-cc-text">Leases</h2>
-                  <p className="text-cc-muted">Manage active leases and renewals</p>
-                </div>
+                <Leases />
               </RoleBasedRoute>
             </ProtectedRoute>
           } />

@@ -8,6 +8,8 @@ import PropertyValueWidget from '../PropertyValueWidget';
 import UtilityTracking from '../UtilityTracking';
 import OwnerEscalationWidget from '../issues/OwnerEscalationWidget';
 import IssueDetailModal from '../issues/IssueDetailModal';
+import PortfolioValueKPI from '../dashboard-kpis/PortfolioValueKPI';
+import OccupancyRateKPI from '../dashboard-kpis/OccupancyRateKPI';
 import { getEscalatedIssues, getIssueById } from '../../lib/issues';
 import type { Issue } from '../../types/issues.types';
 import {
@@ -278,8 +280,14 @@ export default function OwnerDashboard() {
       {/* Overview Mode */}
       {activeView === 'overview' && (
         <>
+          {/* Key Performance Indicators */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <PortfolioValueKPI onDrillDown={() => setDetailModal('property')} />
+            <OccupancyRateKPI onViewLeases={() => {}} />
+          </div>
+
           {/* High-level metrics */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-4 sm:gap-6">
             <button
               onClick={() => setDetailModal('cashflow')}
               className="card bg-gradient-to-br from-cc-surface to-slate-800 group relative text-left hover:border-cc-accent/50 transition-colors cursor-pointer"

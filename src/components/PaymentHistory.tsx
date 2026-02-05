@@ -118,7 +118,7 @@ export default function PaymentHistory({ onBack, compact = false }: PaymentHisto
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-cc-text">Rent Payments</h1>
+          <h1 className="text-2xl font-bold text-cc-text">Your Payments</h1>
           <p className="text-cc-muted mt-1">View payment history and make payments</p>
         </div>
       </div>

@@ -40,11 +40,6 @@ export default function RentalIncomeForm({ initialData, mortgageData, onSave }: 
   };
 
   const operatingExpenses = calculateMonthlyOperatingExpenses(formData);
-  // Total income = rent + utilities (if owner pays and receives reimbursement)
-  const totalMonthlyIncome = formData.monthlyRent + (formData.includesUtilities ? formData.monthlyUtilities : 0);
-  // Utilities expense (if owner pays)
-  const utilitiesExpense = formData.includesUtilities ? formData.monthlyUtilities : 0;
-  const netOperatingIncome = totalMonthlyIncome - operatingExpenses - utilitiesExpense;
   const cashFlow = mortgageData ? calculateMonthlyCashFlow(formData, mortgageData) : null;
 
   return (
