@@ -6,6 +6,10 @@ import TaxAnalysis from '../TaxAnalysis';
 import KeepVsSell from '../KeepVsSell';
 import PropertyValueWidget from '../PropertyValueWidget';
 import UtilityTracking from '../UtilityTracking';
+import OwnerEscalationWidget from '../issues/OwnerEscalationWidget';
+import IssueDetailModal from '../issues/IssueDetailModal';
+import { getEscalatedIssues, getIssueById } from '../../lib/issues';
+import type { Issue } from '../../types/issues.types';
 import {
   DollarSign,
   TrendingUp,
@@ -35,6 +39,7 @@ export default function OwnerDashboard() {
   const { user } = useAuth();
   const [activeView, setActiveView] = useState<AnalysisView>('overview');
   const [detailModal, setDetailModal] = useState<DetailModal>(null);
+  const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
 
   // Load live data from settings
   const settings = loadSettings();
@@ -263,6 +268,13 @@ export default function OwnerDashboard() {
         </div>
       </div>
 
+      {/* Escalation Widget - Show if there are escalated issues */}
+      {activeView === 'overview' && getEscalatedIssues().length > 0 && (
+        <section>
+          <OwnerEscalationWidget onIssueClick={(issue) => setSelectedIssue(issue)} />
+        </section>
+      )}
+
       {/* Overview Mode */}
       {activeView === 'overview' && (
         <>
@@ -483,6 +495,18 @@ export default function OwnerDashboard() {
 
       {/* Detail Modals */}
       {renderDetailModal()}
+
+      {/* Issue Detail Modal for Escalations */}
+      {selectedIssue && (
+        <IssueDetailModal
+          issue={selectedIssue}
+          onClose={() => setSelectedIssue(null)}
+          onUpdated={() => {
+            const updated = getIssueById(selectedIssue.id);
+            setSelectedIssue(updated || null);
+          }}
+        />
+      )}
     </div>
   );
 }

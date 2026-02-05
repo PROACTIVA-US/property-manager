@@ -23,6 +23,8 @@ import {
   Heart,
   Info,
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import FinancialAccessDenied from './FinancialAccessDenied';
 import {
   type PropertyFinancials,
   type TaxInputs,
@@ -52,6 +54,13 @@ export default function TaxAnalysis({
   initialProperty = DEFAULT_PROPERTY_FINANCIALS,
   initialTaxInputs = DEFAULT_TAX_INPUTS,
 }: TaxAnalysisProps) {
+  const { user } = useAuth();
+
+  // Owner-only guard
+  if (user?.role !== 'owner') {
+    return <FinancialAccessDenied />;
+  }
+
   const [property, setProperty] = useState<PropertyFinancials>(initialProperty);
   const [taxInputs, setTaxInputs] = useState<TaxInputs>(initialTaxInputs);
   const [showInputs, setShowInputs] = useState(false);

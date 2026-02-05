@@ -18,6 +18,10 @@ import {
   PanelLeftClose,
   PanelLeft,
   CreditCard,
+  Building2,
+  ClipboardCheck,
+  Home,
+  Receipt,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { getThreads, getNotifications } from '../lib/messages';
@@ -79,46 +83,65 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   /**
    * @navigation-structure
-   * Miller's Law Compliance: 6 top-level navigation items (max 7 allowed)
+   * Role-Based Navigation per UX Audit:
    *
-   * TOP-LEVEL NAVIGATION (6 items total):
-   *   1. Dashboard
-   *   2. Projects & Maintenance
-   *   3. Messages
-   *   4. Financials
-   *   5. Documents
-   *   6. People (combines Vendors + Tenants)
+   * OWNER (5 items): Dashboard, Financials, Properties, Documents, Messages
+   *   - Investment-focused, no operational noise
+   *   - Only sees escalated issues via Dashboard alerts
    *
-   * USER PROFILE AREA (not counted as navigation):
-   *   - Settings (accessed via gear icon in user profile)
+   * PM (8 items): Dashboard, Issues, Tenants, Inspections, Rent, Vendors, Leases, Expenses
+   *   - Full operational toolkit
+   *   - No access to Tax/Keep-vs-Sell analysis
    *
-   * NON-NAVIGATION ELEMENTS (not counted):
-   *   - AI Assistant toggle button (panel toggle, not a route)
-   *
-   * @top-level-count 6
-   * @top-level-items Dashboard, Projects & Maintenance, Messages, Financials, Documents, People
-   * @millers-law-compliant true
+   * TENANT (4 items): Home, Payments, Maintenance, Lease
+   *   - Minimal, personal-data only
+   *   - No Financials, no Projects access
    */
 
-  // Top-level navigation items (7 items - within Miller's Law limit of 7)
-  const primaryNav = [
-    { name: 'Dashboard', href: '/', icon: LayoutDashboard, roles: ['owner', 'tenant', 'pm'] },
-    { name: 'Issues', href: '/issues', icon: AlertCircle, roles: ['owner', 'pm', 'tenant'] }, // Issue Tracking
-    { name: 'Projects', href: '/maintenance', icon: Wrench, roles: ['owner', 'pm', 'tenant'] },
-    { name: 'Messages', href: '/messages', icon: MessageSquare, roles: ['owner', 'pm', 'tenant'], badge: unreadCount },
-    { name: 'Financials', href: '/financials', icon: Calculator, roles: ['owner', 'pm', 'tenant'] },
-    { name: 'Accounts', href: '/accounts', icon: CreditCard, roles: ['owner', 'pm'] }, // Property accounts - mortgage, insurance, utilities
-    { name: 'Documents', href: '/documents', icon: FileText, roles: ['owner', 'pm', 'tenant'] },
-    { name: 'People', href: '/tenants', icon: Users, roles: ['owner', 'pm'] }, // Tenant Management - not visible to tenants
-    { name: 'Vendors', href: '/vendors', icon: HardHat, roles: ['owner', 'pm'] }, // Vendor Management - owner has full access
-  ];
+  // Get role-specific navigation
+  const getPrimaryNavByRole = (userRole: string | null) => {
+    switch (userRole) {
+      // OWNER: 5 items (Dashboard, Financials, Properties, Documents, Messages)
+      case 'owner':
+        return [
+          { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+          { name: 'Financials', href: '/financials', icon: Calculator },
+          { name: 'Properties', href: '/properties', icon: Building2 },
+          { name: 'Documents', href: '/documents', icon: FileText },
+          { name: 'Messages', href: '/messages', icon: MessageSquare, badge: unreadCount },
+        ];
 
-  // Settings and Vendors are accessed from within other sections or via contextual links
-  // This keeps the main navigation clean and within Miller's Law limits
+      // PM: 8 items (Dashboard, Issues, Tenants, Inspections, Rent, Vendors, Leases, Expenses)
+      case 'pm':
+        return [
+          { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+          { name: 'Issues', href: '/issues', icon: AlertCircle },
+          { name: 'Tenants', href: '/tenants', icon: Users },
+          { name: 'Inspections', href: '/inspections', icon: ClipboardCheck },
+          { name: 'Rent', href: '/rent', icon: CreditCard },
+          { name: 'Vendors', href: '/vendors', icon: HardHat },
+          { name: 'Leases', href: '/leases', icon: FileText },
+          { name: 'Expenses', href: '/expenses', icon: Receipt },
+          { name: 'Messages', href: '/messages', icon: MessageSquare, badge: unreadCount },
+        ];
 
-  // AI Assistant is a toggle button for a slide-out panel, not a navigation item
+      // TENANT: 4 items (Home, Payments, Maintenance, Lease)
+      case 'tenant':
+        return [
+          { name: 'Home', href: '/', icon: Home },
+          { name: 'Payments', href: '/payments', icon: CreditCard },
+          { name: 'Maintenance', href: '/maintenance', icon: Wrench },
+          { name: 'Lease', href: '/lease', icon: FileText },
+          { name: 'Messages', href: '/messages', icon: MessageSquare, badge: unreadCount },
+        ];
 
-  const filteredPrimaryNav = primaryNav.filter(item => item.roles.includes(user.role || ''));
+      default:
+        return [];
+    }
+  };
+
+  // No filtering needed - each role gets their specific nav items
+  const filteredPrimaryNav = getPrimaryNavByRole(user?.role || null);
 
   const sidebarWidth = isSidebarCollapsed ? 'w-16' : 'w-64';
   const mainMargin = isSidebarCollapsed ? 'md:ml-16' : 'md:ml-64';

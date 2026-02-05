@@ -15,11 +15,13 @@ import {
   ChevronDown,
   ChevronRight,
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import FinancialsOverview from '../components/financials/FinancialsOverview';
 import MortgageCalculator from '../components/MortgageCalculator';
 import FinancialComparison from '../components/FinancialComparison';
 import TaxAnalysis from '../components/TaxAnalysis';
 import KeepVsSell from '../components/KeepVsSell';
+import FinancialAccessDenied from '../components/FinancialAccessDenied';
 import {
   loadSettings,
   exportSettings,
@@ -30,6 +32,7 @@ import {
   getPersonalExpenses,
   getTaxInputs,
 } from '../lib/financials';
+import { getAccessibleTabs, type FinancialTab } from '../lib/financialAccess';
 
 type TabId = 'overview' | 'property' | 'rental' | 'tax' | 'projections';
 
@@ -74,10 +77,22 @@ const tabs: Tab[] = [
 ];
 
 export default function Financials() {
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  // Get accessible tabs based on user role
+  const accessibleTabs = getAccessibleTabs(user?.role || null);
+  const filteredTabs = tabs.filter(tab => accessibleTabs.includes(tab.id as FinancialTab));
+
+  // Redirect tenants - they have no access
+  if (user?.role === 'tenant') {
+    return <FinancialAccessDenied />;
+  }
+
   const initialTab = searchParams.get('tab') as TabId;
+  const defaultTab = filteredTabs.length > 0 ? filteredTabs[0].id : 'overview';
   const [activeTab, setActiveTab] = useState<TabId>(
-    initialTab && tabs.find(t => t.id === initialTab) ? initialTab : 'overview'
+    initialTab && filteredTabs.find(t => t.id === initialTab) ? initialTab : defaultTab
   );
   const [settings, setSettings] = useState(loadSettings());
   const [importMessage, setImportMessage] = useState('');
@@ -386,7 +401,7 @@ export default function Financials() {
     }
   };
 
-  const activeTabData = tabs.find(t => t.id === activeTab);
+  const activeTabData = filteredTabs.find(t => t.id === activeTab);
 
   return (
     <div className="space-y-6">
@@ -394,14 +409,16 @@ export default function Financials() {
       <div>
         <h1 className="text-3xl font-bold text-cc-text">Financial Analysis Suite</h1>
         <p className="text-cc-muted mt-1">
-          Manage your property finances and analyze investment performance
+          {user?.role === 'pm'
+            ? 'View rental income and cash flow analysis'
+            : 'Manage your property finances and analyze investment performance'}
         </p>
       </div>
 
       {/* Tab Navigation */}
       <div className="border-b border-cc-border/50">
         <nav className="flex gap-1 overflow-x-auto pb-px" aria-label="Financial analysis tabs">
-          {tabs.map((tab) => {
+          {filteredTabs.map((tab) => {
             const Icon = tab.icon as React.ElementType<{ size?: number }>;
             const isActive = activeTab === tab.id;
             return (

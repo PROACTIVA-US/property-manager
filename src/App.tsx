@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Layout from './components/Layout';
 import LoadingSpinner from './components/ui/LoadingSpinner';
+import RoleBasedRoute from './components/RoleBasedRoute';
 import LoginPage from './pages/Login';
 import AuthCallback from './pages/AuthCallback';
 import WelcomePage from './pages/WelcomePage';
@@ -91,67 +92,146 @@ export default function App() {
             </ProtectedRoute>
           } />
 
+          {/* OWNER-ONLY ROUTES */}
           <Route path="/properties" element={
             <ProtectedRoute>
-              <Dashboard />
+              <RoleBasedRoute allowedRoles={['owner']}>
+                <Dashboard />
+              </RoleBasedRoute>
             </ProtectedRoute>
           } />
 
           <Route path="/financials" element={
             <ProtectedRoute>
-              <Financials />
+              <RoleBasedRoute allowedRoles={['owner']}>
+                <Financials />
+              </RoleBasedRoute>
             </ProtectedRoute>
           } />
 
+          {/* OWNER & PM ROUTES */}
           <Route path="/accounts" element={
             <ProtectedRoute>
-              <Accounts />
-            </ProtectedRoute>
-          } />
-
-          {/* Expenses redirect to Maintenance */}
-          <Route path="/expenses" element={<Navigate to="/maintenance" replace />} />
-
-          <Route path="/vendors" element={
-            <ProtectedRoute>
-              <VendorsPage />
-            </ProtectedRoute>
-          } />
-
-          {/* Tenant Portal Routes */}
-          <Route path="/tenant/:section" element={
-            <ProtectedRoute>
-              <TenantPortal />
-            </ProtectedRoute>
-          } />
-
-          <Route path="/messages" element={
-            <ProtectedRoute>
-              <MessagesPage />
-            </ProtectedRoute>
-          } />
-
-          <Route path="/maintenance" element={
-            <ProtectedRoute>
-              <Maintenance />
-            </ProtectedRoute>
-          } />
-
-          <Route path="/issues" element={
-            <ProtectedRoute>
-              <IssuesPage />
+              <RoleBasedRoute allowedRoles={['owner', 'pm']}>
+                <Accounts />
+              </RoleBasedRoute>
             </ProtectedRoute>
           } />
 
           <Route path="/documents" element={
             <ProtectedRoute>
-              <Documents />
+              <RoleBasedRoute allowedRoles={['owner', 'pm']}>
+                <Documents />
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          } />
+
+          {/* PM-ONLY ROUTES */}
+          <Route path="/issues" element={
+            <ProtectedRoute>
+              <RoleBasedRoute allowedRoles={['pm']}>
+                <IssuesPage />
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/vendors" element={
+            <ProtectedRoute>
+              <RoleBasedRoute allowedRoles={['pm']}>
+                <VendorsPage />
+              </RoleBasedRoute>
             </ProtectedRoute>
           } />
 
           <Route path="/tenants" element={
             <ProtectedRoute>
-              <Tenants />
+              <RoleBasedRoute allowedRoles={['pm']}>
+                <Tenants />
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          } />
+
+          {/* PM routes - placeholder pages for now */}
+          <Route path="/inspections" element={
+            <ProtectedRoute>
+              <RoleBasedRoute allowedRoles={['pm']}>
+                <div className="p-4">
+                  <h2 className="text-xl font-bold text-cc-text">Inspections</h2>
+                  <p className="text-cc-muted">Schedule and track property inspections</p>
+                </div>
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/rent" element={
+            <ProtectedRoute>
+              <RoleBasedRoute allowedRoles={['pm']}>
+                <div className="p-4">
+                  <h2 className="text-xl font-bold text-cc-text">Rent Collection</h2>
+                  <p className="text-cc-muted">Track payments and delinquencies</p>
+                </div>
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/leases" element={
+            <ProtectedRoute>
+              <RoleBasedRoute allowedRoles={['pm']}>
+                <div className="p-4">
+                  <h2 className="text-xl font-bold text-cc-text">Leases</h2>
+                  <p className="text-cc-muted">Manage active leases and renewals</p>
+                </div>
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/expenses" element={
+            <ProtectedRoute>
+              <RoleBasedRoute allowedRoles={['pm']}>
+                <Maintenance />
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          } />
+
+          {/* TENANT-ONLY ROUTES */}
+          <Route path="/payments" element={
+            <ProtectedRoute>
+              <RoleBasedRoute allowedRoles={['tenant']}>
+                <TenantPortal />
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/lease" element={
+            <ProtectedRoute>
+              <RoleBasedRoute allowedRoles={['tenant']}>
+                <TenantPortal />
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          } />
+
+          {/* Tenant Portal Routes (legacy) */}
+          <Route path="/tenant/:section" element={
+            <ProtectedRoute>
+              <RoleBasedRoute allowedRoles={['tenant']}>
+                <TenantPortal />
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          } />
+
+          {/* PM & TENANT SHARED ROUTES */}
+          <Route path="/maintenance" element={
+            <ProtectedRoute>
+              <RoleBasedRoute allowedRoles={['pm', 'tenant']}>
+                <Maintenance />
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          } />
+
+          {/* SHARED ROUTES - All authenticated users */}
+          <Route path="/messages" element={
+            <ProtectedRoute>
+              <MessagesPage />
             </ProtectedRoute>
           } />
 
@@ -161,6 +241,7 @@ export default function App() {
             </ProtectedRoute>
           } />
 
+          {/* OTHER ROUTES */}
           <Route path="/gallery" element={
             <ProtectedRoute>
               <Gallery />
@@ -169,13 +250,17 @@ export default function App() {
 
           <Route path="/responsibilities" element={
             <ProtectedRoute>
-              <Responsibilities />
+              <RoleBasedRoute allowedRoles={['pm', 'owner']}>
+                <Responsibilities />
+              </RoleBasedRoute>
             </ProtectedRoute>
           } />
 
           <Route path="/projects" element={
             <ProtectedRoute>
-              <Projects />
+              <RoleBasedRoute allowedRoles={['pm', 'owner']}>
+                <Projects />
+              </RoleBasedRoute>
             </ProtectedRoute>
           } />
 

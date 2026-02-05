@@ -20,6 +20,8 @@ import {
   BarChart3,
   Info,
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import FinancialAccessDenied from './FinancialAccessDenied';
 import {
   type PropertyFinancials,
   type TaxInputs,
@@ -39,6 +41,13 @@ export default function KeepVsSell({
   initialProperty = DEFAULT_PROPERTY_FINANCIALS,
   initialTaxInputs = DEFAULT_TAX_INPUTS,
 }: KeepVsSellProps) {
+  const { user } = useAuth();
+
+  // Owner-only guard
+  if (user?.role !== 'owner') {
+    return <FinancialAccessDenied />;
+  }
+
   const [property, setProperty] = useState<PropertyFinancials>(initialProperty);
   const [taxInputs] = useState<TaxInputs>(initialTaxInputs);
   const [alternativeReturn, setAlternativeReturn] = useState(7); // S&P 500 average

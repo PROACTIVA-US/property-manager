@@ -158,6 +158,15 @@ export interface Issue {
   createdAt: string;
   updatedAt: string;
   tags?: string[];
+
+  // Escalation fields
+  escalatedAt?: string;
+  escalatedBy?: string;
+  escalatedByName?: string;
+  escalationReason?: string;
+  ownerApprovalStatus?: 'pending' | 'approved' | 'rejected';
+  ownerApprovedAt?: string;
+  ownerDecision?: string;
 }
 
 // ============================================================================

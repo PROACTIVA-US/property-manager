@@ -6,7 +6,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Plus, AlertTriangle, CheckCircle, Clock, TrendingUp } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { getIssues, getIssuesByReporter, getIssueMetrics, generateSampleIssues } from '../lib/issues';
+import { getIssues, getIssuesByReporter, getIssueMetrics, generateSampleIssues, getEscalatedIssues } from '../lib/issues';
 import type { Issue } from '../types/issues.types';
 import IssueList from '../components/issues/IssueList';
 import IssueCreateForm from '../components/issues/IssueCreateForm';
@@ -27,10 +27,14 @@ export default function IssuesPage() {
     // Generate sample issues on first load if none exist
     generateSampleIssues();
 
-    // Tenants only see their own issues
-    if (isTenant && user) {
+    // Owners ONLY see escalated issues
+    if (isOwner) {
+      setIssues(getEscalatedIssues());
+    } else if (isTenant && user) {
+      // Tenants only see their own issues
       setIssues(getIssuesByReporter(user.uid));
     } else {
+      // PM sees all issues
       setIssues(getIssues());
     }
 

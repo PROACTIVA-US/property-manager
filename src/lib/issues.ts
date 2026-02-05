@@ -806,3 +806,168 @@ export function generateSampleIssues(): void {
 
   saveIssues(sampleIssues);
 }
+
+// ============================================================================
+// Escalation Management
+// ============================================================================
+
+/**
+ * Get all escalated issues
+ */
+export function getEscalatedIssues(): Issue[] {
+  const issues = getIssues();
+  return issues.filter(issue => issue.status === 'escalated');
+}
+
+/**
+ * Get pending escalations awaiting owner decision
+ */
+export function getPendingEscalations(): Issue[] {
+  const issues = getIssues();
+  return issues.filter(
+    issue => issue.status === 'escalated' &&
+      (!issue.ownerApprovalStatus || issue.ownerApprovalStatus === 'pending')
+  );
+}
+
+/**
+ * Escalate an issue to the owner for decision
+ */
+export function escalateIssue(
+  issueId: string,
+  reason: string,
+  escalatedBy: string,
+  escalatedByName: string,
+  escalatedByRole: 'owner' | 'pm' | 'tenant'
+): Issue {
+  const issues = getIssues();
+  const index = issues.findIndex(issue => issue.id === issueId);
+  if (index === -1) throw new Error(`Issue not found: ${issueId}`);
+
+  const now = new Date().toISOString();
+  const currentIssue = issues[index];
+  const activities = [...currentIssue.activities];
+
+  activities.push({
+    id: generateActivityId(),
+    issueId,
+    type: 'escalated',
+    description: `Issue escalated to owner: "${reason}"`,
+    performedBy: escalatedBy,
+    performedByName: escalatedByName,
+    performedByRole: escalatedByRole,
+    performedAt: now,
+    metadata: { escalationReason: reason },
+  });
+
+  const updatedIssue: Issue = {
+    ...currentIssue,
+    status: 'escalated',
+    escalatedAt: now,
+    escalatedBy,
+    escalatedByName,
+    escalationReason: reason,
+    ownerApprovalStatus: 'pending',
+    activities,
+    updatedAt: now,
+  };
+
+  issues[index] = updatedIssue;
+  saveIssues(issues);
+  return updatedIssue;
+}
+
+/**
+ * Approve an escalated issue
+ */
+export function approveEscalation(
+  issueId: string,
+  ownerDecision: string,
+  approverId: string,
+  approverName: string
+): Issue {
+  const issues = getIssues();
+  const index = issues.findIndex(issue => issue.id === issueId);
+  if (index === -1) throw new Error(`Issue not found: ${issueId}`);
+
+  const now = new Date().toISOString();
+  const currentIssue = issues[index];
+
+  const activities = [...currentIssue.activities];
+  activities.push({
+    id: generateActivityId(),
+    issueId,
+    type: 'status_change',
+    description: `Escalation approved by owner: "${ownerDecision}"`,
+    performedBy: approverId,
+    performedByName: approverName,
+    performedByRole: 'owner',
+    performedAt: now,
+    metadata: { previousValue: 'escalated', newValue: 'assigned' },
+  });
+
+  const updatedIssue: Issue = {
+    ...currentIssue,
+    status: 'assigned',
+    ownerApprovalStatus: 'approved',
+    ownerApprovedAt: now,
+    ownerDecision,
+    activities,
+    updatedAt: now,
+  };
+
+  issues[index] = updatedIssue;
+  saveIssues(issues);
+  return updatedIssue;
+}
+
+/**
+ * Reject an escalated issue
+ */
+export function rejectEscalation(
+  issueId: string,
+  ownerDecision: string,
+  rejectorId: string,
+  rejectorName: string
+): Issue {
+  const issues = getIssues();
+  const index = issues.findIndex(issue => issue.id === issueId);
+  if (index === -1) throw new Error(`Issue not found: ${issueId}`);
+
+  const now = new Date().toISOString();
+  const currentIssue = issues[index];
+
+  const activities = [...currentIssue.activities];
+  activities.push({
+    id: generateActivityId(),
+    issueId,
+    type: 'status_change',
+    description: `Escalation rejected by owner: "${ownerDecision}"`,
+    performedBy: rejectorId,
+    performedByName: rejectorName,
+    performedByRole: 'owner',
+    performedAt: now,
+    metadata: { previousValue: 'escalated', newValue: 'triaged' },
+  });
+
+  const updatedIssue: Issue = {
+    ...currentIssue,
+    status: 'triaged',
+    ownerApprovalStatus: 'rejected',
+    ownerApprovedAt: now,
+    ownerDecision,
+    activities,
+    updatedAt: now,
+  };
+
+  issues[index] = updatedIssue;
+  saveIssues(issues);
+  return updatedIssue;
+}
+
+/**
+ * Get count of pending escalations
+ */
+export function getEscalationCount(): number {
+  return getPendingEscalations().length;
+}
