@@ -28,10 +28,12 @@ import LeaseDetails from '../LeaseDetails';
 import MaintenanceRequest from '../MaintenanceRequest';
 
 type TenantView = 'dashboard' | 'payments' | 'lease' | 'maintenance';
+type ActiveCard = 'payments' | 'maintenance' | 'lease' | null;
 
 export default function TenantDashboard() {
   const { user } = useAuth();
   const [currentView, setCurrentView] = useState<TenantView>('dashboard');
+  const [activeCard, setActiveCard] = useState<ActiveCard>(null);
   const [messages, setMessages] = useState<TenantMessage[]>(getMessages());
 
   const balance = getCurrentBalance();
@@ -40,6 +42,10 @@ export default function TenantDashboard() {
   const unreadMessages = getUnreadMessagesCount();
   const daysUntilRent = getDaysUntilRentDue();
   const daysUntilLeaseEnd = getDaysUntilLeaseEnd();
+
+  const handleCardClick = (card: ActiveCard) => {
+    setActiveCard(activeCard === card ? null : card);
+  };
 
   const handleMessageClick = (messageId: string) => {
     markMessageAsRead(messageId);
@@ -72,34 +78,6 @@ export default function TenantDashboard() {
         </p>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="card p-4 text-center">
-          <div className={`text-3xl font-bold ${daysUntilRent <= 5 ? 'text-yellow-400' : 'text-cc-text'}`}>
-            {daysUntilRent}
-          </div>
-          <p className="text-xs text-cc-muted uppercase tracking-wider mt-1">Days Until Rent</p>
-        </div>
-        <div className="card p-4 text-center">
-          <div className={`text-3xl font-bold ${openRequests > 0 ? 'text-cc-accent' : 'text-green-400'}`}>
-            {openRequests}
-          </div>
-          <p className="text-xs text-cc-muted uppercase tracking-wider mt-1">Open Requests</p>
-        </div>
-        <div className="card p-4 text-center">
-          <div className={`text-3xl font-bold ${unreadMessages > 0 ? 'text-blue-400' : 'text-cc-text'}`}>
-            {unreadMessages}
-          </div>
-          <p className="text-xs text-cc-muted uppercase tracking-wider mt-1">Unread Messages</p>
-        </div>
-        <div className="card p-4 text-center">
-          <div className={`text-3xl font-bold ${daysUntilLeaseEnd <= 60 ? 'text-yellow-400' : 'text-cc-text'}`}>
-            {daysUntilLeaseEnd}
-          </div>
-          <p className="text-xs text-cc-muted uppercase tracking-wider mt-1">Lease Days Left</p>
-        </div>
-      </div>
-
       {/* Alerts */}
       {(daysUntilLeaseEnd <= 60 || balance.status === 'overdue') && (
         <div className="space-y-3">
@@ -128,128 +106,242 @@ export default function TenantDashboard() {
         </div>
       )}
 
-      {/* Main Actions Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Rent Status Card */}
-        <div
-          onClick={() => setCurrentView('payments')}
-          className={`card cursor-pointer transition-all hover:scale-[1.02] ${
+      {/* Three Main Cards */}
+      <div className="grid grid-cols-3 gap-4 items-start">
+        {/* Payments Card */}
+        <button
+          onClick={() => handleCardClick('payments')}
+          className={`card text-left cursor-pointer transition-all duration-1000 ease-in-out ${
+            activeCard === 'payments'
+              ? 'border-cc-accent ring-2 ring-cc-accent/20 bg-cc-accent/5 order-2'
+              : activeCard
+                ? 'opacity-60 hover:opacity-90 order-1'
+                : 'hover:border-cc-accent/50'
+          }`}
+        >
+          <div className={`flex items-center gap-3 ${activeCard && activeCard !== 'payments' ? '' : 'mb-3'}`}>
+            <div className={`p-3 rounded-xl transition-all duration-300 ${
+              activeCard === 'payments'
+                ? 'bg-cc-accent/20 text-cc-accent'
+                : balance.status === 'overdue'
+                  ? 'bg-red-500/20 text-red-400'
+                  : 'bg-green-500/20 text-green-400'
+            }`}>
+              <CreditCard size={24} />
+            </div>
+            <div>
+              <h2 className="font-semibold text-cc-text">Payments</h2>
+              {(!activeCard || activeCard === 'payments') && (
+                <p className="text-sm text-cc-muted">Rent & payment history</p>
+              )}
+            </div>
+          </div>
+
+          {(!activeCard || activeCard === 'payments') && (
+            <div className="space-y-2 animate-in fade-in duration-200">
+              <div className={`flex items-center gap-2 ${balance.status === 'overdue' ? 'text-red-400' : 'text-green-400'}`}>
+                <CreditCard size={16} />
+                <span className="text-sm font-medium">{balance.status === 'paid' ? 'Current' : balance.status}</span>
+              </div>
+              <div className="flex items-center gap-2 text-cc-muted">
+                <Calendar size={16} />
+                <span className="text-sm">{daysUntilRent} days until due</span>
+              </div>
+            </div>
+          )}
+        </button>
+
+        {/* Maintenance Card */}
+        <button
+          onClick={() => handleCardClick('maintenance')}
+          className={`card text-left cursor-pointer transition-all duration-1000 ease-in-out ${
+            activeCard === 'maintenance'
+              ? 'border-cc-accent ring-2 ring-cc-accent/20 bg-cc-accent/5 order-2'
+              : activeCard === 'payments'
+                ? 'opacity-60 hover:opacity-90 order-1'
+                : activeCard === 'lease'
+                  ? 'opacity-60 hover:opacity-90 order-3'
+                  : 'hover:border-cc-accent/50'
+          }`}
+        >
+          <div className={`flex items-center gap-3 ${activeCard && activeCard !== 'maintenance' ? '' : 'mb-3'}`}>
+            <div className={`p-3 rounded-xl transition-all duration-300 ${
+              activeCard === 'maintenance'
+                ? 'bg-cc-accent/20 text-cc-accent'
+                : 'bg-slate-700/50 text-slate-400'
+            }`}>
+              <Wrench size={24} />
+            </div>
+            <div>
+              <h2 className="font-semibold text-cc-text">Maintenance</h2>
+              {(!activeCard || activeCard === 'maintenance') && (
+                <p className="text-sm text-cc-muted">Request repairs</p>
+              )}
+            </div>
+          </div>
+
+          {(!activeCard || activeCard === 'maintenance') && (
+            <div className="space-y-2 animate-in fade-in duration-200">
+              <div className={`flex items-center gap-2 ${openRequests > 0 ? 'text-cc-accent' : 'text-green-400'}`}>
+                <Wrench size={16} />
+                <span className="text-sm font-medium">{openRequests > 0 ? `${openRequests} open` : 'No open requests'}</span>
+              </div>
+              <div className="flex items-center gap-2 text-cc-muted">
+                <ChevronRight size={16} />
+                <span className="text-sm">Submit new request</span>
+              </div>
+            </div>
+          )}
+        </button>
+
+        {/* Lease Card */}
+        <button
+          onClick={() => handleCardClick('lease')}
+          className={`card text-left cursor-pointer transition-all duration-1000 ease-in-out ${
+            activeCard === 'lease'
+              ? 'border-cc-accent ring-2 ring-cc-accent/20 bg-cc-accent/5 order-2'
+              : activeCard
+                ? 'opacity-60 hover:opacity-90 order-3'
+                : 'hover:border-cc-accent/50'
+          }`}
+        >
+          <div className={`flex items-center gap-3 ${activeCard && activeCard !== 'lease' ? '' : 'mb-3'}`}>
+            <div className={`p-3 rounded-xl transition-all duration-300 ${
+              activeCard === 'lease'
+                ? 'bg-cc-accent/20 text-cc-accent'
+                : 'bg-purple-500/20 text-purple-400'
+            }`}>
+              <FileText size={24} />
+            </div>
+            <div>
+              <h2 className="font-semibold text-cc-text">Lease</h2>
+              {(!activeCard || activeCard === 'lease') && (
+                <p className="text-sm text-cc-muted">Documents & details</p>
+              )}
+            </div>
+          </div>
+
+          {(!activeCard || activeCard === 'lease') && (
+            <div className="space-y-2 animate-in fade-in duration-200">
+              <div className={`flex items-center gap-2 ${daysUntilLeaseEnd <= 60 ? 'text-yellow-400' : 'text-green-400'}`}>
+                <Calendar size={16} />
+                <span className="text-sm font-medium">{daysUntilLeaseEnd} days left</span>
+              </div>
+              <div className="flex items-center gap-2 text-cc-muted">
+                <FileText size={16} />
+                <span className="text-sm">{formatCurrency(lease.monthlyRent)}/month</span>
+              </div>
+            </div>
+          )}
+        </button>
+      </div>
+
+      {/* Expanded Content */}
+      {activeCard === 'payments' && (
+        <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className={`card ${
             balance.status === 'overdue'
               ? 'bg-gradient-to-br from-red-900/40 to-cc-surface border-red-500/30'
               : 'bg-gradient-to-br from-green-900/40 to-cc-surface border-green-500/30'
-          }`}
-        >
-          <div className="flex justify-between items-start mb-6">
-            <div className={`p-3 rounded-xl ${
-              balance.status === 'overdue' ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'
-            }`}>
-              <CreditCard size={32} />
-            </div>
-            <span className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide ${
-              balance.status === 'overdue'
-                ? 'bg-red-500/20 text-red-400'
-                : balance.status === 'pending'
-                ? 'bg-yellow-500/20 text-yellow-400'
-                : 'bg-green-500/20 text-green-400'
-            }`}>
-              {balance.status === 'paid' ? 'Current' : balance.status}
-            </span>
-          </div>
-          <div>
-            <p className="text-cc-muted text-sm font-medium uppercase tracking-wider">Next Payment Due</p>
-            <h2 className="text-4xl font-bold text-cc-text mt-1">{formatCurrency(balance.amount)}</h2>
-            <p className="text-cc-muted mt-2 text-sm">
-              {daysUntilRent > 0 ? `Due in ${daysUntilRent} days` : daysUntilRent === 0 ? 'Due today' : `${Math.abs(daysUntilRent)} days overdue`}
-            </p>
-          </div>
-          <button className={`w-full mt-6 py-3 rounded-lg font-bold shadow-lg transition-all flex items-center justify-center gap-2 ${
-            balance.status === 'overdue'
-              ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-900/50'
-              : 'bg-green-600 hover:bg-green-700 text-white shadow-green-900/50'
           }`}>
-            {balance.status === 'overdue' ? 'Pay Now' : 'Pay Rent'}
-            <ChevronRight size={20} />
-          </button>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 gap-4">
-          <div
-            onClick={() => setCurrentView('maintenance')}
-            className="card hover:bg-cc-surface/60 transition-colors cursor-pointer group"
-          >
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-cc-accent/20 rounded-lg text-cc-accent group-hover:scale-110 transition-transform">
-                <Wrench size={24} />
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <p className="text-cc-muted text-sm font-medium uppercase tracking-wider">Next Payment Due</p>
+                <h2 className="text-4xl font-bold text-cc-text mt-1">{formatCurrency(balance.amount)}</h2>
+                <p className="text-cc-muted mt-2 text-sm">
+                  {daysUntilRent > 0 ? `Due in ${daysUntilRent} days` : daysUntilRent === 0 ? 'Due today' : `${Math.abs(daysUntilRent)} days overdue`}
+                </p>
               </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-cc-text flex items-center gap-2">
-                  Request Maintenance
-                  {openRequests > 0 && (
-                    <span className="text-xs bg-cc-accent/20 text-cc-accent px-2 py-0.5 rounded-full">
-                      {openRequests} open
-                    </span>
-                  )}
-                </h3>
-                <p className="text-xs text-cc-muted">Report leaks, appliance issues, etc.</p>
-              </div>
-              <span className="text-cc-muted group-hover:text-cc-text transition-colors">
-                <ChevronRight size={20} />
+              <span className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide ${
+                balance.status === 'overdue'
+                  ? 'bg-red-500/20 text-red-400'
+                  : balance.status === 'pending'
+                  ? 'bg-yellow-500/20 text-yellow-400'
+                  : 'bg-green-500/20 text-green-400'
+              }`}>
+                {balance.status === 'paid' ? 'Current' : balance.status}
               </span>
             </div>
-          </div>
-
-          <div
-            onClick={() => console.log('Contact manager clicked')}
-            className="card hover:bg-cc-surface/60 transition-colors cursor-pointer group"
-          >
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-500/20 rounded-lg text-blue-400 group-hover:scale-110 transition-transform">
-                <MessageSquare size={24} />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-cc-text flex items-center gap-2">
-                  Contact Manager
-                  {unreadMessages > 0 && (
-                    <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">
-                      {unreadMessages} new
-                    </span>
-                  )}
-                </h3>
-                <p className="text-xs text-cc-muted">Questions about lease, parking, etc.</p>
-              </div>
-              <span className="text-cc-muted group-hover:text-cc-text transition-colors">
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={() => setCurrentView('payments')}
+                className={`py-3 rounded-lg font-bold shadow-lg transition-all flex items-center justify-center gap-2 ${
+                  balance.status === 'overdue'
+                    ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-900/50'
+                    : 'bg-green-600 hover:bg-green-700 text-white shadow-green-900/50'
+                }`}
+              >
+                {balance.status === 'overdue' ? 'Pay Now' : 'Pay Rent'}
                 <ChevronRight size={20} />
-              </span>
-            </div>
-          </div>
-
-          <div
-            onClick={() => setCurrentView('lease')}
-            className="card hover:bg-cc-surface/60 transition-colors cursor-pointer group"
-          >
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-purple-500/20 rounded-lg text-purple-400 group-hover:scale-110 transition-transform">
-                <FileText size={24} />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-cc-text flex items-center gap-2">
-                  View Lease Details
-                  {daysUntilLeaseEnd <= 60 && daysUntilLeaseEnd > 0 && (
-                    <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full">
-                      Expiring soon
-                    </span>
-                  )}
-                </h3>
-                <p className="text-xs text-cc-muted">Documents, rules, and renewal info</p>
-              </div>
-              <span className="text-cc-muted group-hover:text-cc-text transition-colors">
-                <ChevronRight size={20} />
-              </span>
+              </button>
+              <button
+                onClick={() => setCurrentView('payments')}
+                className="btn-secondary py-3"
+              >
+                View History
+              </button>
             </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {activeCard === 'maintenance' && (
+        <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="card">
+            <h3 className="text-lg font-bold text-cc-accent mb-4">Maintenance Requests</h3>
+            <p className="text-cc-muted mb-4">Report leaks, appliance issues, HVAC problems, and more.</p>
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={() => setCurrentView('maintenance')}
+                className="btn-primary py-3 flex items-center justify-center gap-2"
+              >
+                <Wrench size={18} />
+                New Request
+              </button>
+              <button
+                onClick={() => setCurrentView('maintenance')}
+                className="btn-secondary py-3"
+              >
+                View Open ({openRequests})
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeCard === 'lease' && (
+        <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="card">
+            <h3 className="text-lg font-bold text-cc-accent mb-4">Lease Information</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+              <div>
+                <p className="text-cc-muted">Address</p>
+                <p className="text-cc-text font-medium">{lease.propertyAddress}</p>
+              </div>
+              <div>
+                <p className="text-cc-muted">Unit</p>
+                <p className="text-cc-text font-medium">{lease.unitNumber}</p>
+              </div>
+              <div>
+                <p className="text-cc-muted">Monthly Rent</p>
+                <p className="text-cc-text font-medium">{formatCurrency(lease.monthlyRent)}</p>
+              </div>
+              <div>
+                <p className="text-cc-muted">Lease Ends</p>
+                <p className={`font-medium ${daysUntilLeaseEnd <= 60 ? 'text-yellow-400' : 'text-cc-text'}`}>
+                  {new Date(lease.endDate).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setCurrentView('lease')}
+              className="btn-secondary w-full py-3"
+            >
+              View Full Lease Details
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Messages from Property Manager */}
       <div className="card">
@@ -292,59 +384,6 @@ export default function TenantDashboard() {
               </div>
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* Monthly Payment Summary */}
-      <div className="card">
-        <h4 className="text-sm font-bold text-cc-muted uppercase tracking-wider mb-4">Monthly Payment Summary</h4>
-        <div className="space-y-3">
-          <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
-            <span className="text-cc-text">Lease (Rent)</span>
-            <span className="font-semibold text-cc-text">{formatCurrency(lease.monthlyRent)}</span>
-          </div>
-          {lease.monthlyUtilities > 0 && (
-            <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
-              <div>
-                <span className="text-cc-text">Utilities</span>
-                <p className="text-xs text-cc-muted">
-                  {lease.utilitiesPaidByOwner
-                    ? 'Paid to owner (Cable, Electric, Heat, Internet, Gas, Trash, Water)'
-                    : 'Paid directly to providers'}
-                </p>
-              </div>
-              <span className="font-semibold text-cc-text">{formatCurrency(lease.monthlyUtilities)}</span>
-            </div>
-          )}
-          <div className="flex justify-between items-center py-3 bg-cc-accent/10 rounded-lg px-3">
-            <span className="font-bold text-cc-text">Total Monthly Payment</span>
-            <span className="font-bold text-lg text-cc-accent">
-              {formatCurrency(lease.monthlyRent + (lease.utilitiesPaidByOwner ? lease.monthlyUtilities : 0))}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Property Info Footer */}
-      <div className="card bg-cc-bg/30">
-        <h4 className="text-sm font-bold text-cc-muted uppercase tracking-wider mb-3">Property Information</h4>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div>
-            <p className="text-cc-muted">Address</p>
-            <p className="text-cc-text font-medium">{lease.propertyAddress}</p>
-          </div>
-          <div>
-            <p className="text-cc-muted">Unit</p>
-            <p className="text-cc-text font-medium">{lease.unitNumber}</p>
-          </div>
-          <div>
-            <p className="text-cc-muted">Monthly Rent</p>
-            <p className="text-cc-text font-medium">{formatCurrency(lease.monthlyRent)}</p>
-          </div>
-          <div>
-            <p className="text-cc-muted">Lease Ends</p>
-            <p className="text-cc-text font-medium">{new Date(lease.endDate).toLocaleDateString()}</p>
-          </div>
         </div>
       </div>
     </div>

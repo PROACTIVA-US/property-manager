@@ -22,6 +22,7 @@ import {
   ClipboardCheck,
   Home,
   Receipt,
+  ChevronLeft,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { getThreads, getNotifications } from '../lib/messages';
@@ -80,6 +81,74 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }, []);
 
   if (!user) return <>{children}</>;
+
+  // Owner gets a sidebar-free layout - the 3-card dashboard IS the navigation
+  if (user?.role === 'owner') {
+    const firstName = user.displayName?.split(' ')[0] || 'there';
+    const isHomePage = location.pathname === '/';
+
+    // Get page title based on current path
+    const getPageTitle = () => {
+      const pathMap: Record<string, string> = {
+        '/financials': 'Financials',
+        '/properties': 'Properties',
+        '/documents': 'Documents',
+        '/messages': 'Messages',
+        '/settings': 'Settings',
+        '/issues': 'Issues',
+        '/projects': 'Projects',
+      };
+      return pathMap[location.pathname] || '';
+    };
+
+    return (
+      <div className="min-h-screen bg-cc-bg">
+        {/* Simple header for owner */}
+        <header className="h-14 border-b border-cc-border/50 bg-cc-surface flex items-center justify-between px-4 sm:px-6">
+          <div className="flex items-center gap-3">
+            {!isHomePage && (
+              <button
+                onClick={() => window.history.back()}
+                className="p-2 text-cc-muted hover:text-cc-text hover:bg-cc-border rounded-lg transition-colors"
+                title="Go back"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+            )}
+            <Link to="/" className="text-xl font-bold text-cc-accent hover:text-cc-accent/80 transition-colors">
+              Hi {firstName}!
+            </Link>
+            {!isHomePage && (
+              <span className="text-cc-muted">/</span>
+            )}
+            {!isHomePage && (
+              <span className="text-lg font-medium text-cc-text">{getPageTitle()}</span>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            <ThemeToggle variant="button" />
+            <Link
+              to="/settings"
+              className="p-2 text-cc-muted hover:text-cc-text hover:bg-cc-border rounded-lg transition-colors"
+              title="Settings"
+            >
+              <SettingsIcon className="h-5 w-5" />
+            </Link>
+            <button
+              onClick={() => logout()}
+              className="p-2 text-cc-muted hover:text-red-400 hover:bg-cc-border rounded-lg transition-colors"
+              title="Sign Out"
+            >
+              <LogOut className="h-5 w-5" />
+            </button>
+          </div>
+        </header>
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+          {children}
+        </main>
+      </div>
+    );
+  }
 
   /**
    * @navigation-structure

@@ -6,7 +6,6 @@ import LoadingSpinner from './components/ui/LoadingSpinner';
 import RoleBasedRoute from './components/RoleBasedRoute';
 import LoginPage from './pages/Login';
 import AuthCallback from './pages/AuthCallback';
-import WelcomePage from './pages/WelcomePage';
 import Dashboard from './pages/Dashboard';
 import Financials from './pages/Financials';
 import VendorsPage from './pages/Vendors';
@@ -91,7 +90,7 @@ export default function App() {
 
           <Route path="/" element={
             <ProtectedRoute>
-              <WelcomePage />
+              <Dashboard />
             </ProtectedRoute>
           } />
 

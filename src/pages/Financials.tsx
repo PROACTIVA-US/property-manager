@@ -1,475 +1,348 @@
-import { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useState } from 'react';
 import {
-  DollarSign,
-  FileText,
-  Scale,
-  Calculator,
   TrendingUp,
-  Building2,
-  Home,
-  Info,
-  Download,
-  Upload,
-  LayoutDashboard,
+  TrendingDown,
+  Calculator,
+  Scale,
   ChevronDown,
-  ChevronRight,
+  ChevronUp,
+  FileText,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import FinancialsOverview from '../components/financials/FinancialsOverview';
-import MortgageCalculator from '../components/MortgageCalculator';
-import FinancialComparison from '../components/FinancialComparison';
-import TaxAnalysis from '../components/TaxAnalysis';
-import KeepVsSell from '../components/KeepVsSell';
 import FinancialAccessDenied from '../components/FinancialAccessDenied';
+import MortgageCalculator from '../components/MortgageCalculator';
+import KeepVsSell from '../components/KeepVsSell';
+import TaxAnalysis from '../components/TaxAnalysis';
+import { loadSettings } from '../lib/settings';
 import {
-  loadSettings,
-  exportSettings,
-  importSettings,
-} from '../lib/settings';
-import {
+  formatCurrency,
   getPropertyFinancials,
-  getPersonalExpenses,
   getTaxInputs,
+  calculateSimpleCashFlow,
 } from '../lib/financials';
-import { getAccessibleTabs, type FinancialTab } from '../lib/financialAccess';
 
-type TabId = 'overview' | 'property' | 'rental' | 'tax' | 'projections';
-
-interface Tab {
-  id: TabId;
-  label: string;
-  icon: React.ElementType;
-  description: string;
-}
-
-const tabs: Tab[] = [
-  {
-    id: 'overview',
-    label: 'Overview',
-    icon: LayoutDashboard,
-    description: 'Income vs expenses snapshot and key metrics',
-  },
-  {
-    id: 'property',
-    label: 'Property & Mortgage',
-    icon: Building2,
-    description: 'Property details and mortgage information',
-  },
-  {
-    id: 'rental',
-    label: 'Rental Income',
-    icon: Home,
-    description: 'Rental income and operating expenses',
-  },
-  {
-    id: 'tax',
-    label: 'Tax Planning',
-    icon: FileText,
-    description: 'Tax information and analysis tools',
-  },
-  {
-    id: 'projections',
-    label: 'Projections',
-    icon: TrendingUp,
-    description: 'Keep vs sell analysis and mortgage payoff calculator',
-  },
-];
+type ExpandedCard = 'incoming' | 'outgoing' | 'mortgage' | 'tax' | 'keepvssell' | null;
 
 export default function Financials() {
   const { user } = useAuth();
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  // Get accessible tabs based on user role
-  const accessibleTabs = getAccessibleTabs(user?.role || null);
-  const filteredTabs = tabs.filter(tab => accessibleTabs.includes(tab.id as FinancialTab));
+  const [expandedCard, setExpandedCard] = useState<ExpandedCard>(null);
 
   // Redirect tenants - they have no access
   if (user?.role === 'tenant') {
     return <FinancialAccessDenied />;
   }
 
-  const initialTab = searchParams.get('tab') as TabId;
-  const defaultTab = filteredTabs.length > 0 ? filteredTabs[0].id : 'overview';
-  const [activeTab, setActiveTab] = useState<TabId>(
-    initialTab && filteredTabs.find(t => t.id === initialTab) ? initialTab : defaultTab
-  );
-  const [settings, setSettings] = useState(loadSettings());
-  const [importMessage, setImportMessage] = useState('');
-  const [isImporting, setIsImporting] = useState(false);
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    keepvssell: true,
-    mortgage: false,
-  });
-
-  // Reload settings when tab changes
-  useEffect(() => {
-    setSettings(loadSettings());
-  }, [activeTab]);
-
-  // Update URL when tab changes
-  const handleTabChange = (tabId: TabId) => {
-    setActiveTab(tabId);
-    setSearchParams({ tab: tabId });
-  };
-
-  // Import/Export handlers for each section
-  const handleExport = (section: string) => {
-    const jsonData = exportSettings();
-    const blob = new Blob([jsonData], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `property-manager-${section}-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
-  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setIsImporting(true);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const jsonString = e.target?.result as string;
-        const imported = importSettings(jsonString);
-        setSettings(imported);
-        setImportMessage('Settings imported successfully!');
-        setTimeout(() => setImportMessage(''), 3000);
-      } catch (error) {
-        setImportMessage('Failed to import. Invalid file format.');
-        setTimeout(() => setImportMessage(''), 3000);
-      } finally {
-        setIsImporting(false);
-      }
-    };
-    reader.readAsText(file);
-    // Reset input
-    event.target.value = '';
-  };
-
-  const ImportExportButtons = ({ section }: { section: string }) => (
-    <div className="flex items-center gap-2 mb-4">
-      <button
-        onClick={() => handleExport(section)}
-        className="btn-secondary flex items-center gap-2 text-xs"
-        title="Export settings"
-      >
-        <Download size={14} />
-        Export
-      </button>
-      <label className={`btn-secondary flex items-center gap-2 text-xs cursor-pointer ${isImporting ? 'opacity-50 pointer-events-none' : ''}`}>
-        <Upload size={14} className={isImporting ? 'animate-spin' : ''} />
-        {isImporting ? 'Importing...' : 'Import'}
-        <input
-          type="file"
-          accept=".json"
-          onChange={handleImport}
-          className="hidden"
-          disabled={isImporting}
-        />
-      </label>
-    </div>
-  );
-
-  // Get live financial data
+  const settings = loadSettings();
+  const simpleCashFlow = calculateSimpleCashFlow();
   const property = getPropertyFinancials();
-  const personal = getPersonalExpenses();
   const taxInputs = getTaxInputs();
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'overview':
-        return <FinancialsOverview />;
+  // Financial calculations
+  const monthlyRent = settings.rentalIncome.monthlyRent;
+  const monthlyUtilitiesIncome = settings.rentalIncome.monthlyUtilities;
+  const totalIncoming = monthlyRent + monthlyUtilitiesIncome;
 
-      case 'property':
-        return (
-          <div className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-cc-text">Property & Mortgage Details</h2>
-              <ImportExportButtons section="property-mortgage" />
-            </div>
+  const monthlyMortgage = simpleCashFlow.monthlyPITI;
+  const monthlyExpenses = 300; // TODO: Make dynamic based on actual utilities costs
+  const totalOutgoing = monthlyMortgage + monthlyExpenses;
 
-            {importMessage && (
-              <div className={`p-3 rounded-lg text-sm ${importMessage.includes('success') ? 'bg-green-500/10 border border-green-500/30 text-green-400' : 'bg-red-500/10 border border-red-500/30 text-red-400'}`}>
-                {importMessage}
-              </div>
-            )}
+  const netCashFlow = totalIncoming - totalOutgoing;
 
-            <div className="space-y-6">
-              {/* Property Summary */}
-              <div>
-                <h3 className="text-lg font-medium text-cc-text mb-4 flex items-center gap-2">
-                  <Building2 className="text-cc-accent" size={18} />
-                  Property Information
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-cc-surface/30 rounded-lg p-4">
-                    <div className="text-xs text-cc-muted uppercase mb-1">Address</div>
-                    <div className="text-cc-text font-medium">{settings.property.address || 'Not set'}</div>
-                  </div>
-                  <div className="bg-cc-surface/30 rounded-lg p-4">
-                    <div className="text-xs text-cc-muted uppercase mb-1">Current Market Value</div>
-                    <div className="text-cc-text font-medium">{settings.property.currentMarketValue ? `$${settings.property.currentMarketValue.toLocaleString()}` : 'Not set'}</div>
-                  </div>
-                </div>
-                <Link to="/settings?tab=property" className="inline-flex items-center gap-1 text-cc-accent hover:underline text-sm font-medium mt-3">
-                  Edit Property Details &rarr;
-                </Link>
-              </div>
-
-              <div className="border-t border-cc-border pt-6">
-                <h3 className="text-lg font-medium text-cc-text mb-4 flex items-center gap-2">
-                  <DollarSign className="text-cc-accent" size={18} />
-                  Mortgage Details
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-cc-surface/30 rounded-lg p-4">
-                    <div className="text-xs text-cc-muted uppercase mb-1">Principal</div>
-                    <div className="text-cc-text font-medium">{settings.mortgage.principal ? `$${settings.mortgage.principal.toLocaleString()}` : 'Not set'}</div>
-                  </div>
-                  <div className="bg-cc-surface/30 rounded-lg p-4">
-                    <div className="text-xs text-cc-muted uppercase mb-1">Interest Rate</div>
-                    <div className="text-cc-text font-medium">{settings.mortgage.interestRate ? `${settings.mortgage.interestRate}%` : 'Not set'}</div>
-                  </div>
-                </div>
-                <Link to="/settings?tab=mortgage" className="inline-flex items-center gap-1 text-cc-accent hover:underline text-sm font-medium mt-3">
-                  Edit Mortgage Details &rarr;
-                </Link>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'rental':
-        return (
-          <div className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-cc-text">Rental Income & Expenses</h2>
-              <ImportExportButtons section="rental" />
-            </div>
-
-            {importMessage && (
-              <div className={`p-3 rounded-lg text-sm ${importMessage.includes('success') ? 'bg-green-500/10 border border-green-500/30 text-green-400' : 'bg-red-500/10 border border-red-500/30 text-red-400'}`}>
-                {importMessage}
-              </div>
-            )}
-
-            {/* Rental Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-cc-surface/30 rounded-lg p-4">
-                <div className="text-xs text-cc-muted uppercase mb-1">Monthly Rent</div>
-                <div className="text-cc-text font-medium">{settings.rentalIncome.monthlyRent ? `$${settings.rentalIncome.monthlyRent.toLocaleString()}` : 'Not set'}</div>
-              </div>
-              <div className="bg-cc-surface/30 rounded-lg p-4">
-                <div className="text-xs text-cc-muted uppercase mb-1">Monthly Property Tax</div>
-                <div className="text-cc-text font-medium">{settings.rentalIncome.monthlyPropertyTax ? `$${settings.rentalIncome.monthlyPropertyTax.toLocaleString()}/mo` : 'Not set'}</div>
-              </div>
-              <div className="bg-cc-surface/30 rounded-lg p-4">
-                <div className="text-xs text-cc-muted uppercase mb-1">Monthly Insurance</div>
-                <div className="text-cc-text font-medium">{settings.rentalIncome.monthlyInsurance ? `$${settings.rentalIncome.monthlyInsurance.toLocaleString()}/mo` : 'Not set'}</div>
-              </div>
-            </div>
-            <Link to="/settings?tab=rental" className="inline-flex items-center gap-1 text-cc-accent hover:underline text-sm font-medium">
-              Edit Rental Details &rarr;
-            </Link>
-
-            {/* Cash Flow Analysis */}
-            <div className="border-t border-cc-border pt-6">
-              <h3 className="text-lg font-medium text-cc-text mb-4">Cash Flow Analysis</h3>
-              <FinancialComparison
-                initialProperty={property}
-                initialPersonal={personal}
-              />
-            </div>
-          </div>
-        );
-
-      case 'tax':
-        return (
-          <div className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-cc-text">Tax Planning</h2>
-              <ImportExportButtons section="tax" />
-            </div>
-
-            {importMessage && (
-              <div className={`p-3 rounded-lg text-sm ${importMessage.includes('success') ? 'bg-green-500/10 border border-green-500/30 text-green-400' : 'bg-red-500/10 border border-red-500/30 text-red-400'}`}>
-                {importMessage}
-              </div>
-            )}
-
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-medium text-cc-text mb-4 flex items-center gap-2">
-                  <FileText className="text-cc-accent" size={18} />
-                  Tax Information
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-cc-surface/30 rounded-lg p-4">
-                    <div className="text-xs text-cc-muted uppercase mb-1">Filing Status</div>
-                    <div className="text-cc-text font-medium capitalize">{settings.taxInfo.filingStatus || 'Not set'}</div>
-                  </div>
-                  <div className="bg-cc-surface/30 rounded-lg p-4">
-                    <div className="text-xs text-cc-muted uppercase mb-1">Annual Income</div>
-                    <div className="text-cc-text font-medium">{settings.taxInfo.annualIncome ? `$${settings.taxInfo.annualIncome.toLocaleString()}` : 'Not set'}</div>
-                  </div>
-                </div>
-                <Link to="/settings?tab=tax" className="inline-flex items-center gap-1 text-cc-accent hover:underline text-sm font-medium mt-3">
-                  Edit Tax Information &rarr;
-                </Link>
-              </div>
-
-              <div className="border-t border-cc-border pt-6">
-                <h3 className="text-lg font-medium text-cc-text mb-4">Tax Analysis & Estimates</h3>
-                <TaxAnalysis
-                  initialProperty={property}
-                  initialTaxInputs={taxInputs}
-                />
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'projections':
-        return (
-          <div className="p-6 space-y-6">
-            <div>
-              <h2 className="text-xl font-bold text-cc-text">Financial Projections</h2>
-              <p className="text-sm text-cc-muted mt-1">
-                Long-term analysis tools to help with investment decisions
-              </p>
-            </div>
-
-            {/* Keep vs Sell - Expandable Section */}
-            <div className="border border-cc-border rounded-lg overflow-hidden">
-              <button
-                onClick={() => setExpandedSections(prev => ({ ...prev, keepvssell: !prev.keepvssell }))}
-                className="w-full flex items-center justify-between px-4 py-3 bg-cc-border/50 hover:bg-cc-border transition-colors"
-              >
-                <span className="flex items-center gap-2 text-sm font-medium text-cc-text">
-                  <Scale size={16} className="text-cc-accent" />
-                  Keep vs Sell Analysis
-                </span>
-                {expandedSections.keepvssell ? (
-                  <ChevronDown size={16} className="text-cc-muted" />
-                ) : (
-                  <ChevronRight size={16} className="text-cc-muted" />
-                )}
-              </button>
-              {expandedSections.keepvssell && (
-                <div className="p-4">
-                  <KeepVsSell
-                    initialProperty={property}
-                    initialTaxInputs={taxInputs}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Mortgage Payoff - Expandable Section */}
-            <div className="border border-cc-border rounded-lg overflow-hidden">
-              <button
-                onClick={() => setExpandedSections(prev => ({ ...prev, mortgage: !prev.mortgage }))}
-                className="w-full flex items-center justify-between px-4 py-3 bg-cc-border/50 hover:bg-cc-border transition-colors"
-              >
-                <span className="flex items-center gap-2 text-sm font-medium text-cc-text">
-                  <Calculator size={16} className="text-cc-accent" />
-                  Mortgage Payoff Calculator
-                </span>
-                {expandedSections.mortgage ? (
-                  <ChevronDown size={16} className="text-cc-muted" />
-                ) : (
-                  <ChevronRight size={16} className="text-cc-muted" />
-                )}
-              </button>
-              {expandedSections.mortgage && (
-                <div className="p-4">
-                  <MortgageCalculator />
-                </div>
-              )}
-            </div>
-          </div>
-        );
-
-      default:
-        return null;
-    }
+  // PITI Breakdown
+  const pitiBreakdown = {
+    principal: settings.mortgage.monthlyPAndI * 0.3, // Approximate
+    interest: settings.mortgage.monthlyPAndI * 0.7, // Approximate
+    tax: settings.rentalIncome.monthlyPropertyTax,
+    insurance: settings.rentalIncome.monthlyInsurance,
   };
 
-  const activeTabData = filteredTabs.find(t => t.id === activeTab);
+  const handleCardClick = (card: ExpandedCard) => {
+    setExpandedCard(expandedCard === card ? null : card);
+  };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-cc-text">Financial Analysis Suite</h1>
-        <p className="text-cc-muted mt-1">
-          {user?.role === 'pm'
-            ? 'View rental income and cash flow analysis'
-            : 'Manage your property finances and analyze investment performance'}
-        </p>
-      </div>
-
-      {/* Tab Navigation */}
-      <div className="border-b border-cc-border/50">
-        <nav className="flex gap-1 overflow-x-auto pb-px" aria-label="Financial analysis tabs">
-          {filteredTabs.map((tab) => {
-            const Icon = tab.icon as React.ElementType<{ size?: number }>;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => handleTabChange(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-                  isActive
-                    ? 'border-cc-accent text-cc-accent'
-                    : 'border-transparent text-cc-muted hover:text-cc-text hover:border-cc-border'
-                }`}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                <Icon size={16} />
-                {tab.label}
-              </button>
-            );
-          })}
-        </nav>
-      </div>
-
-      {/* Tab Description */}
-      {activeTabData && (
-        <div className="flex items-center gap-2 text-sm text-cc-muted">
-          <Info size={14} />
-          {activeTabData.description}
-        </div>
-      )}
-
-      {/* Tab Content */}
-      <div className="card bg-slate-800/50">
-        {renderContent()}
-      </div>
-
-      {/* Educational Disclaimer */}
-      <div className="card bg-gradient-to-r from-cc-surface/50 to-slate-800/50 border-l-4 border-cc-accent">
-        <div className="flex items-start gap-3">
-          <Info className="w-5 h-5 text-cc-accent shrink-0 mt-0.5" />
-          <div className="text-sm">
-            <p className="text-cc-text font-medium mb-1">Educational Tool Disclaimer</p>
-            <p className="text-cc-muted">
-              All calculations, projections, and analysis provided in this suite are for
-              <strong className="text-cc-text"> educational and informational purposes only</strong>.
-              They are based on simplified models and assumptions that may not reflect your actual situation.
-              This tool does not constitute financial, tax, legal, or investment advice.
-              Always consult with qualified professionals (CPA, financial advisor, attorney)
-              before making any financial decisions related to your property.
-            </p>
+      {/* Net Cash Flow Summary - Always visible at top */}
+      <div className="card bg-gradient-to-br from-cc-surface to-slate-800/50">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-cc-text">Monthly Cash Flow</h1>
+            <p className="text-sm text-cc-muted mt-1">Annual: {formatCurrency(netCashFlow * 12, 0)}</p>
+          </div>
+          <div className="text-right">
+            <span className={`text-4xl font-bold ${netCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              {netCashFlow >= 0 ? '+' : ''}{formatCurrency(netCashFlow, 0)}
+            </span>
+            <p className="text-sm text-cc-muted">per month</p>
           </div>
         </div>
       </div>
+
+      {/* Income & Expense Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Incoming Card */}
+        <div>
+          <button
+            onClick={() => handleCardClick('incoming')}
+            className={`w-full card text-left transition-all cursor-pointer ${
+              expandedCard === 'incoming'
+                ? 'border-green-500/50 ring-2 ring-green-500/20'
+                : 'hover:border-green-500/30'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`p-3 rounded-xl ${expandedCard === 'incoming' ? 'bg-green-500/20' : 'bg-slate-700/50'}`}>
+                  <TrendingUp size={24} className="text-green-400" />
+                </div>
+                <div>
+                  <h2 className="font-semibold text-cc-text">Incoming</h2>
+                  <p className="text-sm text-cc-muted">Rent + Utilities</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl font-bold text-green-400">{formatCurrency(totalIncoming, 0)}</span>
+                {expandedCard === 'incoming' ? (
+                  <ChevronUp size={20} className="text-cc-muted" />
+                ) : (
+                  <ChevronDown size={20} className="text-cc-muted" />
+                )}
+              </div>
+            </div>
+          </button>
+
+          {/* Incoming Details */}
+          {expandedCard === 'incoming' && (
+            <div className="mt-2 card bg-green-500/5 border-green-500/30 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center py-2 border-b border-cc-border/30">
+                  <span className="text-cc-text">Base Rent</span>
+                  <span className="font-semibold text-green-400">+{formatCurrency(monthlyRent, 0)}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-cc-border/30">
+                  <span className="text-cc-text">Utilities Reimbursement</span>
+                  <span className="font-semibold text-green-400">+{formatCurrency(monthlyUtilitiesIncome, 0)}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 bg-green-500/10 rounded-lg px-3">
+                  <span className="font-medium text-cc-text">Total Monthly</span>
+                  <span className="font-bold text-green-400">{formatCurrency(totalIncoming, 0)}</span>
+                </div>
+                <div className="pt-2 text-sm text-cc-muted">
+                  <p>Annual Income: {formatCurrency(totalIncoming * 12, 0)}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Outgoing Card */}
+        <div>
+          <button
+            onClick={() => handleCardClick('outgoing')}
+            className={`w-full card text-left transition-all cursor-pointer ${
+              expandedCard === 'outgoing'
+                ? 'border-red-500/50 ring-2 ring-red-500/20'
+                : 'hover:border-red-500/30'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`p-3 rounded-xl ${expandedCard === 'outgoing' ? 'bg-red-500/20' : 'bg-slate-700/50'}`}>
+                  <TrendingDown size={24} className="text-red-400" />
+                </div>
+                <div>
+                  <h2 className="font-semibold text-cc-text">Outgoing</h2>
+                  <p className="text-sm text-cc-muted">Mortgage + Expenses</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl font-bold text-red-400">{formatCurrency(totalOutgoing, 0)}</span>
+                {expandedCard === 'outgoing' ? (
+                  <ChevronUp size={20} className="text-cc-muted" />
+                ) : (
+                  <ChevronDown size={20} className="text-cc-muted" />
+                )}
+              </div>
+            </div>
+          </button>
+
+          {/* Outgoing Details */}
+          {expandedCard === 'outgoing' && (
+            <div className="mt-2 card bg-red-500/5 border-red-500/30 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="space-y-4">
+                {/* Mortgage PITI Breakdown */}
+                <div>
+                  <h4 className="text-sm font-medium text-cc-muted uppercase mb-2">Mortgage (PITI)</h4>
+                  <div className="space-y-2 pl-3 border-l-2 border-red-500/30">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-cc-muted">Principal</span>
+                      <span className="text-cc-text">{formatCurrency(pitiBreakdown.principal, 0)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-cc-muted">Interest</span>
+                      <span className="text-cc-text">{formatCurrency(pitiBreakdown.interest, 0)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-cc-muted">Property Tax</span>
+                      <span className="text-cc-text">{formatCurrency(pitiBreakdown.tax, 0)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-cc-muted">Insurance</span>
+                      <span className="text-cc-text">{formatCurrency(pitiBreakdown.insurance, 0)}</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-1 border-t border-cc-border/30">
+                      <span className="text-cc-text font-medium">Subtotal</span>
+                      <span className="font-semibold text-red-400">-{formatCurrency(monthlyMortgage, 0)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Expenses Breakdown */}
+                <div>
+                  <h4 className="text-sm font-medium text-cc-muted uppercase mb-2">Expenses</h4>
+                  <div className="space-y-2 pl-3 border-l-2 border-red-500/30">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-cc-muted">Utilities</span>
+                      <span className="text-cc-text">{formatCurrency(monthlyExpenses, 0)}</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-1 border-t border-cc-border/30">
+                      <span className="text-cc-text font-medium">Subtotal</span>
+                      <span className="font-semibold text-red-400">-{formatCurrency(monthlyExpenses, 0)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center py-2 bg-red-500/10 rounded-lg px-3">
+                  <span className="font-medium text-cc-text">Total Monthly</span>
+                  <span className="font-bold text-red-400">{formatCurrency(totalOutgoing, 0)}</span>
+                </div>
+                <div className="pt-2 text-sm text-cc-muted">
+                  <p>Annual Expenses: {formatCurrency(totalOutgoing * 12, 0)}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Analysis Tools Section */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-bold text-cc-text">Analysis Tools</h2>
+
+        {/* Analysis Tools Grid */}
+        <div className={`grid grid-cols-1 ${user?.role === 'owner' ? 'md:grid-cols-3' : 'md:grid-cols-1'} gap-4`}>
+          {/* Mortgage Calculator Card */}
+          <button
+            onClick={() => handleCardClick('mortgage')}
+            className={`card text-left transition-all cursor-pointer ${
+              expandedCard === 'mortgage'
+                ? 'border-blue-500/50 ring-2 ring-blue-500/20'
+                : 'hover:border-blue-500/30'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`p-3 rounded-xl ${expandedCard === 'mortgage' ? 'bg-blue-500/20' : 'bg-slate-700/50'}`}>
+                  <Calculator size={24} className="text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-cc-text">Mortgage Calculator</h3>
+                  <p className="text-sm text-cc-muted">Extra payment savings</p>
+                </div>
+              </div>
+              {expandedCard === 'mortgage' ? (
+                <ChevronUp size={20} className="text-cc-muted" />
+              ) : (
+                <ChevronDown size={20} className="text-cc-muted" />
+              )}
+            </div>
+          </button>
+
+          {/* Tax Analysis Card - Only for owners */}
+          {user?.role === 'owner' && (
+            <button
+              onClick={() => handleCardClick('tax')}
+              className={`card text-left transition-all cursor-pointer ${
+                expandedCard === 'tax'
+                  ? 'border-purple-500/50 ring-2 ring-purple-500/20'
+                  : 'hover:border-purple-500/30'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`p-3 rounded-xl ${expandedCard === 'tax' ? 'bg-purple-500/20' : 'bg-slate-700/50'}`}>
+                    <FileText size={24} className="text-purple-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-cc-text">Tax Analysis</h3>
+                    <p className="text-sm text-cc-muted">Capital gains & recapture</p>
+                  </div>
+                </div>
+                {expandedCard === 'tax' ? (
+                  <ChevronUp size={20} className="text-cc-muted" />
+                ) : (
+                  <ChevronDown size={20} className="text-cc-muted" />
+                )}
+              </div>
+            </button>
+          )}
+
+          {/* Keep vs Sell Card - Only for owners */}
+          {user?.role === 'owner' && (
+            <button
+              onClick={() => handleCardClick('keepvssell')}
+              className={`card text-left transition-all cursor-pointer ${
+                expandedCard === 'keepvssell'
+                  ? 'border-cc-accent/50 ring-2 ring-cc-accent/20'
+                  : 'hover:border-cc-accent/30'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`p-3 rounded-xl ${expandedCard === 'keepvssell' ? 'bg-cc-accent/20' : 'bg-slate-700/50'}`}>
+                    <Scale size={24} className="text-cc-accent" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-cc-text">Keep vs Sell</h3>
+                    <p className="text-sm text-cc-muted">Investment comparison</p>
+                  </div>
+                </div>
+                {expandedCard === 'keepvssell' ? (
+                  <ChevronUp size={20} className="text-cc-muted" />
+                ) : (
+                  <ChevronDown size={20} className="text-cc-muted" />
+                )}
+              </div>
+            </button>
+          )}
+        </div>
+
+        {/* Expanded Content - shown below the grid */}
+        {expandedCard === 'mortgage' && (
+          <div className="card bg-blue-500/5 border-blue-500/30 animate-in fade-in slide-in-from-top-2 duration-200">
+            <MortgageCalculator />
+          </div>
+        )}
+
+        {expandedCard === 'tax' && user?.role === 'owner' && (
+          <div className="card bg-purple-500/5 border-purple-500/30 animate-in fade-in slide-in-from-top-2 duration-200">
+            <TaxAnalysis
+              initialProperty={property}
+              initialTaxInputs={taxInputs}
+            />
+          </div>
+        )}
+
+        {expandedCard === 'keepvssell' && user?.role === 'owner' && (
+          <div className="card bg-cc-accent/5 border-cc-accent/30 animate-in fade-in slide-in-from-top-2 duration-200">
+            <KeepVsSell
+              initialProperty={property}
+              initialTaxInputs={taxInputs}
+            />
+          </div>
+        )}
+      </div>
+
     </div>
   );
 }

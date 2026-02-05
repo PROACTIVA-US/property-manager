@@ -1,520 +1,661 @@
 import { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import MortgageCalculator from '../MortgageCalculator';
-import FinancialComparison from '../FinancialComparison';
-import TaxAnalysis from '../TaxAnalysis';
-import KeepVsSell from '../KeepVsSell';
-import PropertyValueWidget from '../PropertyValueWidget';
-import UtilityTracking from '../UtilityTracking';
-import OwnerEscalationWidget from '../issues/OwnerEscalationWidget';
-import IssueDetailModal from '../issues/IssueDetailModal';
-import PortfolioValueKPI from '../dashboard-kpis/PortfolioValueKPI';
-import OccupancyRateKPI from '../dashboard-kpis/OccupancyRateKPI';
-import { getEscalatedIssues, getIssueById } from '../../lib/issues';
-import type { Issue } from '../../types/issues.types';
-import {
-  DollarSign,
-  TrendingUp,
-  Calculator,
-  Scale,
-  FileText,
-  ChevronRight,
-  Sparkles,
-  Pencil,
-  X,
-  Zap,
-} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
-  getPropertyFinancials,
-  getPersonalExpenses,
-  getTaxInputs,
-  calculateSimpleCashFlow,
-  formatCurrency,
-} from '../../lib/financials';
-import { loadSettings, checkUtilityOverages, getPendingUtilityBillsCount } from '../../lib/settings';
+  Building2,
+  DollarSign,
+  Users,
+  AlertTriangle,
+  MessageSquare,
+  Wrench,
+  FolderKanban,
+  TrendingUp,
+  TrendingDown,
+  Clock,
+  FileText,
+  CreditCard,
+  X,
+  ChevronRight,
+  CheckCircle2,
+  User,
+  Phone,
+  Mail,
+} from 'lucide-react';
+import { loadSettings, formatCurrency } from '../../lib/settings';
+import { calculateSimpleCashFlow } from '../../lib/financials';
+import { getIssues, getEscalatedIssues } from '../../lib/issues';
+import { getProjects } from '../../lib/projects';
+import { getThreads, getUnreadCount } from '../../lib/messages';
+import { getLease, getPayments, getDaysUntilLeaseEnd, getCurrentBalance, type Payment } from '../../lib/tenant';
 
-type AnalysisView = 'overview' | 'comparison' | 'tax' | 'keepvssell' | 'mortgage' | 'utilities';
-type DetailModal = 'cashflow' | 'equity' | 'property' | null;
+type ActiveCard = 'property' | 'financials' | 'tenant' | null;
+type TenantModal = 'messages' | 'lease' | 'payment' | null;
 
 export default function OwnerDashboard() {
-  const { user } = useAuth();
-  const [activeView, setActiveView] = useState<AnalysisView>('overview');
-  const [detailModal, setDetailModal] = useState<DetailModal>(null);
-  const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
+  const [activeCard, setActiveCard] = useState<ActiveCard>(null);
+  const [tenantModal, setTenantModal] = useState<TenantModal>(null);
 
-  // Load live data from settings
+  // Load data
   const settings = loadSettings();
-  const propertyFinancials = getPropertyFinancials();
-  const personalExpenses = getPersonalExpenses();
-  const taxInputs = getTaxInputs();
-
-  // Calculate simple cash flow: Rent - PITI - Utilities
   const simpleCashFlow = calculateSimpleCashFlow();
-  const monthlyCashFlow = simpleCashFlow.monthlyNetCashFlow;
+  const issues = getIssues();
+  const escalatedIssues = getEscalatedIssues();
+  const projects = getProjects();
+  const threads = getThreads();
+  const unreadMessages = getUnreadCount();
+  const lease = getLease();
+  const payments = getPayments();
+  const daysUntilLeaseEnd = getDaysUntilLeaseEnd();
+  const currentBalance = getCurrentBalance();
 
-  // Calculate equity using live property values
-  const equity = settings.property.currentMarketValue - settings.mortgage.principal;
+  // Calculate summaries
+  const openIssues = issues.filter(i => !['resolved', 'closed'].includes(i.status));
+  const activeProjects = projects.filter(p => !['completed', 'cancelled'].includes(p.status));
 
-  // Utility tracking data
-  const utilityOverages = checkUtilityOverages();
-  const pendingUtilityBills = getPendingUtilityBillsCount();
+  // Financial calculations
+  const monthlyRent = settings.rentalIncome.monthlyRent;
+  const monthlyUtilitiesIncome = settings.rentalIncome.monthlyUtilities;
+  const totalIncoming = monthlyRent + monthlyUtilitiesIncome;
 
-  const analysisTools = [
-    {
-      id: 'comparison' as const,
-      title: 'Cash Flow Analysis',
-      description: 'Compare rental income vs your living expenses',
-      icon: DollarSign,
-      color: 'bg-green-500/20 text-green-400',
-    },
-    {
-      id: 'tax' as const,
-      title: 'Tax Estimates',
-      description: 'Capital gains and mitigation strategies',
-      icon: FileText,
-      color: 'bg-red-500/20 text-red-400',
-    },
-    {
-      id: 'keepvssell' as const,
-      title: 'Keep vs Sell',
-      description: 'Compare long-term investment scenarios',
-      icon: Scale,
-      color: 'bg-purple-500/20 text-purple-400',
-    },
-    {
-      id: 'mortgage' as const,
-      title: 'Mortgage Payoff',
-      description: 'Accelerate your loan payoff',
-      icon: Calculator,
-      color: 'bg-blue-500/20 text-blue-400',
-    },
-    {
-      id: 'utilities' as const,
-      title: 'Utility Tracking',
-      description: 'Track actual utility costs',
-      icon: Zap,
-      color: 'bg-yellow-500/20 text-yellow-400',
-      badge: utilityOverages.length > 0 ? utilityOverages.length : (pendingUtilityBills > 0 ? pendingUtilityBills : undefined),
-      badgeColor: utilityOverages.length > 0 ? 'bg-red-500' : 'bg-yellow-500',
-    },
-  ];
+  const monthlyMortgage = simpleCashFlow.monthlyPITI;
+  const monthlyExpenses = 300; // TODO: Make dynamic based on actual utilities costs
+  const totalOutgoing = monthlyMortgage + monthlyExpenses;
 
-  const renderContent = () => {
-    switch (activeView) {
-      case 'comparison':
-        return (
-          <FinancialComparison
-            initialProperty={propertyFinancials}
-            initialPersonal={personalExpenses}
-          />
-        );
-      case 'tax':
-        return (
-          <TaxAnalysis
-            initialProperty={propertyFinancials}
-            initialTaxInputs={taxInputs}
-          />
-        );
-      case 'keepvssell':
-        return (
-          <KeepVsSell
-            initialProperty={propertyFinancials}
-            initialTaxInputs={taxInputs}
-          />
-        );
-      case 'mortgage':
-        return <MortgageCalculator />;
-      case 'utilities':
-        return <UtilityTracking onBack={() => setActiveView('overview')} />;
-      default:
-        return null;
-    }
+  const netCashFlow = totalIncoming - totalOutgoing;
+  const isOccupied = !!settings.tenant.name;
+
+  const handleCardClick = (card: ActiveCard) => {
+    setActiveCard(activeCard === card ? null : card);
   };
 
-  const renderDetailModal = () => {
-    if (!detailModal) return null;
+  // Property Management Detail View
+  const renderPropertyDetails = () => (
+    <div className="mt-6 animate-in fade-in slide-in-from-top-2 duration-300">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Messages Card */}
+        <Link
+          to="/messages"
+          className="card hover:border-cc-accent/50 transition-all group cursor-pointer"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-3 bg-blue-500/20 rounded-xl text-blue-400">
+              <MessageSquare size={24} />
+            </div>
+            <div>
+              <h3 className="font-semibold text-cc-text group-hover:text-cc-accent transition-colors">Messages</h3>
+              <p className="text-sm text-cc-muted">Communication hub</p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-cc-muted text-sm">Total Threads</span>
+              <span className="font-semibold text-cc-text">{threads.length}</span>
+            </div>
+            {unreadMessages > 0 && (
+              <div className="flex justify-between items-center">
+                <span className="text-cc-muted text-sm">Unread</span>
+                <span className="font-semibold text-blue-400">{unreadMessages}</span>
+              </div>
+            )}
+          </div>
+          <div className="mt-4 pt-3 border-t border-cc-border/50 flex items-center justify-between text-sm text-cc-muted">
+            <span>View all messages</span>
+            <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          </div>
+        </Link>
 
-    const modalContent = () => {
-      switch (detailModal) {
-        case 'cashflow':
-          return (
-            <>
-              <h3 className="text-lg font-bold text-cc-accent mb-4">Net Cash Flow Breakdown</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
-                  <span className="text-cc-text">Monthly Rental Income</span>
-                  <span className="font-semibold text-green-400">+{formatCurrency(simpleCashFlow.monthlyRent)}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
-                  <div>
-                    <span className="text-cc-text">PITI Payment</span>
-                    <p className="text-xs text-cc-muted">Principal + Interest + Tax + Insurance</p>
-                  </div>
-                  <span className="font-semibold text-red-400">-{formatCurrency(simpleCashFlow.monthlyPITI)}</span>
-                </div>
-                {simpleCashFlow.monthlyUtilities > 0 && (
-                  <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
-                    <span className="text-cc-text">Utilities (Owner-Paid)</span>
-                    <span className="font-semibold text-red-400">-{formatCurrency(simpleCashFlow.monthlyUtilities)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between items-center py-3 bg-cc-bg/50 rounded-lg px-3 mt-4">
-                  <span className="font-bold text-cc-text">Net Monthly Cash Flow</span>
-                  <span className={`font-bold text-lg ${monthlyCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {monthlyCashFlow >= 0 ? '+' : ''}{formatCurrency(monthlyCashFlow)}
-                  </span>
-                </div>
+        {/* Maintenance Card */}
+        <Link
+          to="/issues"
+          className="card hover:border-cc-accent/50 transition-all group cursor-pointer"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-3 bg-orange-500/20 rounded-xl text-orange-400">
+              <Wrench size={24} />
+            </div>
+            <div>
+              <h3 className="font-semibold text-cc-text group-hover:text-cc-accent transition-colors">Maintenance</h3>
+              <p className="text-sm text-cc-muted">Issues & repairs</p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-cc-muted text-sm">Open Issues</span>
+              <span className={`font-semibold ${openIssues.length > 0 ? 'text-orange-400' : 'text-green-400'}`}>
+                {openIssues.length}
+              </span>
+            </div>
+            {escalatedIssues.length > 0 && (
+              <div className="flex justify-between items-center">
+                <span className="text-cc-muted text-sm">Escalated</span>
+                <span className="font-semibold text-red-400">{escalatedIssues.length}</span>
               </div>
-              <Link to="/settings?tab=rental" className="btn-secondary w-full mt-4 text-center block">
-                Edit Rental Settings
-              </Link>
-            </>
-          );
-        case 'equity':
-          return (
-            <>
-              <h3 className="text-lg font-bold text-cc-accent mb-4">Equity Breakdown</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
-                  <span className="text-cc-text">Current Market Value</span>
-                  <span className="font-semibold text-cc-text">{formatCurrency(settings.property.currentMarketValue)}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
-                  <span className="text-cc-text">Remaining Mortgage Balance</span>
-                  <span className="font-semibold text-red-400">-{formatCurrency(settings.mortgage.principal)}</span>
-                </div>
-                <div className="flex justify-between items-center py-3 bg-cc-bg/50 rounded-lg px-3 mt-4">
-                  <span className="font-bold text-cc-text">Total Equity</span>
-                  <span className="font-bold text-lg text-green-400">{formatCurrency(equity)}</span>
-                </div>
-                <div className="mt-4 pt-4 border-t border-cc-border/50 text-sm text-cc-muted">
-                  <div className="flex justify-between">
-                    <span>Original Purchase Price</span>
-                    <span>{formatCurrency(settings.property.purchasePrice)}</span>
-                  </div>
-                  <div className="flex justify-between mt-1">
-                    <span>Appreciation</span>
-                    <span className="text-green-400">+{formatCurrency(settings.property.currentMarketValue - settings.property.purchasePrice)}</span>
-                  </div>
-                </div>
+            )}
+          </div>
+          <div className="mt-4 pt-3 border-t border-cc-border/50 flex items-center justify-between text-sm text-cc-muted">
+            <span>Manage issues</span>
+            <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          </div>
+        </Link>
+
+        {/* Projects Card */}
+        <Link
+          to="/projects"
+          className="card hover:border-cc-accent/50 transition-all group cursor-pointer"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-3 bg-purple-500/20 rounded-xl text-purple-400">
+              <FolderKanban size={24} />
+            </div>
+            <div>
+              <h3 className="font-semibold text-cc-text group-hover:text-cc-accent transition-colors">Projects</h3>
+              <p className="text-sm text-cc-muted">Improvements & upgrades</p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-cc-muted text-sm">Active Projects</span>
+              <span className="font-semibold text-cc-text">{activeProjects.length}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-cc-muted text-sm">Total</span>
+              <span className="font-semibold text-cc-muted">{projects.length}</span>
+            </div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-cc-border/50 flex items-center justify-between text-sm text-cc-muted">
+            <span>View projects</span>
+            <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          </div>
+        </Link>
+      </div>
+    </div>
+  );
+
+  // Financials Detail View
+  const renderFinancialDetails = () => (
+    <div className="mt-6 animate-in fade-in slide-in-from-top-2 duration-300">
+      <div className="card">
+        <h3 className="text-lg font-bold text-cc-text mb-4">Monthly Cash Flow Breakdown</h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Income Section */}
+          <div>
+            <h4 className="text-sm font-medium text-green-400 uppercase tracking-wide mb-3 flex items-center gap-2">
+              <TrendingUp size={16} />
+              Incoming
+            </h4>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center px-3 py-2 border border-cc-border/50 rounded-lg">
+                <span className="text-cc-text">Rent</span>
+                <span className="font-semibold text-green-400">+{formatCurrency(monthlyRent, 0)}</span>
               </div>
-              <Link to="/settings?tab=property" className="btn-secondary w-full mt-4 text-center block">
-                Edit Property Value
-              </Link>
-            </>
-          );
-        case 'property':
-          return (
-            <>
-              <h3 className="text-lg font-bold text-cc-accent mb-4">Property Details</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
-                  <span className="text-cc-text">Address</span>
-                  <span className="font-semibold text-cc-text text-right text-sm">{settings.property.address}</span>
+              {monthlyUtilitiesIncome > 0 && (
+                <div className="flex justify-between items-center px-3 py-2 border border-cc-border/50 rounded-lg">
+                  <span className="text-cc-text">Utilities</span>
+                  <span className="font-semibold text-green-400">+{formatCurrency(monthlyUtilitiesIncome, 0)}</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
-                  <span className="text-cc-text">Current Value</span>
-                  <span className="font-semibold text-cc-text">{formatCurrency(settings.property.currentMarketValue)}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
-                  <span className="text-cc-text">Purchase Price</span>
-                  <span className="font-semibold text-cc-text">{formatCurrency(settings.property.purchasePrice)}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
-                  <span className="text-cc-text">Mortgage Balance</span>
-                  <span className="font-semibold text-cc-text">{formatCurrency(settings.mortgage.principal)}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
-                  <span className="text-cc-text">Monthly PITI</span>
-                  <span className="font-semibold text-cc-text">{formatCurrency(settings.mortgage.totalMonthlyPayment)}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
-                  <span className="text-cc-text">Monthly Rent</span>
-                  <span className="font-semibold text-green-400">{formatCurrency(settings.rentalIncome.monthlyRent)}</span>
-                </div>
+              )}
+              <div className="flex justify-between items-center px-3 py-2 bg-green-500/10 border border-green-500/30 rounded-lg">
+                <span className="font-medium text-cc-text">Total Incoming</span>
+                <span className="font-bold text-green-400">{formatCurrency(totalIncoming, 0)}</span>
               </div>
-              <Link to="/settings" className="btn-secondary w-full mt-4 text-center block">
-                Edit All Settings
-              </Link>
-            </>
-          );
-        default:
-          return null;
-      }
-    };
+            </div>
+          </div>
+
+          {/* Expenses Section */}
+          <div>
+            <h4 className="text-sm font-medium text-red-400 uppercase tracking-wide mb-3 flex items-center gap-2">
+              <TrendingDown size={16} />
+              Outgoing
+            </h4>
+            <div className="space-y-2">
+              <button className="w-full flex justify-between items-center px-3 py-2 border border-cc-border/50 rounded-lg hover:border-blue-400/50 hover:bg-blue-500/5 active:bg-cc-border/30 transition-all group">
+                <span className="text-blue-400 inline-flex items-center group-hover:translate-x-0.5 transition-transform">Mortgage<span className="leading-none ml-0.5">&rsaquo;&rsaquo;</span></span>
+                <span className="font-semibold text-red-400">-{formatCurrency(monthlyMortgage, 0)}</span>
+              </button>
+              <button className="w-full flex justify-between items-center px-3 py-2 border border-cc-border/50 rounded-lg hover:border-blue-400/50 hover:bg-blue-500/5 active:bg-cc-border/30 transition-all group">
+                <span className="text-blue-400 inline-flex items-center group-hover:translate-x-0.5 transition-transform">Expenses<span className="leading-none ml-0.5">&rsaquo;&rsaquo;</span></span>
+                <span className="font-semibold text-red-400">-{formatCurrency(monthlyExpenses, 0)}</span>
+              </button>
+              <div className="flex justify-between items-center px-3 py-2 bg-red-500/10 border border-red-500/30 rounded-lg">
+                <span className="font-medium text-cc-text">Total Outgoing</span>
+                <span className="font-bold text-red-400">{formatCurrency(totalOutgoing, 0)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Net Income */}
+        <div className="mt-6 pt-4 border-t border-cc-border">
+          <div className="flex justify-between items-center p-4 bg-cc-bg rounded-xl">
+            <div>
+              <span className="text-lg font-bold text-cc-text">Net Income</span>
+              <p className="text-sm text-cc-muted">Annual: {formatCurrency(netCashFlow * 12, 0)}</p>
+            </div>
+            <span className={`text-2xl font-bold ${netCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              {netCashFlow >= 0 ? '+' : ''}{formatCurrency(netCashFlow, 0)}
+            </span>
+          </div>
+        </div>
+
+        <Link to="/financials" className="btn-secondary w-full mt-4 text-center block">
+          View Detailed Analysis
+        </Link>
+      </div>
+    </div>
+  );
+
+  // Tenant Detail View
+  const renderTenantDetails = () => (
+    <div className="mt-6 animate-in fade-in slide-in-from-top-2 duration-300">
+      {/* Tenant Info Header */}
+      <div className="card mb-4">
+        <div className="flex items-start gap-4">
+          <div className="p-3 bg-cc-accent/20 rounded-xl text-cc-accent">
+            <User size={32} />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-xl font-bold text-cc-text">{settings.tenant.name}</h3>
+            <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+              <div className="flex items-center gap-2 text-cc-muted">
+                <Mail size={14} />
+                <span>{settings.tenant.email}</span>
+              </div>
+              <div className="flex items-center gap-2 text-cc-muted">
+                <Phone size={14} />
+                <span>{settings.tenant.phone}</span>
+              </div>
+              {settings.tenant.emergencyContact && (
+                <div className="flex items-center gap-2 text-cc-muted sm:col-span-2">
+                  <AlertTriangle size={14} />
+                  <span>Emergency: {settings.tenant.emergencyContact} ({settings.tenant.emergencyContactPhone})</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Action Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Messages Card */}
+        <button
+          onClick={() => setTenantModal('messages')}
+          className="card hover:border-cc-accent/50 transition-all group cursor-pointer text-left"
+        >
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
+              <MessageSquare size={20} />
+            </div>
+            <h4 className="font-semibold text-cc-text group-hover:text-cc-accent transition-colors">Messages</h4>
+          </div>
+          <p className="text-sm text-cc-muted mb-3">Communication with tenant</p>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-cc-muted">Click for details</span>
+            <ChevronRight size={16} className="text-cc-muted group-hover:translate-x-1 transition-transform" />
+          </div>
+        </button>
+
+        {/* Lease Card */}
+        <button
+          onClick={() => setTenantModal('lease')}
+          className="card hover:border-cc-accent/50 transition-all group cursor-pointer text-left"
+        >
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400">
+              <FileText size={20} />
+            </div>
+            <h4 className="font-semibold text-cc-text group-hover:text-cc-accent transition-colors">Lease</h4>
+          </div>
+          <p className="text-sm text-cc-muted mb-3">
+            {daysUntilLeaseEnd > 0 ? `${daysUntilLeaseEnd} days remaining` : 'Lease expired'}
+          </p>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-cc-muted">Click for details</span>
+            <ChevronRight size={16} className="text-cc-muted group-hover:translate-x-1 transition-transform" />
+          </div>
+        </button>
+
+        {/* Payment Status Card */}
+        <button
+          onClick={() => setTenantModal('payment')}
+          className="card hover:border-cc-accent/50 transition-all group cursor-pointer text-left"
+        >
+          <div className="flex items-center gap-3 mb-3">
+            <div className={`p-2 rounded-lg ${currentBalance.status === 'paid' ? 'bg-green-500/20 text-green-400' : currentBalance.status === 'overdue' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+              <CreditCard size={20} />
+            </div>
+            <h4 className="font-semibold text-cc-text group-hover:text-cc-accent transition-colors">Payment Status</h4>
+          </div>
+          <p className={`text-sm mb-3 ${currentBalance.status === 'paid' ? 'text-green-400' : currentBalance.status === 'overdue' ? 'text-red-400' : 'text-yellow-400'}`}>
+            {currentBalance.status === 'paid' ? 'Current month paid' : currentBalance.status === 'overdue' ? 'Payment overdue' : 'Payment pending'}
+          </p>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-cc-muted">Click for details</span>
+            <ChevronRight size={16} className="text-cc-muted group-hover:translate-x-1 transition-transform" />
+          </div>
+        </button>
+      </div>
+    </div>
+  );
+
+  // Tenant Messages Modal
+  const renderMessagesModal = () => (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setTenantModal(null)}>
+      <div className="bg-cc-surface border border-cc-border rounded-xl p-6 w-full max-w-lg shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold text-cc-text flex items-center gap-2">
+            <MessageSquare size={20} className="text-blue-400" />
+            Tenant Messages
+          </h3>
+          <button onClick={() => setTenantModal(null)} className="text-cc-muted hover:text-cc-text transition-colors">
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="space-y-3 max-h-64 overflow-y-auto">
+          {threads.filter(t => t.participants.some(p => p.role === 'tenant')).length > 0 ? (
+            threads.filter(t => t.participants.some(p => p.role === 'tenant')).slice(0, 5).map(thread => (
+              <div key={thread.id} className="p-3 bg-cc-bg rounded-lg">
+                <p className="font-medium text-cc-text text-sm">{thread.subject}</p>
+                <p className="text-xs text-cc-muted mt-1 truncate">{thread.lastMessage}</p>
+              </div>
+            ))
+          ) : (
+            <p className="text-cc-muted text-center py-4">No messages with tenant</p>
+          )}
+        </div>
+
+        <Link to="/messages" className="btn-primary w-full mt-4 text-center block">
+          Go to Messages
+        </Link>
+      </div>
+    </div>
+  );
+
+  // Lease Modal
+  const renderLeaseModal = () => (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setTenantModal(null)}>
+      <div className="bg-cc-surface border border-cc-border rounded-xl p-6 w-full max-w-lg shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold text-cc-text flex items-center gap-2">
+            <FileText size={20} className="text-purple-400" />
+            Lease Details
+          </h3>
+          <button onClick={() => setTenantModal(null)} className="text-cc-muted hover:text-cc-text transition-colors">
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
+            <span className="text-cc-muted">Property</span>
+            <span className="text-cc-text text-sm text-right">{lease.propertyAddress}</span>
+          </div>
+          <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
+            <span className="text-cc-muted">Start Date</span>
+            <span className="text-cc-text">{new Date(lease.startDate).toLocaleDateString()}</span>
+          </div>
+          <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
+            <span className="text-cc-muted">End Date</span>
+            <span className="text-cc-text">{new Date(lease.endDate).toLocaleDateString()}</span>
+          </div>
+          <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
+            <span className="text-cc-muted">Monthly Rent</span>
+            <span className="text-green-400 font-semibold">{formatCurrency(lease.monthlyRent, 0)}</span>
+          </div>
+          <div className="flex justify-between items-center py-2 border-b border-cc-border/50">
+            <span className="text-cc-muted">Security Deposit</span>
+            <span className="text-cc-text">{formatCurrency(lease.securityDeposit, 0)}</span>
+          </div>
+          <div className="flex justify-between items-center py-2">
+            <span className="text-cc-muted">Time Remaining</span>
+            <span className={`font-semibold ${daysUntilLeaseEnd > 60 ? 'text-green-400' : daysUntilLeaseEnd > 30 ? 'text-yellow-400' : 'text-red-400'}`}>
+              {daysUntilLeaseEnd > 0 ? `${daysUntilLeaseEnd} days` : 'Expired'}
+            </span>
+          </div>
+        </div>
+
+        <Link to="/documents" className="btn-secondary w-full mt-4 text-center block">
+          View Lease Document
+        </Link>
+      </div>
+    </div>
+  );
+
+  // Payment Modal
+  const renderPaymentModal = () => {
+    const recentPayments = payments.slice(0, 5);
 
     return (
-      <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setDetailModal(null)}>
-        <div className="bg-cc-surface border border-cc-border rounded-xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
-          <div className="flex justify-end mb-2">
-            <button onClick={() => setDetailModal(null)} className="text-cc-muted hover:text-cc-text transition-colors">
+      <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setTenantModal(null)}>
+        <div className="bg-cc-surface border border-cc-border rounded-xl p-6 w-full max-w-lg shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-cc-text flex items-center gap-2">
+              <CreditCard size={20} className="text-green-400" />
+              Payment History
+            </h3>
+            <button onClick={() => setTenantModal(null)} className="text-cc-muted hover:text-cc-text transition-colors">
               <X size={20} />
             </button>
           </div>
-          {modalContent()}
+
+          {/* Current Status */}
+          <div className={`p-4 rounded-lg mb-4 ${currentBalance.status === 'paid' ? 'bg-green-500/10 border border-green-500/30' : currentBalance.status === 'overdue' ? 'bg-red-500/10 border border-red-500/30' : 'bg-yellow-500/10 border border-yellow-500/30'}`}>
+            <div className="flex justify-between items-center">
+              <span className="text-cc-text font-medium">Current Status</span>
+              <span className={`font-bold capitalize ${currentBalance.status === 'paid' ? 'text-green-400' : currentBalance.status === 'overdue' ? 'text-red-400' : 'text-yellow-400'}`}>
+                {currentBalance.status}
+              </span>
+            </div>
+            {currentBalance.status !== 'paid' && (
+              <p className="text-sm text-cc-muted mt-1">
+                {formatCurrency(currentBalance.amount, 0)} due {new Date(currentBalance.dueDate).toLocaleDateString()}
+              </p>
+            )}
+          </div>
+
+          {/* Recent Payments */}
+          <h4 className="text-sm font-medium text-cc-muted uppercase mb-3">Recent Payments</h4>
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {recentPayments.map((payment: Payment) => (
+              <div key={payment.id} className="flex justify-between items-center p-3 bg-cc-bg rounded-lg">
+                <div>
+                  <p className="text-cc-text font-medium">{formatCurrency(payment.amount, 0)}</p>
+                  <p className="text-xs text-cc-muted">{new Date(payment.date).toLocaleDateString()}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-green-400" />
+                  <span className="text-sm text-green-400">Paid</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
   };
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-cc-text">Owner Overview</h1>
-          <p className="text-cc-muted mt-1">
-            Financial health and property insights for {user?.displayName}
-          </p>
+    <div className="space-y-6">
+      {/* Escalation Alert */}
+      {escalatedIssues.length > 0 && (
+        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="text-red-400" size={24} />
+            <div>
+              <p className="font-semibold text-red-400">
+                {escalatedIssues.length} Issue{escalatedIssues.length > 1 ? 's' : ''} Require Your Attention
+              </p>
+              <p className="text-sm text-cc-muted">Escalated issues need owner approval</p>
+            </div>
+            <Link to="/issues?filter=escalated" className="ml-auto btn-secondary text-sm">
+              View Issues
+            </Link>
+          </div>
         </div>
-      </div>
-
-      {/* Escalation Widget - Show if there are escalated issues */}
-      {activeView === 'overview' && getEscalatedIssues().length > 0 && (
-        <section>
-          <OwnerEscalationWidget onIssueClick={(issue) => setSelectedIssue(issue)} />
-        </section>
       )}
 
-      {/* Overview Mode */}
-      {activeView === 'overview' && (
-        <>
-          {/* Key Performance Indicators */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <PortfolioValueKPI onDrillDown={() => setDetailModal('property')} />
-            <OccupancyRateKPI onViewLeases={() => {}} />
+      {/* Three Main Cards */}
+      <div className="grid grid-cols-3 gap-4 items-start">
+        {/* Property Management Card */}
+        <button
+          onClick={() => handleCardClick('property')}
+          className={`card text-left cursor-pointer transition-all duration-1000 ease-in-out ${
+            activeCard === 'property'
+              ? 'border-cc-accent ring-2 ring-cc-accent/20 bg-cc-accent/5 order-2'
+              : activeCard
+                ? 'opacity-60 hover:opacity-90 order-1'
+                : 'hover:border-cc-accent/50'
+          }`}
+        >
+          <div className={`flex items-center gap-3 ${activeCard && activeCard !== 'property' ? '' : 'mb-3'}`}>
+            <div className={`p-3 rounded-xl transition-all duration-300 ${
+              activeCard === 'property'
+                ? 'bg-cc-accent/20 text-cc-accent'
+                : 'bg-slate-700/50 text-slate-400'
+            }`}>
+              <Building2 size={24} />
+            </div>
+            <div>
+              <h2 className="font-semibold text-cc-text">Property Management</h2>
+              {(!activeCard || activeCard === 'property') && (
+                <p className="text-sm text-cc-muted">Issues, projects & comms</p>
+              )}
+            </div>
           </div>
 
-          {/* High-level metrics */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-4 sm:gap-6">
-            <button
-              onClick={() => setDetailModal('cashflow')}
-              className="card bg-gradient-to-br from-cc-surface to-slate-800 group relative text-left hover:border-cc-accent/50 transition-colors cursor-pointer"
-            >
-              <div
-                className="absolute top-3 right-3 p-1.5 bg-cc-border/50 rounded-lg text-cc-muted hover:text-cc-accent hover:bg-cc-border transition-all opacity-0 group-hover:opacity-100"
-                onClick={(e) => { e.stopPropagation(); }}
-              >
-                <Link to="/settings?tab=rental" title="Edit rental income and expenses">
-                  <Pencil size={14} />
-                </Link>
-              </div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-green-500/20 rounded-lg text-green-400">
-                  <DollarSign size={24} />
+          {(!activeCard || activeCard === 'property') && (
+            <div className="space-y-2 animate-in fade-in duration-200">
+              {openIssues.length > 0 ? (
+                <div className="flex items-center gap-2 text-orange-400">
+                  <AlertTriangle size={16} />
+                  <span className="text-sm font-medium">{openIssues.length} open issue{openIssues.length > 1 ? 's' : ''}</span>
                 </div>
-                <h3 className="font-semibold text-cc-text">Net Cash Flow</h3>
-              </div>
-              <p className="text-3xl font-bold text-cc-text">
-                {monthlyCashFlow >= 0 ? '+' : ''}{formatCurrency(monthlyCashFlow)}
-                <span className="text-sm font-normal text-cc-muted">/mo</span>
-              </p>
-              <p className={`text-xs mt-2 flex items-center gap-1 ${monthlyCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                <TrendingUp size={12} />
-                Rent ({formatCurrency(simpleCashFlow.monthlyRent)}) - PITI ({formatCurrency(simpleCashFlow.monthlyPITI)})
-              </p>
-              <p className="text-xs text-cc-muted mt-1">Click for breakdown →</p>
-            </button>
-
-            <button
-              onClick={() => setDetailModal('equity')}
-              className="card group relative text-left hover:border-cc-accent/50 transition-colors cursor-pointer"
-            >
-              <div
-                className="absolute top-3 right-3 p-1.5 bg-cc-border/50 rounded-lg text-cc-muted hover:text-cc-accent hover:bg-cc-border transition-all opacity-0 group-hover:opacity-100"
-                onClick={(e) => { e.stopPropagation(); }}
-              >
-                <Link to="/settings?tab=property" title="Edit property value and mortgage">
-                  <Pencil size={14} />
-                </Link>
-              </div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
-                  <TrendingUp size={24} />
+              ) : (
+                <div className="flex items-center gap-2 text-green-400">
+                  <CheckCircle2 size={16} />
+                  <span className="text-sm font-medium">No open issues</span>
                 </div>
-                <h3 className="font-semibold text-cc-text">Equity Built</h3>
-              </div>
-              <p className="text-3xl font-bold text-cc-text">{formatCurrency(equity)}</p>
-              <p className="text-xs text-cc-muted mt-2">
-                Value ({formatCurrency(settings.property.currentMarketValue)}) - Mortgage ({formatCurrency(settings.mortgage.principal)})
-              </p>
-              <p className="text-xs text-cc-muted mt-1">Click for breakdown →</p>
-            </button>
+              )}
+              {activeProjects.length > 0 && (
+                <div className="flex items-center gap-2 text-purple-400">
+                  <FolderKanban size={16} />
+                  <span className="text-sm">{activeProjects.length} active project{activeProjects.length > 1 ? 's' : ''}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </button>
 
+        {/* Financial Info Card */}
+        <button
+          onClick={() => handleCardClick('financials')}
+          className={`card text-left cursor-pointer transition-all duration-1000 ease-in-out ${
+            activeCard === 'financials'
+              ? 'border-cc-accent ring-2 ring-cc-accent/20 bg-cc-accent/5 order-2'
+              : activeCard === 'property'
+                ? 'opacity-60 hover:opacity-90 order-1'
+                : activeCard === 'tenant'
+                  ? 'opacity-60 hover:opacity-90 order-3'
+                  : 'hover:border-cc-accent/50'
+          }`}
+        >
+          <div className={`flex items-center gap-3 ${activeCard && activeCard !== 'financials' ? '' : 'mb-3'}`}>
+            <div className={`p-3 rounded-xl transition-all duration-300 ${
+              activeCard === 'financials'
+                ? 'bg-cc-accent/20 text-cc-accent'
+                : 'bg-slate-700/50 text-slate-400'
+            }`}>
+              <DollarSign size={24} />
+            </div>
+            <div>
+              <h2 className="font-semibold text-cc-text">Financial Info</h2>
+              {(!activeCard || activeCard === 'financials') && (
+                <p className="text-sm text-cc-muted">Monthly cash flow</p>
+              )}
+            </div>
           </div>
 
-          {/* Property Value Widget */}
-          <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <div className="xl:col-span-1">
-              <PropertyValueWidget />
-            </div>
-            <div className="xl:col-span-2">
-              <div className="card h-full">
-                <h3 className="text-lg font-bold text-cc-text mb-2">Market Insights</h3>
-                <p className="text-sm text-cc-muted mb-4">
-                  Track your property's value over time and compare with recent market trends.
-                </p>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-cc-muted">Purchase Price</span>
-                    <span className="text-cc-text font-medium">
-                      {formatCurrency(settings.property.purchasePrice)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-cc-muted">Current Value</span>
-                    <span className="text-cc-text font-medium">
-                      {formatCurrency(settings.property.currentMarketValue)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm pt-3 border-t border-cc-border">
-                    <span className="text-cc-muted">Appreciation</span>
-                    <span className="text-green-400 font-bold">
-                      +{formatCurrency(settings.property.currentMarketValue - settings.property.purchasePrice)}
-                    </span>
-                  </div>
-                </div>
+          {(!activeCard || activeCard === 'financials') && (
+            <div className="space-y-2 text-sm animate-in fade-in duration-200">
+              <div className="flex justify-between items-center">
+                <span className="text-cc-muted">Incoming <span className="text-xs">(Rent + Utilities)</span></span>
+                <span className="text-green-400">{formatCurrency(totalIncoming, 0)}</span>
               </div>
-            </div>
-          </section>
-
-          {/* Analysis Tools Grid */}
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold text-cc-text">Financial Analysis Tools</h2>
-                <span className="px-2 py-0.5 rounded text-[10px] bg-cc-accent/20 text-cc-accent font-medium uppercase tracking-wide flex items-center gap-1">
-                  <Sparkles size={10} />
-                  Interactive
+              <div className="flex justify-between items-center">
+                <span className="text-cc-muted">Outgoing <span className="text-xs">(Mortgage + Expenses)</span></span>
+                <span className="text-red-400">{formatCurrency(totalOutgoing, 0)}</span>
+              </div>
+              <div className="pt-2 border-t border-cc-border/50 flex justify-between items-center">
+                <span className="font-medium text-cc-text">Net Income</span>
+                <span className={`font-bold ${netCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {formatCurrency(netCashFlow, 0)}
                 </span>
               </div>
-              <Link
-                to="/financials"
-                className="text-sm text-cc-accent hover:text-indigo-300 transition-colors flex items-center gap-1"
-              >
-                View All
-                <ChevronRight size={14} />
-              </Link>
             </div>
+          )}
+        </button>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              {analysisTools.map((tool) => {
-                const Icon = tool.icon;
-                return (
-                  <button
-                    key={tool.id}
-                    onClick={() => setActiveView(tool.id)}
-                    className="card text-left hover:border-cc-accent/50 transition-all hover:scale-[1.02] group relative"
-                  >
-                    {'badge' in tool && tool.badge !== undefined && (
-                      <span className={`absolute -top-2 -right-2 ${tool.badgeColor || 'bg-red-500'} text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center`}>
-                        {tool.badge}
-                      </span>
-                    )}
-                    <div className={`p-2 rounded-lg w-fit ${tool.color} mb-3`}>
-                      <Icon size={20} />
-                    </div>
-                    <h3 className="font-semibold text-cc-text mb-1 group-hover:text-cc-accent transition-colors">
-                      {tool.title}
-                    </h3>
-                    <p className="text-xs text-cc-muted">{tool.description}</p>
-                  </button>
-                );
-              })}
+        {/* Tenant Card */}
+        <button
+          onClick={() => handleCardClick('tenant')}
+          className={`card text-left cursor-pointer transition-all duration-1000 ease-in-out ${
+            activeCard === 'tenant'
+              ? 'border-cc-accent ring-2 ring-cc-accent/20 bg-cc-accent/5 order-2'
+              : activeCard
+                ? 'opacity-60 hover:opacity-90 order-3'
+                : 'hover:border-cc-accent/50'
+          }`}
+        >
+          <div className={`flex items-center gap-3 ${activeCard && activeCard !== 'tenant' ? '' : 'mb-3'}`}>
+            <div className={`p-3 rounded-xl transition-all duration-300 ${
+              activeCard === 'tenant'
+                ? 'bg-cc-accent/20 text-cc-accent'
+                : 'bg-slate-700/50 text-slate-400'
+            }`}>
+              <Users size={24} />
             </div>
-          </section>
+            <div>
+              <h2 className="font-semibold text-cc-text">Tenant</h2>
+              {(!activeCard || activeCard === 'tenant') && (
+                <p className="text-sm text-cc-muted">Lease & payments</p>
+              )}
+            </div>
+          </div>
 
-          {/* Quick Cash Flow Summary */}
-          <section>
-            <div className="flex items-center gap-2 mb-4">
-              <h2 className="text-xl font-bold text-cc-text">Quick Cash Flow Summary</h2>
-              <span className="text-xs text-cc-muted">(Rent - PITI)</span>
-            </div>
-            <button
-              onClick={() => setDetailModal('cashflow')}
-              className="card w-full text-left hover:border-cc-accent/50 transition-colors cursor-pointer"
-            >
-              <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
-                <div>
-                  <p className="text-xs text-cc-muted uppercase mb-1">Rental Income</p>
-                  <p className="text-base sm:text-lg font-semibold text-green-400">
-                    +{formatCurrency(simpleCashFlow.monthlyRent)}/mo
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-cc-muted uppercase mb-1">PITI Payment</p>
-                  <p className="text-base sm:text-lg font-semibold text-red-400">
-                    -{formatCurrency(simpleCashFlow.monthlyPITI)}/mo
-                  </p>
-                </div>
-                {simpleCashFlow.monthlyUtilities > 0 && (
-                  <div>
-                    <p className="text-xs text-cc-muted uppercase mb-1">Utilities</p>
-                    <p className="text-base sm:text-lg font-semibold text-red-400">
-                      -{formatCurrency(simpleCashFlow.monthlyUtilities)}/mo
-                    </p>
+          {(!activeCard || activeCard === 'tenant') && (
+            <div className="space-y-2 animate-in fade-in duration-200">
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${isOccupied ? 'bg-green-400' : 'bg-red-400'}`} />
+                <span className={`text-sm font-medium ${isOccupied ? 'text-green-400' : 'text-red-400'}`}>
+                  {isOccupied ? 'Occupied' : 'Vacant'}
+                </span>
+              </div>
+              {isOccupied && (
+                <>
+                  <p className="text-sm text-cc-text truncate">{settings.tenant.name}</p>
+                  <div className="flex items-center gap-2 text-cc-muted">
+                    <Clock size={14} />
+                    <span className="text-sm">
+                      {daysUntilLeaseEnd > 0 ? `${daysUntilLeaseEnd} days left` : 'Lease expired'}
+                    </span>
                   </div>
-                )}
-                <div>
-                  <p className="text-xs text-cc-muted uppercase mb-1">Net Cash Flow</p>
-                  <p className={`text-base sm:text-lg font-bold ${monthlyCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {monthlyCashFlow >= 0 ? '+' : ''}{formatCurrency(monthlyCashFlow)}/mo
-                  </p>
-                </div>
-              </div>
-              <div className="mt-4 pt-4 border-t border-cc-border/50 flex flex-wrap gap-4 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="text-cc-muted">Annual Net:</span>
-                  <span className={`font-medium ${simpleCashFlow.annualNetCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {simpleCashFlow.annualNetCashFlow >= 0 ? '+' : ''}{formatCurrency(simpleCashFlow.annualNetCashFlow)}/yr
-                  </span>
-                </div>
-                <span className="text-xs text-cc-muted ml-auto">Click for details →</span>
-              </div>
-            </button>
-          </section>
-        </>
-      )}
+                </>
+              )}
+            </div>
+          )}
+        </button>
+      </div>
 
-      {/* Analysis View Mode */}
-      {activeView !== 'overview' && (
-        <section>
-          <div className="flex items-center gap-4 mb-4">
-            <button
-              onClick={() => setActiveView('overview')}
-              className="text-sm text-cc-muted hover:text-cc-text transition-colors flex items-center gap-1"
-            >
-              <ChevronRight size={14} className="rotate-180" />
-              Back to Overview
-            </button>
-          </div>
-          <div className="card bg-slate-800/50">
-            {renderContent()}
-          </div>
-        </section>
-      )}
+      {/* Detail Section */}
+      {activeCard === 'property' && renderPropertyDetails()}
+      {activeCard === 'financials' && renderFinancialDetails()}
+      {activeCard === 'tenant' && renderTenantDetails()}
 
-      {/* Disclaimer */}
-      <p className="text-xs text-cc-muted text-center">
-        Financial analysis tools are for educational purposes only. Consult qualified professionals
-        for actual financial, tax, and investment decisions.
-      </p>
-
-      {/* Detail Modals */}
-      {renderDetailModal()}
-
-      {/* Issue Detail Modal for Escalations */}
-      {selectedIssue && (
-        <IssueDetailModal
-          issue={selectedIssue}
-          onClose={() => setSelectedIssue(null)}
-          onUpdated={() => {
-            const updated = getIssueById(selectedIssue.id);
-            setSelectedIssue(updated || null);
-          }}
-        />
-      )}
+      {/* Tenant Modals */}
+      {tenantModal === 'messages' && renderMessagesModal()}
+      {tenantModal === 'lease' && renderLeaseModal()}
+      {tenantModal === 'payment' && renderPaymentModal()}
     </div>
   );
 }

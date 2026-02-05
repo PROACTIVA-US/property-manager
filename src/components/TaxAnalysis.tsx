@@ -11,7 +11,6 @@ import {
 } from 'recharts';
 import {
   Calculator,
-  AlertTriangle,
   ChevronDown,
   ChevronRight,
   ExternalLink,
@@ -21,7 +20,6 @@ import {
   Repeat,
   Clock,
   Heart,
-  Info,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import FinancialAccessDenied from './FinancialAccessDenied';
@@ -123,19 +121,6 @@ export default function TaxAnalysis({
         >
           {showInputs ? 'Hide Inputs' : 'Edit Values'}
         </button>
-      </div>
-
-      {/* Warning Banner */}
-      <div className="flex items-start gap-3 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-        <AlertTriangle className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
-        <div className="text-sm">
-          <p className="text-yellow-500 font-medium">Important Disclaimer</p>
-          <p className="text-cc-muted mt-1">
-            These are simplified estimates for educational purposes only. Tax laws are complex
-            and change frequently. Always consult with a qualified tax professional or CPA
-            for accurate tax planning and advice specific to your situation.
-          </p>
-        </div>
       </div>
 
       {/* Input Section (Collapsible) */}
@@ -511,27 +496,6 @@ export default function TaxAnalysis({
         </div>
       </div>
 
-      {/* Professional Advice Reminder */}
-      <div className="card bg-gradient-to-br from-cc-surface to-slate-800">
-        <div className="flex items-start gap-3">
-          <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400 shrink-0">
-            <Info size={20} />
-          </div>
-          <div className="text-sm">
-            <p className="text-cc-text font-medium mb-1">Professional Guidance Recommended</p>
-            <p className="text-cc-muted">
-              Tax planning for real estate involves complex regulations that vary by jurisdiction
-              and individual circumstances. The estimates and strategies shown here are
-              simplified for educational purposes. Before making any decisions, consult with:
-            </p>
-            <ul className="mt-2 space-y-1 text-cc-muted">
-              <li>- A Certified Public Accountant (CPA) familiar with real estate</li>
-              <li>- A tax attorney for complex situations</li>
-              <li>- A qualified financial planner for overall strategy</li>
-            </ul>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

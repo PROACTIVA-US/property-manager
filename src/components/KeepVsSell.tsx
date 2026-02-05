@@ -493,12 +493,6 @@ export default function KeepVsSell({
         </div>
       </div>
 
-      {/* Disclaimer */}
-      <p className="text-xs text-cc-muted text-center px-4">
-        This analysis uses simplified projections and assumptions. Actual results will vary
-        based on market conditions, property-specific factors, and your tax situation.
-        This is not financial advice - consult qualified professionals before making decisions.
-      </p>
     </div>
   );
 }

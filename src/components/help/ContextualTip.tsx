@@ -2,10 +2,12 @@ import { X, Lightbulb, ArrowRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getTipForRoute } from '../../data/contextualTips';
+import { useAuth } from '../../contexts/AuthContext';
 
 const DISMISSED_TIPS_KEY = 'property-manager-dismissed-tips';
 
 export default function ContextualTip() {
+  const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [dismissedTips, setDismissedTips] = useState<string[]>(() => {
@@ -19,6 +21,9 @@ export default function ContextualTip() {
   useEffect(() => {
     localStorage.setItem(DISMISSED_TIPS_KEY, JSON.stringify(dismissedTips));
   }, [dismissedTips]);
+
+  // Don't show tips for owner role - they have a simplified UI
+  if (user?.role === 'owner') return null;
 
   if (!shouldShow || !tip) return null;
 
