@@ -10,7 +10,6 @@ import {
   FolderKanban,
   TrendingUp,
   TrendingDown,
-  Clock,
   FileText,
   CreditCard,
   X,
@@ -26,12 +25,18 @@ import { getIssues, getEscalatedIssues } from '../../lib/issues';
 import { getProjects } from '../../lib/projects';
 import { getThreads, getUnreadCount } from '../../lib/messages';
 import { getLease, getPayments, getDaysUntilLeaseEnd, getCurrentBalance, type Payment } from '../../lib/tenant';
+import BrowserTabs, { type Tab } from '../ui/BrowserTabs';
 
-type ActiveCard = 'property' | 'financials' | 'tenant' | null;
 type TenantModal = 'messages' | 'lease' | 'payment' | null;
 
+// Tab colors
+const TAB_COLORS = {
+  property: '#6366f1', // Indigo
+  financials: '#22c55e', // Green
+  tenant: '#f97316', // Orange
+};
+
 export default function OwnerDashboard() {
-  const [activeCard, setActiveCard] = useState<ActiveCard>(null);
   const [tenantModal, setTenantModal] = useState<TenantModal>(null);
 
   // Load data
@@ -57,220 +62,210 @@ export default function OwnerDashboard() {
   const totalIncoming = monthlyRent + monthlyUtilitiesIncome;
 
   const monthlyMortgage = simpleCashFlow.monthlyPITI;
-  const monthlyExpenses = 300; // TODO: Make dynamic based on actual utilities costs
+  const monthlyExpenses = 300;
   const totalOutgoing = monthlyMortgage + monthlyExpenses;
 
   const netCashFlow = totalIncoming - totalOutgoing;
   const isOccupied = !!settings.tenant.name;
 
-  const handleCardClick = (card: ActiveCard) => {
-    setActiveCard(activeCard === card ? null : card);
-  };
-
   // Property Management Detail View
   const renderPropertyDetails = () => (
-    <div className="mt-6 animate-in fade-in slide-in-from-top-2 duration-300">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Messages Card */}
-        <Link
-          to="/messages"
-          className="card hover:border-cc-accent/50 transition-all group cursor-pointer"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-blue-500/20 rounded-xl text-blue-400">
-              <MessageSquare size={24} />
-            </div>
-            <div>
-              <h3 className="font-semibold text-cc-text group-hover:text-cc-accent transition-colors">Messages</h3>
-              <p className="text-sm text-cc-muted">Communication hub</p>
-            </div>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Messages Card */}
+      <Link
+        to="/messages"
+        className="card hover:border-cc-accent/50 transition-all group cursor-pointer"
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-3 bg-blue-500/20 rounded-xl text-blue-400">
+            <MessageSquare size={24} />
           </div>
-          <div className="space-y-2">
+          <div>
+            <h3 className="font-semibold text-cc-text group-hover:text-cc-accent transition-colors">Messages</h3>
+            <p className="text-sm text-cc-muted">Communication hub</p>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-cc-muted text-sm">Total Threads</span>
+            <span className="font-semibold text-cc-text">{threads.length}</span>
+          </div>
+          {unreadMessages > 0 && (
             <div className="flex justify-between items-center">
-              <span className="text-cc-muted text-sm">Total Threads</span>
-              <span className="font-semibold text-cc-text">{threads.length}</span>
+              <span className="text-cc-muted text-sm">Unread</span>
+              <span className="font-semibold text-blue-400">{unreadMessages}</span>
             </div>
-            {unreadMessages > 0 && (
-              <div className="flex justify-between items-center">
-                <span className="text-cc-muted text-sm">Unread</span>
-                <span className="font-semibold text-blue-400">{unreadMessages}</span>
-              </div>
-            )}
-          </div>
-          <div className="mt-4 pt-3 border-t border-cc-border/50 flex items-center justify-between text-sm text-cc-muted">
-            <span>View all messages</span>
-            <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
-          </div>
-        </Link>
+          )}
+        </div>
+        <div className="mt-4 pt-3 border-t border-cc-border/50 flex items-center justify-between text-sm text-cc-muted">
+          <span>View all messages</span>
+          <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+        </div>
+      </Link>
 
-        {/* Maintenance Card */}
-        <Link
-          to="/issues"
-          className="card hover:border-cc-accent/50 transition-all group cursor-pointer"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-orange-500/20 rounded-xl text-orange-400">
-              <Wrench size={24} />
-            </div>
-            <div>
-              <h3 className="font-semibold text-cc-text group-hover:text-cc-accent transition-colors">Maintenance</h3>
-              <p className="text-sm text-cc-muted">Issues & repairs</p>
-            </div>
+      {/* Maintenance Card */}
+      <Link
+        to="/issues"
+        className="card hover:border-cc-accent/50 transition-all group cursor-pointer"
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-3 bg-orange-500/20 rounded-xl text-orange-400">
+            <Wrench size={24} />
           </div>
-          <div className="space-y-2">
+          <div>
+            <h3 className="font-semibold text-cc-text group-hover:text-cc-accent transition-colors">Maintenance</h3>
+            <p className="text-sm text-cc-muted">Issues & repairs</p>
+          </div>
+        </div>
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-cc-muted text-sm">Open Issues</span>
+            <span className={`font-semibold ${openIssues.length > 0 ? 'text-orange-400' : 'text-green-400'}`}>
+              {openIssues.length}
+            </span>
+          </div>
+          {escalatedIssues.length > 0 && (
             <div className="flex justify-between items-center">
-              <span className="text-cc-muted text-sm">Open Issues</span>
-              <span className={`font-semibold ${openIssues.length > 0 ? 'text-orange-400' : 'text-green-400'}`}>
-                {openIssues.length}
-              </span>
+              <span className="text-cc-muted text-sm">Escalated</span>
+              <span className="font-semibold text-red-400">{escalatedIssues.length}</span>
             </div>
-            {escalatedIssues.length > 0 && (
-              <div className="flex justify-between items-center">
-                <span className="text-cc-muted text-sm">Escalated</span>
-                <span className="font-semibold text-red-400">{escalatedIssues.length}</span>
-              </div>
-            )}
-          </div>
-          <div className="mt-4 pt-3 border-t border-cc-border/50 flex items-center justify-between text-sm text-cc-muted">
-            <span>Manage issues</span>
-            <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
-          </div>
-        </Link>
+          )}
+        </div>
+        <div className="mt-4 pt-3 border-t border-cc-border/50 flex items-center justify-between text-sm text-cc-muted">
+          <span>Manage issues</span>
+          <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+        </div>
+      </Link>
 
-        {/* Projects Card */}
-        <Link
-          to="/projects"
-          className="card hover:border-cc-accent/50 transition-all group cursor-pointer"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-purple-500/20 rounded-xl text-purple-400">
-              <FolderKanban size={24} />
-            </div>
-            <div>
-              <h3 className="font-semibold text-cc-text group-hover:text-cc-accent transition-colors">Projects</h3>
-              <p className="text-sm text-cc-muted">Improvements & upgrades</p>
-            </div>
+      {/* Projects Card */}
+      <Link
+        to="/projects"
+        className="card hover:border-cc-accent/50 transition-all group cursor-pointer"
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-3 bg-purple-500/20 rounded-xl text-purple-400">
+            <FolderKanban size={24} />
           </div>
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-cc-muted text-sm">Active Projects</span>
-              <span className="font-semibold text-cc-text">{activeProjects.length}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-cc-muted text-sm">Total</span>
-              <span className="font-semibold text-cc-muted">{projects.length}</span>
-            </div>
+          <div>
+            <h3 className="font-semibold text-cc-text group-hover:text-cc-accent transition-colors">Projects</h3>
+            <p className="text-sm text-cc-muted">Improvements & upgrades</p>
           </div>
-          <div className="mt-4 pt-3 border-t border-cc-border/50 flex items-center justify-between text-sm text-cc-muted">
-            <span>View projects</span>
-            <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+        </div>
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-cc-muted text-sm">Active Projects</span>
+            <span className="font-semibold text-cc-text">{activeProjects.length}</span>
           </div>
-        </Link>
-      </div>
+          <div className="flex justify-between items-center">
+            <span className="text-cc-muted text-sm">Total</span>
+            <span className="font-semibold text-cc-muted">{projects.length}</span>
+          </div>
+        </div>
+        <div className="mt-4 pt-3 border-t border-cc-border/50 flex items-center justify-between text-sm text-cc-muted">
+          <span>View projects</span>
+          <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+        </div>
+      </Link>
     </div>
   );
 
   // Financials Detail View
   const renderFinancialDetails = () => (
-    <div className="mt-6 animate-in fade-in slide-in-from-top-2 duration-300">
-      <div className="card">
-        <h3 className="text-lg font-bold text-cc-text mb-4">Monthly Cash Flow Breakdown</h3>
+    <div>
+      <h3 className="text-lg font-bold text-cc-text mb-4">Monthly Cash Flow Breakdown</h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Income Section */}
-          <div>
-            <h4 className="text-sm font-medium text-green-400 uppercase tracking-wide mb-3 flex items-center gap-2">
-              <TrendingUp size={16} />
-              Incoming
-            </h4>
-            <div className="space-y-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Income Section */}
+        <div>
+          <h4 className="text-sm font-medium text-green-400 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <TrendingUp size={16} />
+            Incoming
+          </h4>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center px-3 py-2 border border-cc-border/50 rounded-lg">
+              <span className="text-cc-text">Rent</span>
+              <span className="font-semibold text-green-400">+{formatCurrency(monthlyRent, 0)}</span>
+            </div>
+            {monthlyUtilitiesIncome > 0 && (
               <div className="flex justify-between items-center px-3 py-2 border border-cc-border/50 rounded-lg">
-                <span className="text-cc-text">Rent</span>
-                <span className="font-semibold text-green-400">+{formatCurrency(monthlyRent, 0)}</span>
+                <span className="text-cc-text">Utilities</span>
+                <span className="font-semibold text-green-400">+{formatCurrency(monthlyUtilitiesIncome, 0)}</span>
               </div>
-              {monthlyUtilitiesIncome > 0 && (
-                <div className="flex justify-between items-center px-3 py-2 border border-cc-border/50 rounded-lg">
-                  <span className="text-cc-text">Utilities</span>
-                  <span className="font-semibold text-green-400">+{formatCurrency(monthlyUtilitiesIncome, 0)}</span>
-                </div>
-              )}
-              <div className="flex justify-between items-center px-3 py-2 bg-green-500/10 border border-green-500/30 rounded-lg">
-                <span className="font-medium text-cc-text">Total Incoming</span>
-                <span className="font-bold text-green-400">{formatCurrency(totalIncoming, 0)}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Expenses Section */}
-          <div>
-            <h4 className="text-sm font-medium text-red-400 uppercase tracking-wide mb-3 flex items-center gap-2">
-              <TrendingDown size={16} />
-              Outgoing
-            </h4>
-            <div className="space-y-2">
-              <button className="w-full flex justify-between items-center px-3 py-2 border border-cc-border/50 rounded-lg hover:border-blue-400/50 hover:bg-blue-500/5 active:bg-cc-border/30 transition-all group">
-                <span className="text-blue-400 inline-flex items-center group-hover:translate-x-0.5 transition-transform">Mortgage<span className="leading-none ml-0.5">&rsaquo;&rsaquo;</span></span>
-                <span className="font-semibold text-red-400">-{formatCurrency(monthlyMortgage, 0)}</span>
-              </button>
-              <button className="w-full flex justify-between items-center px-3 py-2 border border-cc-border/50 rounded-lg hover:border-blue-400/50 hover:bg-blue-500/5 active:bg-cc-border/30 transition-all group">
-                <span className="text-blue-400 inline-flex items-center group-hover:translate-x-0.5 transition-transform">Expenses<span className="leading-none ml-0.5">&rsaquo;&rsaquo;</span></span>
-                <span className="font-semibold text-red-400">-{formatCurrency(monthlyExpenses, 0)}</span>
-              </button>
-              <div className="flex justify-between items-center px-3 py-2 bg-red-500/10 border border-red-500/30 rounded-lg">
-                <span className="font-medium text-cc-text">Total Outgoing</span>
-                <span className="font-bold text-red-400">{formatCurrency(totalOutgoing, 0)}</span>
-              </div>
+            )}
+            <div className="flex justify-between items-center px-3 py-2 bg-green-500/10 border border-green-500/30 rounded-lg">
+              <span className="font-medium text-cc-text">Total Incoming</span>
+              <span className="font-bold text-green-400">{formatCurrency(totalIncoming, 0)}</span>
             </div>
           </div>
         </div>
 
-        {/* Net Income */}
-        <div className="mt-6 pt-4 border-t border-cc-border">
-          <div className="flex justify-between items-center p-4 bg-cc-bg rounded-xl">
-            <div>
-              <span className="text-lg font-bold text-cc-text">Net Income</span>
-              <p className="text-sm text-cc-muted">Annual: {formatCurrency(netCashFlow * 12, 0)}</p>
+        {/* Expenses Section */}
+        <div>
+          <h4 className="text-sm font-medium text-red-400 uppercase tracking-wide mb-3 flex items-center gap-2">
+            <TrendingDown size={16} />
+            Outgoing
+          </h4>
+          <div className="space-y-2">
+            <button className="w-full flex justify-between items-center px-3 py-2 border border-cc-border/50 rounded-lg hover:border-blue-400/50 hover:bg-blue-500/5 active:bg-cc-border/30 transition-all group">
+              <span className="text-blue-400 inline-flex items-center group-hover:translate-x-0.5 transition-transform">Mortgage<span className="leading-none ml-0.5">&rsaquo;&rsaquo;</span></span>
+              <span className="font-semibold text-red-400">-{formatCurrency(monthlyMortgage, 0)}</span>
+            </button>
+            <button className="w-full flex justify-between items-center px-3 py-2 border border-cc-border/50 rounded-lg hover:border-blue-400/50 hover:bg-blue-500/5 active:bg-cc-border/30 transition-all group">
+              <span className="text-blue-400 inline-flex items-center group-hover:translate-x-0.5 transition-transform">Expenses<span className="leading-none ml-0.5">&rsaquo;&rsaquo;</span></span>
+              <span className="font-semibold text-red-400">-{formatCurrency(monthlyExpenses, 0)}</span>
+            </button>
+            <div className="flex justify-between items-center px-3 py-2 bg-red-500/10 border border-red-500/30 rounded-lg">
+              <span className="font-medium text-cc-text">Total Outgoing</span>
+              <span className="font-bold text-red-400">{formatCurrency(totalOutgoing, 0)}</span>
             </div>
-            <span className={`text-2xl font-bold ${netCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-              {netCashFlow >= 0 ? '+' : ''}{formatCurrency(netCashFlow, 0)}
-            </span>
           </div>
         </div>
-
-        <Link to="/financials" className="btn-secondary w-full mt-4 text-center block">
-          View Detailed Analysis
-        </Link>
       </div>
+
+      {/* Net Income */}
+      <div className="mt-6 pt-4 border-t border-cc-border">
+        <div className="flex justify-between items-center p-4 bg-cc-bg rounded-xl">
+          <div>
+            <span className="text-lg font-bold text-cc-text">Net Income</span>
+            <p className="text-sm text-cc-muted">Annual: {formatCurrency(netCashFlow * 12, 0)}</p>
+          </div>
+          <span className={`text-2xl font-bold ${netCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            {netCashFlow >= 0 ? '+' : ''}{formatCurrency(netCashFlow, 0)}
+          </span>
+        </div>
+      </div>
+
+      <Link to="/financials" className="btn-secondary w-full mt-4 text-center block">
+        View Detailed Analysis
+      </Link>
     </div>
   );
 
   // Tenant Detail View
   const renderTenantDetails = () => (
-    <div className="mt-6 animate-in fade-in slide-in-from-top-2 duration-300">
+    <div>
       {/* Tenant Info Header */}
-      <div className="card mb-4">
-        <div className="flex items-start gap-4">
-          <div className="p-3 bg-cc-accent/20 rounded-xl text-cc-accent">
-            <User size={32} />
-          </div>
-          <div className="flex-1">
-            <h3 className="text-xl font-bold text-cc-text">{settings.tenant.name}</h3>
-            <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-              <div className="flex items-center gap-2 text-cc-muted">
-                <Mail size={14} />
-                <span>{settings.tenant.email}</span>
-              </div>
-              <div className="flex items-center gap-2 text-cc-muted">
-                <Phone size={14} />
-                <span>{settings.tenant.phone}</span>
-              </div>
-              {settings.tenant.emergencyContact && (
-                <div className="flex items-center gap-2 text-cc-muted sm:col-span-2">
-                  <AlertTriangle size={14} />
-                  <span>Emergency: {settings.tenant.emergencyContact} ({settings.tenant.emergencyContactPhone})</span>
-                </div>
-              )}
+      <div className="flex items-start gap-4 mb-6 pb-4 border-b border-cc-border">
+        <div className="p-3 bg-cc-accent/20 rounded-xl text-cc-accent">
+          <User size={32} />
+        </div>
+        <div className="flex-1">
+          <h3 className="text-xl font-bold text-cc-text">{settings.tenant.name}</h3>
+          <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+            <div className="flex items-center gap-2 text-cc-muted">
+              <Mail size={14} />
+              <span>{settings.tenant.email}</span>
             </div>
+            <div className="flex items-center gap-2 text-cc-muted">
+              <Phone size={14} />
+              <span>{settings.tenant.phone}</span>
+            </div>
+            {settings.tenant.emergencyContact && (
+              <div className="flex items-center gap-2 text-cc-muted sm:col-span-2">
+                <AlertTriangle size={14} />
+                <span>Emergency: {settings.tenant.emergencyContact} ({settings.tenant.emergencyContactPhone})</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -475,6 +470,58 @@ export default function OwnerDashboard() {
     );
   };
 
+  // Build tabs configuration
+  const tabs: Tab[] = [
+    {
+      id: 'property',
+      label: 'Property Management',
+      subtitle: 'Issues, projects & comms',
+      icon: <Building2 size={20} />,
+      color: TAB_COLORS.property,
+      summary: openIssues.length > 0 ? (
+        <span>
+          <span className="text-cc-muted">Status:</span>
+          <span className="font-semibold ml-1" style={{ color: TAB_COLORS.property }}>{openIssues.length} open issue{openIssues.length !== 1 ? 's' : ''}</span>
+        </span>
+      ) : unreadMessages > 0 ? (
+        <span><span className="text-cc-muted">Status:</span><span className="font-semibold ml-1" style={{ color: TAB_COLORS.property }}>{unreadMessages} new message{unreadMessages !== 1 ? 's' : ''}</span></span>
+      ) : (<span className="text-cc-muted">Status: No open issues</span>),
+      content: renderPropertyDetails(),
+    },
+    {
+      id: 'financials',
+      label: 'Financial Info',
+      subtitle: 'Monthly cash flow',
+      icon: <DollarSign size={20} />,
+      color: TAB_COLORS.financials,
+      summary: (
+        <span>
+          <span className="text-cc-muted">Net Income:</span>
+          <span className="font-semibold ml-1" style={{ color: netCashFlow >= 0 ? '#22c55e' : '#ef4444' }}>
+            {formatCurrency(netCashFlow, 0)}/mo
+          </span>
+        </span>
+      ),
+      content: renderFinancialDetails(),
+    },
+    {
+      id: 'tenant',
+      label: 'Occupancy',
+      subtitle: 'Status & tenant info',
+      icon: <Users size={20} />,
+      color: TAB_COLORS.tenant,
+      summary: isOccupied ? (
+        <span>
+          <span className="text-cc-muted">Occupied:</span>
+          <span className="font-semibold ml-1" style={{ color: TAB_COLORS.tenant }}>{settings.tenant.name}</span>
+        </span>
+      ) : (
+        <span className="font-semibold" style={{ color: '#ef4444' }}>Vacant</span>
+      ),
+      content: renderTenantDetails(),
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Escalation Alert */}
@@ -495,162 +542,8 @@ export default function OwnerDashboard() {
         </div>
       )}
 
-      {/* Three Main Cards */}
-      <div className="grid grid-cols-3 gap-4 items-start">
-        {/* Property Management Card */}
-        <button
-          onClick={() => handleCardClick('property')}
-          className={`card text-left cursor-pointer transition-all duration-1000 ease-in-out ${
-            activeCard === 'property'
-              ? 'border-cc-accent ring-2 ring-cc-accent/20 bg-cc-accent/5 order-2'
-              : activeCard
-                ? 'opacity-60 hover:opacity-90 order-1'
-                : 'hover:border-cc-accent/50'
-          }`}
-        >
-          <div className={`flex items-center gap-3 ${activeCard && activeCard !== 'property' ? '' : 'mb-3'}`}>
-            <div className={`p-3 rounded-xl transition-all duration-300 ${
-              activeCard === 'property'
-                ? 'bg-cc-accent/20 text-cc-accent'
-                : 'bg-slate-700/50 text-slate-400'
-            }`}>
-              <Building2 size={24} />
-            </div>
-            <div>
-              <h2 className="font-semibold text-cc-text">Property Management</h2>
-              {(!activeCard || activeCard === 'property') && (
-                <p className="text-sm text-cc-muted">Issues, projects & comms</p>
-              )}
-            </div>
-          </div>
-
-          {(!activeCard || activeCard === 'property') && (
-            <div className="space-y-2 animate-in fade-in duration-200">
-              {openIssues.length > 0 ? (
-                <div className="flex items-center gap-2 text-orange-400">
-                  <AlertTriangle size={16} />
-                  <span className="text-sm font-medium">{openIssues.length} open issue{openIssues.length > 1 ? 's' : ''}</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 text-green-400">
-                  <CheckCircle2 size={16} />
-                  <span className="text-sm font-medium">No open issues</span>
-                </div>
-              )}
-              {activeProjects.length > 0 && (
-                <div className="flex items-center gap-2 text-purple-400">
-                  <FolderKanban size={16} />
-                  <span className="text-sm">{activeProjects.length} active project{activeProjects.length > 1 ? 's' : ''}</span>
-                </div>
-              )}
-            </div>
-          )}
-        </button>
-
-        {/* Financial Info Card */}
-        <button
-          onClick={() => handleCardClick('financials')}
-          className={`card text-left cursor-pointer transition-all duration-1000 ease-in-out ${
-            activeCard === 'financials'
-              ? 'border-cc-accent ring-2 ring-cc-accent/20 bg-cc-accent/5 order-2'
-              : activeCard === 'property'
-                ? 'opacity-60 hover:opacity-90 order-1'
-                : activeCard === 'tenant'
-                  ? 'opacity-60 hover:opacity-90 order-3'
-                  : 'hover:border-cc-accent/50'
-          }`}
-        >
-          <div className={`flex items-center gap-3 ${activeCard && activeCard !== 'financials' ? '' : 'mb-3'}`}>
-            <div className={`p-3 rounded-xl transition-all duration-300 ${
-              activeCard === 'financials'
-                ? 'bg-cc-accent/20 text-cc-accent'
-                : 'bg-slate-700/50 text-slate-400'
-            }`}>
-              <DollarSign size={24} />
-            </div>
-            <div>
-              <h2 className="font-semibold text-cc-text">Financial Info</h2>
-              {(!activeCard || activeCard === 'financials') && (
-                <p className="text-sm text-cc-muted">Monthly cash flow</p>
-              )}
-            </div>
-          </div>
-
-          {(!activeCard || activeCard === 'financials') && (
-            <div className="space-y-2 text-sm animate-in fade-in duration-200">
-              <div className="flex justify-between items-center">
-                <span className="text-cc-muted">Incoming <span className="text-xs">(Rent + Utilities)</span></span>
-                <span className="text-green-400">{formatCurrency(totalIncoming, 0)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-cc-muted">Outgoing <span className="text-xs">(Mortgage + Expenses)</span></span>
-                <span className="text-red-400">{formatCurrency(totalOutgoing, 0)}</span>
-              </div>
-              <div className="pt-2 border-t border-cc-border/50 flex justify-between items-center">
-                <span className="font-medium text-cc-text">Net Income</span>
-                <span className={`font-bold ${netCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  {formatCurrency(netCashFlow, 0)}
-                </span>
-              </div>
-            </div>
-          )}
-        </button>
-
-        {/* Tenant Card */}
-        <button
-          onClick={() => handleCardClick('tenant')}
-          className={`card text-left cursor-pointer transition-all duration-1000 ease-in-out ${
-            activeCard === 'tenant'
-              ? 'border-cc-accent ring-2 ring-cc-accent/20 bg-cc-accent/5 order-2'
-              : activeCard
-                ? 'opacity-60 hover:opacity-90 order-3'
-                : 'hover:border-cc-accent/50'
-          }`}
-        >
-          <div className={`flex items-center gap-3 ${activeCard && activeCard !== 'tenant' ? '' : 'mb-3'}`}>
-            <div className={`p-3 rounded-xl transition-all duration-300 ${
-              activeCard === 'tenant'
-                ? 'bg-cc-accent/20 text-cc-accent'
-                : 'bg-slate-700/50 text-slate-400'
-            }`}>
-              <Users size={24} />
-            </div>
-            <div>
-              <h2 className="font-semibold text-cc-text">Tenant</h2>
-              {(!activeCard || activeCard === 'tenant') && (
-                <p className="text-sm text-cc-muted">Lease & payments</p>
-              )}
-            </div>
-          </div>
-
-          {(!activeCard || activeCard === 'tenant') && (
-            <div className="space-y-2 animate-in fade-in duration-200">
-              <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${isOccupied ? 'bg-green-400' : 'bg-red-400'}`} />
-                <span className={`text-sm font-medium ${isOccupied ? 'text-green-400' : 'text-red-400'}`}>
-                  {isOccupied ? 'Occupied' : 'Vacant'}
-                </span>
-              </div>
-              {isOccupied && (
-                <>
-                  <p className="text-sm text-cc-text truncate">{settings.tenant.name}</p>
-                  <div className="flex items-center gap-2 text-cc-muted">
-                    <Clock size={14} />
-                    <span className="text-sm">
-                      {daysUntilLeaseEnd > 0 ? `${daysUntilLeaseEnd} days left` : 'Lease expired'}
-                    </span>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-        </button>
-      </div>
-
-      {/* Detail Section */}
-      {activeCard === 'property' && renderPropertyDetails()}
-      {activeCard === 'financials' && renderFinancialDetails()}
-      {activeCard === 'tenant' && renderTenantDetails()}
+      {/* Browser Tabs */}
+      <BrowserTabs tabs={tabs} />
 
       {/* Tenant Modals */}
       {tenantModal === 'messages' && renderMessagesModal()}
