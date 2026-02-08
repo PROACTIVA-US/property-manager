@@ -8,8 +8,6 @@ import {
   MessageSquare,
   Wrench,
   FolderKanban,
-  TrendingUp,
-  TrendingDown,
   FileText,
   CreditCard,
   X,
@@ -26,6 +24,7 @@ import { getProjects } from '../../lib/projects';
 import { getThreads, getUnreadCount } from '../../lib/messages';
 import { getLease, getPayments, getDaysUntilLeaseEnd, getCurrentBalance, type Payment } from '../../lib/tenant';
 import BrowserTabs, { type Tab } from '../ui/BrowserTabs';
+import Financials from '../../pages/Financials';
 
 type TenantModal = 'messages' | 'lease' | 'payment' | null;
 
@@ -169,77 +168,8 @@ export default function OwnerDashboard() {
     </div>
   );
 
-  // Financials Detail View
-  const renderFinancialDetails = () => (
-    <div>
-      <h3 className="text-lg font-bold text-cc-text mb-4">Monthly Cash Flow Breakdown</h3>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Income Section */}
-        <div>
-          <h4 className="text-sm font-medium text-green-400 uppercase tracking-wide mb-3 flex items-center gap-2">
-            <TrendingUp size={16} />
-            Incoming
-          </h4>
-          <div className="space-y-2">
-            <div className="flex justify-between items-center px-3 py-2 border border-cc-border/50 rounded-lg">
-              <span className="text-cc-text">Rent</span>
-              <span className="font-semibold text-green-400">+{formatCurrency(monthlyRent, 0)}</span>
-            </div>
-            {monthlyUtilitiesIncome > 0 && (
-              <div className="flex justify-between items-center px-3 py-2 border border-cc-border/50 rounded-lg">
-                <span className="text-cc-text">Utilities</span>
-                <span className="font-semibold text-green-400">+{formatCurrency(monthlyUtilitiesIncome, 0)}</span>
-              </div>
-            )}
-            <div className="flex justify-between items-center px-3 py-2 bg-green-500/10 border border-green-500/30 rounded-lg">
-              <span className="font-medium text-cc-text">Total Incoming</span>
-              <span className="font-bold text-green-400">{formatCurrency(totalIncoming, 0)}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Expenses Section */}
-        <div>
-          <h4 className="text-sm font-medium text-red-400 uppercase tracking-wide mb-3 flex items-center gap-2">
-            <TrendingDown size={16} />
-            Outgoing
-          </h4>
-          <div className="space-y-2">
-            <button className="w-full flex justify-between items-center px-3 py-2 border border-cc-border/50 rounded-lg hover:border-blue-400/50 hover:bg-blue-500/5 active:bg-cc-border/30 transition-all group">
-              <span className="text-blue-400 inline-flex items-center group-hover:translate-x-0.5 transition-transform">Mortgage<span className="leading-none ml-0.5">&rsaquo;&rsaquo;</span></span>
-              <span className="font-semibold text-red-400">-{formatCurrency(monthlyMortgage, 0)}</span>
-            </button>
-            <button className="w-full flex justify-between items-center px-3 py-2 border border-cc-border/50 rounded-lg hover:border-blue-400/50 hover:bg-blue-500/5 active:bg-cc-border/30 transition-all group">
-              <span className="text-blue-400 inline-flex items-center group-hover:translate-x-0.5 transition-transform">Expenses<span className="leading-none ml-0.5">&rsaquo;&rsaquo;</span></span>
-              <span className="font-semibold text-red-400">-{formatCurrency(monthlyExpenses, 0)}</span>
-            </button>
-            <div className="flex justify-between items-center px-3 py-2 bg-red-500/10 border border-red-500/30 rounded-lg">
-              <span className="font-medium text-cc-text">Total Outgoing</span>
-              <span className="font-bold text-red-400">{formatCurrency(totalOutgoing, 0)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Net Income */}
-      <div className="mt-6 pt-4 border-t border-cc-border">
-        <div className="flex justify-between items-center p-4 bg-cc-bg rounded-xl">
-          <div>
-            <span className="text-lg font-bold text-cc-text">Net Income</span>
-            <p className="text-sm text-cc-muted">Annual: {formatCurrency(netCashFlow * 12, 0)}</p>
-          </div>
-          <span className={`text-2xl font-bold ${netCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-            {netCashFlow >= 0 ? '+' : ''}{formatCurrency(netCashFlow, 0)}
-          </span>
-        </div>
-      </div>
-
-      <Link to="/financials" className="btn-secondary w-full mt-4 text-center block">
-        View Detailed Analysis
-      </Link>
-    </div>
-  );
+  // Financials Detail View - render the full Financials page
+  const renderFinancialDetails = () => <Financials />;
 
   // Tenant Detail View
   const renderTenantDetails = () => (
