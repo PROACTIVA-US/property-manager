@@ -2,46 +2,29 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   MessageSquare,
-  Calendar,
-  Star,
-  Bell,
   Plus,
   Search,
   Filter,
+  Trash2,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import MessageThread from '../components/MessageThread';
 import { MessageComposer, NewThreadComposer } from '../components/MessageComposer';
-import InspectionScheduler from '../components/InspectionScheduler';
-import SatisfactionSurvey from '../components/SatisfactionSurvey';
 import {
   getThreads,
   getMessages,
   sendMessage,
   markMessagesAsRead,
   createThread,
-  getInspections,
-  createInspection,
-  proposeTime,
-  voteForTime,
-  updateInspection,
-  getSatisfactionEntries,
-  submitSatisfaction,
-  getAverageSatisfaction,
-  getNotifications,
-  markNotificationAsRead,
+  deleteMessage,
+  deleteThread,
   formatRelativeTime,
   type Thread,
-  type Inspection,
-  type SatisfactionEntry,
-  type Notification,
 } from '../lib/messages';
 import { cn } from '../lib/utils';
 import type { UserRole } from '../contexts/AuthContext';
 import { loadSettings } from '../lib/settings';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
-
-type TabType = 'messages' | 'activity';
 
 // Get real names from settings
 const getParticipants = () => {
@@ -60,16 +43,10 @@ export default function MessagesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   // State
-  const [activeTab, setActiveTab] = useState<TabType>(
-    (searchParams.get('tab') === 'activity' ? 'activity' : 'messages')
-  );
   const [threads, setThreads] = useState<Thread[]>([]);
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(
     searchParams.get('thread')
   );
-  const [inspections, setInspections] = useState<Inspection[]>([]);
-  const [satisfactionEntries, setSatisfactionEntries] = useState<SatisfactionEntry[]>([]);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNewThread, setShowNewThread] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<Thread['category'] | 'all'>('all');
@@ -85,9 +62,6 @@ export default function MessagesPage() {
   // Load data
   const loadData = useCallback(() => {
     setThreads(getThreads());
-    setInspections(getInspections());
-    setSatisfactionEntries(getSatisfactionEntries());
-    setNotifications(getNotifications());
   }, []);
 
   useEffect(() => {
@@ -98,10 +72,10 @@ export default function MessagesPage() {
   // Update URL params
   useEffect(() => {
     const params = new URLSearchParams();
-    if (activeTab !== 'messages') params.set('tab', activeTab);
+
     if (selectedThreadId) params.set('thread', selectedThreadId);
     setSearchParams(params, { replace: true });
-  }, [activeTab, selectedThreadId, setSearchParams]);
+  }, [selectedThreadId, setSearchParams]);
 
   // Selected thread data
   const selectedThread = threads.find(t => t.id === selectedThreadId);
@@ -163,59 +137,21 @@ export default function MessagesPage() {
     setShowNewThread(false);
   };
 
-  const handleCreateInspection = (inspection: Omit<Inspection, 'id' | 'createdAt'>) => {
-    createInspection(inspection);
+  const handleDeleteMessage = (messageId: string) => {
+    deleteMessage(messageId);
     loadData();
   };
 
-  const handleProposeTime = (inspectionId: string, time: number) => {
-    proposeTime(inspectionId, {
-      time,
-      proposedBy: currentUser,
-    });
+  const handleDeleteThread = (threadId: string) => {
+    if (!window.confirm('Are you sure you want to delete this conversation? This cannot be undone.')) return;
+    deleteThread(threadId);
     loadData();
+    setSelectedThreadId(null);
   };
-
-  const handleVoteForTime = (inspectionId: string, timeId: string) => {
-    voteForTime(inspectionId, timeId, { id: currentUser.id, role: user?.role || null });
-    loadData();
-  };
-
-  const handleConfirmTime = (inspectionId: string, timeId: string) => {
-    const inspection = inspections.find(i => i.id === inspectionId);
-    const time = inspection?.proposedTimes.find(t => t.id === timeId);
-    if (time) {
-      updateInspection(inspectionId, {
-        status: 'confirmed',
-        confirmedTime: time.time,
-      });
-      loadData();
-    }
-  };
-
-  const handleSubmitSatisfaction = (entry: Omit<SatisfactionEntry, 'id' | 'timestamp'>) => {
-    submitSatisfaction(entry);
-    loadData();
-  };
-
-  const handleMarkNotificationRead = (id: string) => {
-    markNotificationAsRead(id);
-    loadData();
-  };
-
-  // Counts for tab badges
-  const unreadMessages = threads.reduce((acc, t) => acc + t.unreadCount, 0);
-  const pendingInspections = inspections.filter(i => i.status === 'pending').length;
-  const unreadNotifications = notifications.filter(n => !n.read).length;
 
   // Other participants for new thread
   const availableParticipants = ALL_PARTICIPANTS.filter(p => p.id !== currentUser.id);
 
-  const activityCount = pendingInspections + unreadNotifications;
-  const tabs = [
-    { id: 'messages' as TabType, label: 'Messages', icon: MessageSquare, count: unreadMessages },
-    { id: 'activity' as TabType, label: 'Activity & Scheduling', icon: Bell, count: activityCount },
-  ];
 
   if (isLoading) {
     return (
@@ -233,49 +169,20 @@ export default function MessagesPage() {
           <h1 className="text-2xl font-bold text-cc-text">Communication Hub</h1>
           <p className="text-cc-muted">Messages, scheduling, and feedback</p>
         </div>
-        {activeTab === 'messages' && (
-          <button
-            onClick={() => setShowNewThread(true)}
-            className="btn-primary flex items-center gap-2"
-          >
-            <Plus size={18} />
-            New Conversation
-          </button>
-        )}
+        <button
+          onClick={() => setShowNewThread(true)}
+          className="btn-primary flex items-center gap-2"
+        >
+          <Plus size={18} />
+          New Conversation
+        </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 border-b border-cc-border/50 pb-2 overflow-x-auto">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => {
-              setActiveTab(tab.id);
-              setSelectedThreadId(null);
-            }}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-t-lg font-medium transition-colors whitespace-nowrap',
-              activeTab === tab.id
-                ? 'bg-cc-surface/50 text-cc-accent border-b-2 border-cc-accent'
-                : 'text-cc-muted hover:text-cc-text hover:bg-cc-border/30'
-            )}
-          >
-            <tab.icon size={18} />
-            {tab.label}
-            {tab.count > 0 && (
-              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-cc-accent text-white">
-                {tab.count}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
 
       {/* Content */}
       <div className="min-h-[600px]">
         {/* Messages Tab */}
-        {activeTab === 'messages' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Thread List */}
             <div className={cn('lg:col-span-1 space-y-4', selectedThreadId && 'hidden lg:block')}>
               {/* Search and Filter */}
@@ -326,6 +233,7 @@ export default function MessagesPage() {
                       thread={thread}
                       isSelected={thread.id === selectedThreadId}
                       onClick={() => handleSelectThread(thread.id)}
+                      onDelete={handleDeleteThread}
                     />
                   ))
                 )}
@@ -345,8 +253,19 @@ export default function MessagesPage() {
                     currentUserId={currentUser.id}
                     currentUserRole={user?.role || null}
                     onBack={() => setSelectedThreadId(null)}
+                    onDeleteMessage={handleDeleteMessage}
                   />
                   <MessageComposer onSend={handleSendMessage} />
+                  <div className="px-4 pb-3">
+                    <button
+                      onClick={() => handleDeleteThread(selectedThreadId!)}
+                      className="flex items-center gap-2 w-full justify-center py-2 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+                      title="Delete conversation"
+                    >
+                      <Trash2 size={14} />
+                      Delete Conversation
+                    </button>
+                  </div>
                 </>
               ) : (
                 <div className="flex-1 flex items-center justify-center text-cc-muted">
@@ -358,39 +277,7 @@ export default function MessagesPage() {
               )}
             </div>
           </div>
-        )}
-
-        {/* Activity Tab - combines inspections, satisfaction, and notifications */}
-        {activeTab === 'activity' && (
-          <div className="space-y-8">
-            <NotificationsList
-              notifications={notifications}
-              onMarkRead={handleMarkNotificationRead}
-            />
-
-            <div className="border-t border-cc-border/50 pt-8">
-              <InspectionScheduler
-                inspections={inspections}
-                currentUser={currentUser}
-                onCreateInspection={handleCreateInspection}
-                onProposeTime={handleProposeTime}
-                onVoteForTime={handleVoteForTime}
-                onConfirmTime={handleConfirmTime}
-              />
-            </div>
-
-            <div className="border-t border-cc-border/50 pt-8">
-              <SatisfactionSurvey
-                entries={satisfactionEntries}
-                averageRating={getAverageSatisfaction()}
-                currentTenantId={currentUser.id}
-                onSubmit={handleSubmitSatisfaction}
-                isReadOnly={user?.role !== 'tenant'}
-              />
-            </div>
-          </div>
-        )}
-      </div>
+        </div>
 
       {/* New Thread Modal */}
       {showNewThread && (
@@ -410,9 +297,10 @@ interface ThreadItemProps {
   thread: Thread;
   isSelected: boolean;
   onClick: () => void;
+  onDelete: (threadId: string) => void;
 }
 
-function ThreadItem({ thread, isSelected, onClick }: ThreadItemProps) {
+function ThreadItem({ thread, isSelected, onClick, onDelete }: ThreadItemProps) {
   const getCategoryColor = (category: Thread['category']) => {
     const colors = {
       general: 'bg-cc-border/50',
@@ -427,7 +315,7 @@ function ThreadItem({ thread, isSelected, onClick }: ThreadItemProps) {
     <div
       onClick={onClick}
       className={cn(
-        'p-4 rounded-lg cursor-pointer transition-all border',
+        'p-4 rounded-lg cursor-pointer transition-all border group',
         isSelected
           ? 'bg-cc-surface border-cc-accent/50'
           : 'bg-cc-surface/30 border-cc-border/50 hover:bg-cc-surface/50'
@@ -435,11 +323,20 @@ function ThreadItem({ thread, isSelected, onClick }: ThreadItemProps) {
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <h3 className="font-bold text-cc-text truncate flex-1">{thread.subject}</h3>
-        {thread.unreadCount > 0 && (
-          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-cc-accent text-white">
-            {thread.unreadCount}
-          </span>
-        )}
+        <div className="flex items-center gap-1 flex-shrink-0">
+          {thread.unreadCount > 0 && (
+            <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-cc-accent text-white">
+              {thread.unreadCount}
+            </span>
+          )}
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(thread.id); }}
+            className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 rounded text-red-400 hover:text-red-300 transition-all"
+            title="Delete conversation"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
       </div>
       <p className="text-sm text-cc-muted line-clamp-1 mb-2">{thread.lastMessage}</p>
       <div className="flex items-center justify-between text-xs">
@@ -447,83 +344,6 @@ function ThreadItem({ thread, isSelected, onClick }: ThreadItemProps) {
           {thread.category}
         </span>
         <span className="text-cc-muted">{formatRelativeTime(thread.lastMessageTime)}</span>
-      </div>
-    </div>
-  );
-}
-
-// Notifications List Component
-interface NotificationsListProps {
-  notifications: Notification[];
-  onMarkRead: (id: string) => void;
-}
-
-function NotificationsList({ notifications, onMarkRead }: NotificationsListProps) {
-  const getTypeIcon = (type: Notification['type']) => {
-    switch (type) {
-      case 'message':
-        return <MessageSquare size={20} className="text-blue-400" />;
-      case 'inspection':
-        return <Calendar size={20} className="text-blue-400" />;
-      case 'payment':
-        return <Star size={20} className="text-indigo-300" />;
-      default:
-        return <Bell size={20} className="text-cc-muted" />;
-    }
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-cc-text">Recent Activity</h2>
-        <span className="text-sm text-cc-muted">
-          {notifications.filter(n => !n.read).length} unread
-        </span>
-      </div>
-
-      <div className="space-y-2">
-        {notifications.length === 0 ? (
-          <div className="text-center py-12 text-cc-muted">
-            <Bell size={48} className="mx-auto mb-4 opacity-50" />
-            <p>No notifications yet</p>
-          </div>
-        ) : (
-          notifications.map((notification) => (
-            <div
-              key={notification.id}
-              onClick={() => !notification.read && onMarkRead(notification.id)}
-              className={cn(
-                'p-4 rounded-lg border transition-colors',
-                notification.read
-                  ? 'bg-cc-surface/30 border-cc-border/50'
-                  : 'bg-cc-surface/50 border-cc-accent/30 cursor-pointer hover:bg-cc-surface/70'
-              )}
-            >
-              <div className="flex items-start gap-4">
-                <div className="p-2 bg-cc-bg/50 rounded-lg">
-                  {getTypeIcon(notification.type)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className={cn(
-                      'font-medium truncate',
-                      notification.read ? 'text-cc-muted' : 'text-cc-text'
-                    )}>
-                      {notification.title}
-                    </h3>
-                    {!notification.read && (
-                      <span className="w-2 h-2 rounded-full bg-cc-accent flex-shrink-0" />
-                    )}
-                  </div>
-                  <p className="text-sm text-cc-muted mt-1">{notification.body}</p>
-                  <p className="text-xs text-slate-500 mt-2">
-                    {formatRelativeTime(notification.timestamp)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
       </div>
     </div>
   );

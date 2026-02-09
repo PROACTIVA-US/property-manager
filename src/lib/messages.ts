@@ -1,4 +1,5 @@
 import type { UserRole } from '../contexts/AuthContext';
+import { markMessageNotificationAsRead } from './notifications';
 
 // Message Types
 export interface Message {
@@ -153,6 +154,46 @@ export function markMessagesAsRead(threadId: string, userId: string): void {
 
   // Reset thread unread count
   updateThread(threadId, { unreadCount: 0 });
+
+  // Clean up any notification for this thread
+  markMessageNotificationAsRead(threadId);
+}
+
+// Delete a single message
+export function deleteMessage(messageId: string): boolean {
+  const allMessages = getAllMessages();
+  const message = allMessages.find(m => m.id === messageId);
+  if (!message) return false;
+
+  const filtered = allMessages.filter(m => m.id !== messageId);
+  saveMessages(filtered);
+
+  // Update thread's last message if this was the latest
+  const threadMessages = filtered
+    .filter(m => m.threadId === message.threadId)
+    .sort((a, b) => b.timestamp - a.timestamp);
+
+  if (threadMessages.length > 0) {
+    updateThread(message.threadId, {
+      lastMessage: threadMessages[0].content,
+      lastMessageTime: threadMessages[0].timestamp,
+    });
+  }
+
+  return true;
+}
+
+// Delete an entire thread and all its messages
+export function deleteThread(threadId: string): void {
+  // Delete all messages in the thread
+  const allMessages = getAllMessages();
+  const filtered = allMessages.filter(m => m.threadId !== threadId);
+  saveMessages(filtered);
+
+  // Delete the thread itself
+  const threads = getThreads();
+  const filteredThreads = threads.filter(t => t.id !== threadId);
+  saveThreads(filteredThreads);
 }
 
 // Inspection Helpers
@@ -273,7 +314,7 @@ export function markNotificationAsRead(id: string): void {
   }
 }
 
-export function getUnreadCount(): number {
+export function getUnreadNotificationCount(): number {
   return getNotifications().filter(n => !n.read).length;
 }
 

@@ -94,13 +94,37 @@ export function archiveNotification(notificationId: string): void {
   }
 }
 
+/**
+ * Mark message notification as read for a specific thread
+ * Called when messages in a thread are marked as read
+ */
+export function markMessageNotificationAsRead(threadId: string): void {
+  const notifications = getNotifications();
+  let hasUpdates = false;
+
+  notifications.forEach(notification => {
+    if (
+      notification.type === 'message' &&
+      notification.metadata?.messageId === threadId &&
+      !notification.read
+    ) {
+      notification.read = true;
+      hasUpdates = true;
+    }
+  });
+
+  if (hasUpdates) {
+    saveNotifications(notifications);
+  }
+}
+
 export function deleteNotification(notificationId: string): void {
   const notifications = getNotifications();
   const filtered = notifications.filter(n => n.id !== notificationId);
   saveNotifications(filtered);
 }
 
-export function getUnreadCount(): number {
+export function getUnreadNotificationCount(): number {
   const notifications = getNotifications();
   return notifications.filter(n => !n.read && !n.archived).length;
 }
@@ -122,6 +146,33 @@ export function aggregateNotifications(userRole: UserRole): Notification[] {
 
   // Get recent unread messages
   const threads = getThreads();
+
+  // Build a set of thread IDs that have unread messages
+  const threadsWithUnread = new Set(
+    threads.filter(t => t.unreadCount > 0).map(t => t.id)
+  );
+
+  // Clean up stale message notifications for threads that are now fully read
+  // Mark as read any message notification where the thread now has unreadCount === 0
+  let hasUpdates = false;
+  existing.forEach(notification => {
+    if (
+      notification.type === 'message' &&
+      notification.metadata?.messageId &&
+      !notification.read &&
+      !threadsWithUnread.has(notification.metadata.messageId)
+    ) {
+      // Thread was read, mark notification as read
+      notification.read = true;
+      hasUpdates = true;
+    }
+  });
+
+  // Save updates if we marked any notifications as read
+  if (hasUpdates) {
+    saveNotifications(existing);
+  }
+
   threads.forEach(thread => {
     if (thread.unreadCount > 0) {
       // Check if we already have a notification for this thread

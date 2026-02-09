@@ -25,7 +25,7 @@ import {
   ChevronLeft,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { getThreads, getNotifications } from '../lib/messages';
+import { getThreads } from '../lib/messages';
 import AIAssistant from './ai-assistant/AIAssistant';
 import ThemeToggle from './ThemeToggle';
 import { useAIAssistantStore } from '../stores/aiAssistantStore';
@@ -69,10 +69,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const updateCounts = () => {
       const threads = getThreads();
-      const notifications = getNotifications();
-      const threadUnread = threads.reduce((acc, t) => acc + t.unreadCount, 0);
-      const notifUnread = notifications.filter(n => !n.read).length;
-      setUnreadCount(threadUnread + notifUnread);
+      const unreadCount = threads.reduce((acc, t) => acc + t.unreadCount, 0);
+      setUnreadCount(unreadCount);
     };
 
     updateCounts();

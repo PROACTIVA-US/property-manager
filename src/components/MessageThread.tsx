@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { ArrowLeft, Users } from 'lucide-react';
+import { ArrowLeft, Users, Trash2 } from 'lucide-react';
 import type { Thread, Message } from '../lib/messages';
 import { formatRelativeTime } from '../lib/messages';
 import { cn } from '../lib/utils';
@@ -11,6 +11,7 @@ interface MessageThreadProps {
   currentUserId: string;
   currentUserRole: UserRole;
   onBack: () => void;
+  onDeleteMessage?: (messageId: string) => void;
 }
 
 export default function MessageThread({
@@ -19,6 +20,7 @@ export default function MessageThread({
   currentUserId,
   currentUserRole: _currentUserRole,
   onBack,
+  onDeleteMessage,
 }: MessageThreadProps) {
   // currentUserRole reserved for future role-based features
   void _currentUserRole;
@@ -111,7 +113,7 @@ export default function MessageThread({
               </div>
 
               {/* Message Content */}
-              <div className={cn('max-w-[70%] space-y-1', isOwn && 'items-end')}>
+              <div className={cn('max-w-[70%] space-y-1 group', isOwn && 'items-end')}>
                 <div className={cn('flex items-center gap-2', isOwn && 'flex-row-reverse')}>
                   <span className={cn('text-xs font-medium', getRoleColor(message.senderRole))}>
                     {message.senderName}
@@ -119,6 +121,15 @@ export default function MessageThread({
                   <span className="text-[10px] text-cc-muted">
                     {formatRelativeTime(message.timestamp)}
                   </span>
+                  {isOwn && onDeleteMessage && (
+                    <button
+                      onClick={() => onDeleteMessage(message.id)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-500/20 rounded text-red-400 hover:text-red-300"
+                      title="Delete message"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  )}
                 </div>
                 <div
                   className={cn(

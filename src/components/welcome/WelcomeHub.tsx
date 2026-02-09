@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ImageCarousel } from './ImageCarousel';
 import { NotificationCenter, NotificationBell } from './NotificationCenter';
-import { getUnreadCount } from '../../lib/notifications';
+import { getUnreadNotificationCount } from '../../lib/notifications';
 import { getProjects } from '../../lib/projects';
 import { getVendors } from '../../lib/vendors';
 import { getThreads } from '../../lib/messages';
@@ -24,7 +24,7 @@ export function WelcomeHub() {
   const threads = getThreads();
   const unreadMessages = threads.reduce((acc, t) => acc + t.unreadCount, 0);
 
-  const unreadNotifications = getUnreadCount();
+  const unreadNotifications = getUnreadNotificationCount();
 
   return (
     <div className="space-y-6">

@@ -21,7 +21,7 @@ import { loadSettings, formatCurrency } from '../../lib/settings';
 import { calculateSimpleCashFlow } from '../../lib/financials';
 import { getIssues, getEscalatedIssues } from '../../lib/issues';
 import { getProjects } from '../../lib/projects';
-import { getThreads, getUnreadCount } from '../../lib/messages';
+import { getThreads } from '../../lib/messages';
 import { getLease, getPayments, getDaysUntilLeaseEnd, getCurrentBalance, type Payment } from '../../lib/tenant';
 import BrowserTabs, { type Tab } from '../ui/BrowserTabs';
 import Financials from '../../pages/Financials';
@@ -45,7 +45,7 @@ export default function OwnerDashboard() {
   const escalatedIssues = getEscalatedIssues();
   const projects = getProjects();
   const threads = getThreads();
-  const unreadMessages = getUnreadCount();
+  const unreadMessages = threads.reduce((acc, t) => acc + t.unreadCount, 0);
   const lease = getLease();
   const payments = getPayments();
   const daysUntilLeaseEnd = getDaysUntilLeaseEnd();

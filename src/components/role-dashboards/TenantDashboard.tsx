@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   Home,
   CreditCard,
   Wrench,
-  MessageSquare,
   FileText,
   Calendar,
   AlertCircle,
@@ -14,15 +13,17 @@ import {
 import {
   getCurrentBalance,
   getOpenMaintenanceRequestsCount,
-  getUnreadMessagesCount,
   getDaysUntilRentDue,
   getDaysUntilLeaseEnd,
   getLease,
-  getMessages,
   formatCurrency,
-  markMessageAsRead,
-  type TenantMessage
 } from '../../lib/tenant';
+import {
+  getThreads,
+  markMessagesAsRead,
+  formatRelativeTime,
+  type Thread,
+} from '../../lib/messages';
 import PaymentHistory from '../PaymentHistory';
 import LeaseDetails from '../LeaseDetails';
 import MaintenanceRequest from '../MaintenanceRequest';
@@ -34,12 +35,23 @@ export default function TenantDashboard() {
   const { user } = useAuth();
   const [currentView, setCurrentView] = useState<TenantView>('dashboard');
   const [activeCard, setActiveCard] = useState<ActiveCard>(null);
-  const [messages, setMessages] = useState<TenantMessage[]>(getMessages());
+  const [threads, setThreads] = useState<Thread[]>(getThreads());
+
+  // Filter threads to only show ones where the tenant is a participant
+  const tenantThreads = useMemo(() => {
+    return threads.filter(thread =>
+      thread.participants.some(p => p.role === 'tenant')
+    );
+  }, [threads]);
+
+  // Calculate unread count from filtered threads
+  const unreadMessages = useMemo(() => {
+    return tenantThreads.reduce((acc, t) => acc + t.unreadCount, 0);
+  }, [tenantThreads]);
 
   const balance = getCurrentBalance();
   const lease = getLease();
   const openRequests = getOpenMaintenanceRequestsCount();
-  const unreadMessages = getUnreadMessagesCount();
   const daysUntilRent = getDaysUntilRentDue();
   const daysUntilLeaseEnd = getDaysUntilLeaseEnd();
 
@@ -47,10 +59,11 @@ export default function TenantDashboard() {
     setActiveCard(activeCard === card ? null : card);
   };
 
-  const handleMessageClick = (messageId: string) => {
-    markMessageAsRead(messageId);
-    setMessages(getMessages());
-    console.log('Message clicked:', messageId);
+  const handleThreadClick = (threadId: string) => {
+    // Mark messages in this thread as read for the tenant
+    markMessagesAsRead(threadId, 'tenant-1');
+    // Reload threads to get updated unread counts
+    setThreads(getThreads());
   };
 
   // Render the appropriate view
@@ -347,7 +360,7 @@ export default function TenantDashboard() {
       <div className="card">
         <h3 className="text-lg font-bold text-cc-text mb-4 flex items-center gap-2">
           <Bell size={20} className="text-cc-accent" />
-          Messages from Property Manager
+          Messages
           {unreadMessages > 0 && (
             <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full ml-2">
               {unreadMessages} unread
@@ -355,35 +368,41 @@ export default function TenantDashboard() {
           )}
         </h3>
         <div className="space-y-3">
-          {messages.slice(0, 3).map((message) => (
-            <div
-              key={message.id}
-              onClick={() => handleMessageClick(message.id)}
-              className={`p-4 rounded-lg border cursor-pointer transition-all hover:border-cc-border ${
-                message.read
-                  ? 'bg-cc-bg/30 border-cc-border/50'
-                  : 'bg-cc-bg/50 border-blue-500/30'
-              }`}
-            >
-              <div className="flex gap-3">
-                <div className={`w-1 rounded-full ${message.read ? 'bg-cc-border' : 'bg-cc-accent'}`}></div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className={`text-sm font-medium ${message.read ? 'text-cc-text' : 'text-cc-text'}`}>
-                      {message.subject}
+          {tenantThreads.length === 0 ? (
+            <p className="text-cc-muted text-sm">No messages yet.</p>
+          ) : (
+            tenantThreads.slice(0, 3).map((thread) => (
+              <div
+                key={thread.id}
+                onClick={() => handleThreadClick(thread.id)}
+                className={`p-4 rounded-lg border cursor-pointer transition-all hover:border-cc-border ${
+                  thread.unreadCount === 0
+                    ? 'bg-cc-bg/30 border-cc-border/50'
+                    : 'bg-cc-bg/50 border-blue-500/30'
+                }`}
+              >
+                <div className="flex gap-3">
+                  <div className={`w-1 rounded-full ${thread.unreadCount === 0 ? 'bg-cc-border' : 'bg-cc-accent'}`}></div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-medium text-cc-text">
+                        {thread.subject}
+                      </p>
+                      {thread.unreadCount > 0 && (
+                        <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">
+                          {thread.unreadCount} new
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-cc-muted mt-1 truncate">{thread.lastMessage}</p>
+                    <p className="text-[10px] text-slate-500 mt-2">
+                      {thread.participants.filter(p => p.role !== 'tenant').map(p => p.name).join(', ')} - {formatRelativeTime(thread.lastMessageTime)}
                     </p>
-                    {!message.read && (
-                      <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">New</span>
-                    )}
                   </div>
-                  <p className="text-xs text-cc-muted mt-1 truncate">{message.preview}</p>
-                  <p className="text-[10px] text-slate-500 mt-2">
-                    From: {message.from} - {message.date}
-                  </p>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>
