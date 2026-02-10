@@ -326,6 +326,41 @@ export function notifyProjectAssigned(projectTitle: string, projectId: string, _
 }
 
 /**
+ * Notify owner when PM updates a project (images, status, details, etc.)
+ * Creates a notification visible to the owner with a link to the project
+ */
+export function notifyOwnerOfProjectUpdate(params: {
+  projectId: string;
+  projectTitle: string;
+  updateType: 'status_change' | 'images_added' | 'details_updated' | 'milestone_updated' | 'expense_added';
+  updateDescription: string;
+  pmName?: string;
+}): void {
+  const { projectId, projectTitle, updateType, updateDescription, pmName } = params;
+
+  const typeLabels: Record<typeof updateType, string> = {
+    status_change: 'Status Updated',
+    images_added: 'Images Added',
+    details_updated: 'Details Updated',
+    milestone_updated: 'Milestone Updated',
+    expense_added: 'Expense Added',
+  };
+
+  createNotification({
+    type: 'project_status',
+    priority: updateType === 'status_change' ? 'high' : 'normal',
+    title: `Project ${typeLabels[updateType]}`,
+    body: `${pmName ? `${pmName} updated ` : ''}"${projectTitle}": ${updateDescription}`,
+    timestamp: Date.now(),
+    read: false,
+    archived: false,
+    link: `/projects?view=${projectId}`,
+    actionRequired: updateType === 'status_change',
+    metadata: { projectId },
+  });
+}
+
+/**
  * Notify stakeholders (PM and tenant) when owner makes changes
  * Used for owner actions on projects/maintenance tasks
  */

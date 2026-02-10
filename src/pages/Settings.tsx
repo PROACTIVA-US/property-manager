@@ -239,7 +239,7 @@ export default function Settings() {
             {/* Theme Selection */}
             <div>
               <label className="block text-sm font-medium text-cc-text mb-3">Theme</label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 sm:grid-cols-3 gap-2 sm:gap-3">
                 <button
                   onClick={() => handleThemeChange('dark')}
                   className={`p-4 rounded-lg border-2 transition-all flex flex-col items-center gap-2 ${

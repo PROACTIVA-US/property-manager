@@ -21,12 +21,14 @@ import {
   KANBAN_STAGES,
   PRIORITY_LABELS,
   CATEGORY_LABELS,
+  STATUS_LABELS,
   getProjects,
   updateProject,
   deleteProject,
   getProjectStats,
 } from '../lib/projects';
 import { getVendorById } from '../lib/vendors';
+import { notifyOwnerOfProjectUpdate } from '../lib/notifications';
 import { cn } from '../lib/utils';
 import ProjectDetailModal from './ProjectDetailModal';
 import ProjectFormModal from './ProjectFormModal';
@@ -56,9 +58,10 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
 
   // Which stages to show in compact mode
   const compactStages: ProjectStatus[] = ['pending_approval', 'approved', 'in_progress'];
+  // Hide cancelled and on_hold by default - on_hold projects can still be viewed via search/filters
   const displayStages = compact
     ? KANBAN_STAGES.filter(s => compactStages.includes(s.id))
-    : KANBAN_STAGES.filter(s => s.id !== 'cancelled'); // Hide cancelled by default
+    : KANBAN_STAGES.filter(s => s.id !== 'cancelled' && s.id !== 'on_hold');
 
   const loadProjects = () => {
     setProjects(getProjects());
@@ -91,8 +94,20 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
       // Validate status transition
       const validTransitions = getValidTransitions(draggedProject.status);
       if (validTransitions.includes(newStatus)) {
+        const oldStatus = draggedProject.status;
         updateProject(draggedProject.id, { status: newStatus });
         loadProjects();
+
+        // Notify owner if PM changed the status
+        if (isPM) {
+          notifyOwnerOfProjectUpdate({
+            projectId: draggedProject.id,
+            projectTitle: draggedProject.title,
+            updateType: 'status_change',
+            updateDescription: `Status changed from "${STATUS_LABELS[oldStatus]}" to "${STATUS_LABELS[newStatus]}"`,
+            pmName: user?.displayName,
+          });
+        }
       }
     }
     setDraggedProject(null);
@@ -351,13 +366,13 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
         </div>
       </div>
 
-      {/* Kanban Board */}
-      <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+      {/* Kanban Board - Stacked on mobile, horizontal scroll on tablet+ */}
+      <div className="flex flex-col md:flex-row gap-4 md:overflow-x-auto pb-4 md:-mx-4 md:px-4 lg:mx-0 lg:px-0">
         {displayStages.map(stage => (
           <div
             key={stage.id}
             className={cn(
-              'flex-shrink-0 w-72 rounded-xl border-2 transition-colors',
+              'w-full md:flex-shrink-0 md:w-72 lg:w-80 rounded-xl border-2 transition-colors',
               getStageColor(stage.color),
               dragOverStage === stage.id && 'ring-2 ring-cc-accent'
             )}
@@ -366,12 +381,12 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
             onDrop={e => handleDrop(e, stage.id)}
           >
             {/* Stage Header */}
-            <div className="p-4 border-b border-white/10">
+            <div className="p-3 md:p-4 border-b border-cc-border">
               <div className="flex items-center justify-between">
                 <h3 className={cn('font-semibold', getStageHeaderColor(stage.color))}>
                   {stage.label}
                 </h3>
-                <span className="w-6 h-6 flex items-center justify-center rounded-full bg-white/10 text-xs text-cc-text">
+                <span className="w-6 h-6 flex items-center justify-center rounded-full bg-cc-border text-xs text-cc-text">
                   {getProjectsByStage(stage.id).length}
                 </span>
               </div>
@@ -379,7 +394,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
             </div>
 
             {/* Project Cards */}
-            <div className="p-3 space-y-3 min-h-[200px] max-h-[60vh] overflow-y-auto">
+            <div className="p-3 space-y-3 min-h-[120px] md:min-h-[200px] max-h-[40vh] md:max-h-[60vh] overflow-y-auto">
               {getProjectsByStage(stage.id).map(project => {
                 const vendor = project.primaryVendorId
                   ? getVendorById(project.primaryVendorId)
@@ -391,21 +406,19 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
                     draggable
                     onDragStart={e => handleDragStart(e, project)}
                     onDragEnd={handleDragEnd}
+                    onClick={() => handleProjectClick(project)}
                     className={cn(
-                      'bg-cc-bg rounded-lg p-3 cursor-grab active:cursor-grabbing',
-                      'border border-white/10 hover:border-white/20 transition-all',
-                      'shadow-lg hover:shadow-xl',
-                      draggedProject?.id === project.id && 'opacity-50'
+                      'bg-cc-bg rounded-lg p-3 cursor-pointer',
+                      'border border-cc-border hover:border-cc-accent/50 transition-all',
+                      'shadow-lg hover:shadow-xl hover:bg-cc-surface',
+                      draggedProject?.id === project.id && 'opacity-50 cursor-grabbing'
                     )}
                   >
                     {/* Card Header */}
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="flex items-center gap-2 min-w-0">
-                        <GripVertical size={14} className="text-cc-muted flex-shrink-0" />
-                        <h4
-                          className="font-medium text-cc-text truncate cursor-pointer hover:text-cc-accent"
-                          onClick={() => handleProjectClick(project)}
-                        >
+                        <GripVertical size={14} className="text-cc-muted flex-shrink-0 cursor-grab active:cursor-grabbing" />
+                        <h4 className="font-medium text-cc-text truncate">
                           {project.title}
                         </h4>
                       </div>
@@ -429,34 +442,34 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
                         </button>
 
                         {menuOpenId === project.id && (
-                          <div className="absolute right-0 top-6 z-50 bg-cc-bg border border-white/20 rounded-lg shadow-xl py-1 min-w-[140px]">
+                          <div className="absolute right-0 top-6 z-50 bg-cc-surface border border-cc-border rounded-lg shadow-xl py-1 min-w-[140px]">
                             <button
-                              onClick={() => handleProjectClick(project)}
-                              className="w-full px-3 py-2 text-left text-sm text-cc-text hover:bg-white/10 flex items-center gap-2"
+                              onClick={(e) => { e.stopPropagation(); handleProjectClick(project); }}
+                              className="w-full px-3 py-2 text-left text-sm text-cc-text hover:bg-cc-border flex items-center gap-2"
                             >
                               <Eye size={14} />
                               View Details
                             </button>
                             <button
-                              onClick={() => handleEdit(project)}
-                              className="w-full px-3 py-2 text-left text-sm text-cc-text hover:bg-white/10 flex items-center gap-2"
+                              onClick={(e) => { e.stopPropagation(); handleEdit(project); }}
+                              className="w-full px-3 py-2 text-left text-sm text-cc-text hover:bg-cc-border flex items-center gap-2"
                             >
                               <Edit2 size={14} />
                               Edit
                             </button>
                             {deleteConfirmId === project.id ? (
-                              <div className="px-3 py-2 border-t border-red-500/30">
+                              <div className="px-3 py-2 border-t border-red-500/30" onClick={(e) => e.stopPropagation()}>
                                 <p className="text-xs text-red-400 mb-2">Delete this project?</p>
                                 <div className="flex gap-2">
                                   <button
-                                    onClick={() => handleDelete(project.id)}
+                                    onClick={(e) => { e.stopPropagation(); handleDelete(project.id); }}
                                     className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
                                   >
                                     Delete
                                   </button>
                                   <button
-                                    onClick={() => setDeleteConfirmId(null)}
-                                    className="px-2 py-1 bg-cc-border text-white text-xs rounded hover:bg-slate-500"
+                                    onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(null); }}
+                                    className="px-2 py-1 bg-cc-border text-cc-text text-xs rounded hover:bg-cc-muted"
                                   >
                                     Cancel
                                   </button>
@@ -464,7 +477,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
                               </div>
                             ) : (
                               <button
-                                onClick={() => setDeleteConfirmId(project.id)}
+                                onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(project.id); }}
                                 className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2"
                               >
                                 <Trash2 size={14} />
@@ -478,7 +491,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
 
                     {/* Category & Priority */}
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-cc-muted">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-cc-border text-cc-muted">
                         {CATEGORY_LABELS[project.category]}
                       </span>
                       <span className={cn('text-[10px] px-1.5 py-0.5 rounded', getPriorityColor(project.priority))}>

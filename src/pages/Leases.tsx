@@ -35,7 +35,7 @@ export default function Leases() {
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="card">
           <div className="flex items-center gap-2 mb-2">
             <CheckCircle size={16} className="text-green-400" />
