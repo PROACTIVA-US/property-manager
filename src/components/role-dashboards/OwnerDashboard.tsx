@@ -408,14 +408,17 @@ export default function OwnerDashboard() {
       subtitle: 'Issues, projects & comms',
       icon: <Building2 size={20} />,
       color: TAB_COLORS.property,
-      summary: openIssues.length > 0 ? (
+      summary: (
         <span>
-          <span className="text-cc-muted">Status:</span>
-          <span className="font-semibold ml-1" style={{ color: TAB_COLORS.property }}>{openIssues.length} open issue{openIssues.length !== 1 ? 's' : ''}</span>
+          <span className="font-semibold text-cc-text">Status:</span>
+          <span className="ml-1">
+            <span className="text-blue-400">{unreadMessages}</span>
+            <span className="text-cc-muted"> new message{unreadMessages !== 1 ? 's' : ''}, </span>
+            <span className="text-blue-400">{openIssues.length}</span>
+            <span className="text-cc-muted"> open issue{openIssues.length !== 1 ? 's' : ''}</span>
+          </span>
         </span>
-      ) : unreadMessages > 0 ? (
-        <span><span className="text-cc-muted">Status:</span><span className="font-semibold ml-1" style={{ color: TAB_COLORS.property }}>{unreadMessages} new message{unreadMessages !== 1 ? 's' : ''}</span></span>
-      ) : (<span className="text-cc-muted">Status: No open issues</span>),
+      ),
       content: renderPropertyDetails(),
     },
     {
@@ -426,8 +429,8 @@ export default function OwnerDashboard() {
       color: TAB_COLORS.financials,
       summary: (
         <span>
-          <span className="text-cc-muted">Net Income:</span>
-          <span className="font-semibold ml-1" style={{ color: netCashFlow >= 0 ? '#22c55e' : '#ef4444' }}>
+          <span className="font-semibold text-cc-text">Net Income:</span>
+          <span className="ml-1" style={{ color: netCashFlow >= 0 ? '#22c55e' : '#ef4444' }}>
             {formatCurrency(netCashFlow, 0)}/mo
           </span>
         </span>
@@ -442,11 +445,14 @@ export default function OwnerDashboard() {
       color: TAB_COLORS.tenant,
       summary: isOccupied ? (
         <span>
-          <span className="text-cc-muted">Occupied:</span>
-          <span className="font-semibold ml-1" style={{ color: TAB_COLORS.tenant }}>{settings.tenant.name}</span>
+          <span className="font-semibold text-cc-text">Occupied:</span>
+          <span className="ml-1" style={{ color: TAB_COLORS.tenant }}>{settings.tenant.name}</span>
         </span>
       ) : (
-        <span className="font-semibold" style={{ color: '#ef4444' }}>Vacant</span>
+        <span>
+          <span className="font-semibold text-cc-text">Status:</span>
+          <span className="ml-1" style={{ color: '#ef4444' }}>Vacant</span>
+        </span>
       ),
       content: renderTenantDetails(),
     },
