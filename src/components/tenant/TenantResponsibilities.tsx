@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
 import {
   getActiveResponsibilities,
   getPendingApprovals,
@@ -14,14 +13,16 @@ import {
 import { ResponsibilityChecklist } from './ResponsibilityChecklist';
 
 export function TenantResponsibilities() {
-  const { user: _user } = useAuth();
   const [responsibilities, setResponsibilities] = useState<TenantResponsibility[]>([]);
   const [pendingApprovals, setPendingApprovals] = useState<TenantResponsibility[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<ResponsibilityCategory | 'all'>('all');
   const [showCompleted, setShowCompleted] = useState(false);
 
   useEffect(() => {
-    loadData();
+    /* eslint-disable react-hooks/set-state-in-effect -- Initial data load on mount */
+    setResponsibilities(getActiveResponsibilities());
+    setPendingApprovals(getPendingApprovals());
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   const loadData = () => {

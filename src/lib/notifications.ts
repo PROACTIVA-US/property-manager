@@ -5,7 +5,7 @@
 
 import type { UserRole } from '../contexts/AuthContext';
 import { getThreads } from './messages';
-import { getProjects } from './projects';
+import { getProjects, type Project } from './projects';
 // import { getMaintenance } from './maintenance'; // Not yet implemented
 // import type { PaymentRecord } from './financials'; // Not yet implemented
 
@@ -47,7 +47,7 @@ const NOTIFICATIONS_KEY = 'pm_notifications';
 
 // ============ Core Functions ============
 
-export function getNotifications(_role?: UserRole): Notification[] {
+export function getNotifications(/* role?: UserRole */): Notification[] {
   const data = localStorage.getItem(NOTIFICATIONS_KEY);
   const notifications: Notification[] = data ? JSON.parse(data) : [];
 
@@ -140,7 +140,7 @@ export function getUnreadByType(type: NotificationType): number {
  * Aggregate notifications from all sources
  * This creates notifications from recent activities across the app
  */
-export function aggregateNotifications(userRole: UserRole): Notification[] {
+export function aggregateNotifications(_userRole: UserRole): Notification[] {
   const existing = getNotifications();
   const newNotifications: Notification[] = [];
 
@@ -199,13 +199,13 @@ export function aggregateNotifications(userRole: UserRole): Notification[] {
 
   // Get recent project updates
   const projects = getProjects();
-  const recentProjects = projects.filter((p: any) => {
+  const recentProjects = projects.filter((p: Project) => {
     const updatedRecently = p.updatedAt &&
       (Date.now() - new Date(p.updatedAt).getTime() < 24 * 60 * 60 * 1000); // Last 24 hours
     return updatedRecently;
   });
 
-  recentProjects.forEach((project: any) => {
+  recentProjects.forEach((project: Project) => {
     const hasExisting = existing.some(
       n => n.type === 'project_status' && n.metadata?.projectId === project.id
     );
@@ -231,26 +231,26 @@ export function aggregateNotifications(userRole: UserRole): Notification[] {
   // const maintenance = getMaintenance();
   // const pendingMaintenance = maintenance.filter((m: any) => m.status === 'pending');
 
-  if (userRole === 'pm' && false) { // Disabled until getMaintenance is implemented
-    // Disabled - maintenance not yet implemented
-    // const hasExisting = existing.some(
-    //   n => n.type === 'maintenance' && n.body.includes('pending')
-    // );
-    // if (!hasExisting) {
-    //   newNotifications.push({
-    //     id: generateId(),
-    //     type: 'maintenance',
-    //     priority: 'high',
-    //     title: 'Pending Maintenance',
-    //     body: `${pendingMaintenance.length} maintenance request${pendingMaintenance.length > 1 ? 's' : ''} require attention`,
-    //     timestamp: Date.now(),
-    //     read: false,
-    //     archived: false,
-    //     link: '/maintenance',
-    //     actionRequired: true,
-    //   });
-    // }
-  }
+  // TODO: Re-enable when getMaintenance is implemented
+  // if (userRole === 'pm') {
+  //   const hasExisting = existing.some(
+  //     n => n.type === 'maintenance' && n.body.includes('pending')
+  //   );
+  //   if (!hasExisting) {
+  //     newNotifications.push({
+  //       id: generateId(),
+  //       type: 'maintenance',
+  //       priority: 'high',
+  //       title: 'Pending Maintenance',
+  //       body: `${pendingMaintenance.length} maintenance request${pendingMaintenance.length > 1 ? 's' : ''} require attention`,
+  //       timestamp: Date.now(),
+  //       read: false,
+  //       archived: false,
+  //       link: '/maintenance',
+  //       actionRequired: true,
+  //     });
+  //   }
+  // }
 
   // Merge with existing and save
   if (newNotifications.length > 0) {
@@ -262,10 +262,17 @@ export function aggregateNotifications(userRole: UserRole): Notification[] {
   return existing;
 }
 
+interface PaymentInfo {
+  id: string;
+  amount: number;
+  paidBy: string;
+  date: string;
+}
+
 /**
  * Create notification for payment received
  */
-export function notifyPaymentReceived(payment: any): void {
+export function notifyPaymentReceived(payment: PaymentInfo): void {
   createNotification({
     type: 'payment_received',
     priority: 'normal',

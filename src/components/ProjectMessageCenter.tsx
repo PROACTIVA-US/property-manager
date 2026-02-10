@@ -14,22 +14,24 @@ export default function ProjectMessageCenter({ project }: ProjectMessageCenterPr
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    loadMessages();
-  }, [project.id]);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    const projectMessages = getProjectMessages(project.id);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Initial data load on mount/id change
+    setMessages(projectMessages);
+  }, [project.id]);
 
   const loadMessages = () => {
     const projectMessages = getProjectMessages(project.id);
     setMessages(projectMessages);
   };
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleSendMessage = () => {
     if (!newMessage.trim() || !user) return;

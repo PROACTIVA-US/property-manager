@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
-  getNotifications,
   markAsRead,
   markAllAsRead,
   archiveNotification,
@@ -25,20 +24,27 @@ export function NotificationCenter({ isOpen, onClose, maxHeight = '500px' }: Not
   const navigate = useNavigate();
   const { user } = useAuth();
   const userRole = user?.role;
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  // Track refresh key to force re-aggregation
+  const [refreshKey, setRefreshKey] = useState(0);
   const [filter, setFilter] = useState<NotificationType | 'all'>('all');
   const [showArchived, setShowArchived] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
-  useEffect(() => {
+  // Derive notifications from useMemo - aggregated when open and user role is available
+  // refreshKey is intentionally included to force re-aggregation when notifications change
+  const notifications = useMemo(() => {
     if (isOpen && userRole) {
-      setLoading(true);
-      // Aggregate new notifications from all sources
-      const aggregated = aggregateNotifications(userRole);
-      setNotifications(aggregated);
-      setLoading(false);
+      return aggregateNotifications(userRole);
     }
-  }, [isOpen, userRole]);
+    return [];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, userRole, refreshKey]);
+
+  // Wrapper to update notifications (triggers refresh)
+  const refreshNotifications = () => {
+    setRefreshKey(k => k + 1);
+  };
 
   const filteredNotifications = notifications.filter(n => {
     if (!showArchived && n.archived) return false;
@@ -51,7 +57,7 @@ export function NotificationCenter({ isOpen, onClose, maxHeight = '500px' }: Not
   const handleNotificationClick = (notification: Notification) => {
     // Mark as read
     markAsRead(notification.id);
-    setNotifications(getNotifications());
+    refreshNotifications();
 
     // Navigate if link exists
     if (notification.link) {
@@ -62,20 +68,20 @@ export function NotificationCenter({ isOpen, onClose, maxHeight = '500px' }: Not
 
   const handleMarkAllRead = () => {
     markAllAsRead();
-    setNotifications(getNotifications());
+    refreshNotifications();
   };
 
   const handleArchive = (e: React.MouseEvent, notificationId: string) => {
     e.stopPropagation();
     archiveNotification(notificationId);
-    setNotifications(getNotifications());
+    refreshNotifications();
   };
 
   const handleDelete = (e: React.MouseEvent, notificationId: string) => {
     e.stopPropagation();
     if (confirm('Delete this notification?')) {
       deleteNotification(notificationId);
-      setNotifications(getNotifications());
+      refreshNotifications();
     }
   };
 

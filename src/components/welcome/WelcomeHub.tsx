@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ImageCarousel } from './ImageCarousel';
 import { NotificationCenter, NotificationBell } from './NotificationCenter';
-import { getUnreadNotificationCount } from '../../lib/notifications';
-import { getProjects } from '../../lib/projects';
+import { getUnreadNotificationCount, type Notification, type NotificationType } from '../../lib/notifications';
+import { getProjects, type Project } from '../../lib/projects';
 import { getVendors } from '../../lib/vendors';
 import { getThreads } from '../../lib/messages';
 
@@ -14,7 +14,7 @@ export function WelcomeHub() {
   const [notificationCenterOpen, setNotificationCenterOpen] = useState(false);
 
   const projects = getProjects();
-  const activeProjects = projects.filter((p: any) =>
+  const activeProjects = projects.filter((p: Project) =>
     p.status === 'in_progress' || p.status === 'approved'
   );
 
@@ -155,7 +155,7 @@ export function WelcomeHub() {
             </div>
           ) : (
             <div className="space-y-3">
-              {activeProjects.slice(0, 3).map((project: any) => (
+              {activeProjects.slice(0, 3).map((project: Project) => (
                 <Link
                   key={project.id}
                   to={`/projects/${project.id}`}
@@ -235,7 +235,7 @@ function QuickLinkCard({ to, icon, title, count, subtitle, color, badge }: Quick
 function RecentNotificationsPreview() {
   const { user } = useAuth();
   const userRole = user?.role;
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
     if (userRole) {
@@ -258,8 +258,13 @@ function RecentNotificationsPreview() {
 }
 
 // Separate component to handle notification display
-function NotificationList({ notifications }: { notifications: any[] }) {
-  const [utils, setUtils] = useState<any>(null);
+interface NotificationUtils {
+  getNotificationIcon: (type: NotificationType) => string;
+  formatTimestamp: (timestamp: number) => string;
+}
+
+function NotificationList({ notifications }: { notifications: Notification[] }) {
+  const [utils, setUtils] = useState<NotificationUtils | null>(null);
 
   useEffect(() => {
     import('../../lib/notifications').then((module) => {
@@ -286,7 +291,7 @@ function NotificationList({ notifications }: { notifications: any[] }) {
 
   return (
     <div className="space-y-3">
-      {notifications.map((notification: any) => (
+      {notifications.map((notification: Notification) => (
         <div
           key={notification.id}
           className={`p-3 rounded-lg border transition ${

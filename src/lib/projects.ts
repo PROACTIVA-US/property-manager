@@ -360,7 +360,7 @@ export function getAllProjectMessages(): ProjectMessage[] {
   }
 }
 
-export function saveProjectMessages(_messages: ProjectMessage[]): void {
+export function saveProjectMessages(/* messages: ProjectMessage[] */): void {
   // Deprecated: Messages are now stored within projects
   // This function is kept for backwards compatibility but does nothing
   console.warn('saveProjectMessages is deprecated. Messages are now stored within project objects.');

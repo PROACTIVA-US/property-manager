@@ -92,9 +92,13 @@ export function getThread(threadId: string): Thread | undefined {
   return getThreads().find(t => t.id === threadId);
 }
 
-export function createThread(thread: Omit<Thread, 'id'>): Thread {
+export function createThread(thread: Omit<Thread, 'id' | 'lastMessageTime'> & { lastMessageTime?: number }): Thread {
   const threads = getThreads();
-  const newThread: Thread = { ...thread, id: generateId() };
+  const newThread: Thread = {
+    ...thread,
+    id: generateId(),
+    lastMessageTime: thread.lastMessageTime ?? Date.now(),
+  };
   threads.unshift(newThread);
   saveThreads(threads);
   return newThread;

@@ -53,7 +53,12 @@ export default function UtilityTracking({ onBack }: UtilityTrackingProps) {
   const [newBillNotes, setNewBillNotes] = useState('');
 
   useEffect(() => {
-    loadData();
+    /* eslint-disable react-hooks/set-state-in-effect -- Initial data load on mount */
+    const settings = loadSettings();
+    setBills(getUtilityBills());
+    setOverages(checkUtilityOverages());
+    setStatedAmount(settings.rentalIncome.monthlyUtilities);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   const loadData = () => {

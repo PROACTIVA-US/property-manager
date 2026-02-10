@@ -47,7 +47,7 @@ function getAnthropicClient(): Anthropic {
  */
 export async function generateProject(
   request: ProjectGenerationRequest,
-  options: AIGenerationOptions = {} // eslint-disable-line @typescript-eslint/no-unused-vars
+  options: AIGenerationOptions = {}
 ): Promise<AIGenerationResponse> {
   const startTime = Date.now();
 
