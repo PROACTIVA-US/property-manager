@@ -31,22 +31,12 @@ interface ProjectDetailModalProps {
  */
 type Tab = 'overview' | 'images' | 'milestones' | 'expenses' | 'documents' | 'messages' | 'stakeholders' | 'details';
 
-const IMAGE_CATEGORY_LABELS: Record<ProjectAttachment['category'], string> = {
-  before: 'Before',
-  during: 'During',
-  after: 'After',
-  estimate: 'Estimate',
-  plan: 'Plan',
-  other: 'Other',
-};
-
 export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate }: ProjectDetailModalProps) {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const moreMenuRef = useRef<HTMLDivElement>(null);
   const [projectImages, setProjectImages] = useState<ProjectAttachment[]>([]);
-  const [uploadCategory, setUploadCategory] = useState<ProjectAttachment['category']>('during');
   const [isUploading, setIsUploading] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<ProjectAttachment | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -71,7 +61,7 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
           project.id,
           file,
           user?.displayName || 'Unknown',
-          uploadCategory
+          'other' // Default category
         );
         uploadedCount++;
       }
@@ -84,7 +74,7 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
           projectId: project.id,
           projectTitle: project.title,
           updateType: 'images_added',
-          updateDescription: `${uploadedCount} ${IMAGE_CATEGORY_LABELS[uploadCategory].toLowerCase()} image${uploadedCount > 1 ? 's' : ''} added`,
+          updateDescription: `${uploadedCount} image${uploadedCount > 1 ? 's' : ''} added`,
           pmName: user.displayName,
         });
       }
@@ -425,21 +415,11 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
           {activeTab === 'images' && (
             <div className="space-y-6">
               {/* Upload Section */}
-              <div className="bg-cc-bg rounded-lg p-4 border border-cc-border">
-                <h3 className="text-sm font-semibold text-cc-text mb-3 flex items-center gap-2">
-                  <Upload size={16} />
-                  Upload Images
-                </h3>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <select
-                    value={uploadCategory}
-                    onChange={(e) => setUploadCategory(e.target.value as ProjectAttachment['category'])}
-                    className="input-field text-sm flex-shrink-0"
-                  >
-                    {Object.entries(IMAGE_CATEGORY_LABELS).map(([value, label]) => (
-                      <option key={value} value={value}>{label}</option>
-                    ))}
-                  </select>
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-cc-muted">
+                  {projectImages.length} image{projectImages.length !== 1 ? 's' : ''} uploaded
+                </p>
+                <div>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -451,77 +431,58 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
                   />
                   <label
                     htmlFor="image-upload"
-                    className={`btn-primary text-sm cursor-pointer flex items-center justify-center gap-2 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`btn-primary text-sm cursor-pointer inline-flex items-center gap-2 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <Upload size={14} />
-                    {isUploading ? 'Uploading...' : 'Choose Images'}
+                    {isUploading ? 'Uploading...' : 'Upload Images'}
                   </label>
                 </div>
-                <p className="text-xs text-cc-muted mt-2">
-                  Upload before, during, and after images to track project progress
-                </p>
               </div>
 
-              {/* Images Grid by Category */}
+              {/* Images Grid */}
               {projectImages.length === 0 ? (
                 <div className="text-center py-12">
                   <Image size={48} className="mx-auto text-cc-muted mb-4" />
                   <p className="text-cc-muted">No images uploaded yet</p>
                   <p className="text-sm text-cc-muted mt-1">
-                    Upload before, during, and after photos to document progress
+                    Click "Upload Images" to add project photos
                   </p>
                 </div>
               ) : (
-                <div className="space-y-6">
-                  {(['before', 'during', 'after', 'estimate', 'plan', 'other'] as const).map(category => {
-                    const categoryImages = projectImages.filter(img => img.category === category);
-                    if (categoryImages.length === 0) return null;
-                    return (
-                      <div key={category}>
-                        <h4 className="text-sm font-semibold text-cc-text mb-3 flex items-center gap-2">
-                          <span className="px-2 py-0.5 rounded bg-cc-accent/20 text-cc-accent text-xs">
-                            {IMAGE_CATEGORY_LABELS[category]}
-                          </span>
-                          <span className="text-cc-muted font-normal">({categoryImages.length})</span>
-                        </h4>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                          {categoryImages.map(img => (
-                            <div
-                              key={img.id}
-                              className="relative group rounded-lg overflow-hidden border border-cc-border bg-cc-bg aspect-square"
-                            >
-                              <img
-                                src={img.dataUrl}
-                                alt={img.fileName}
-                                className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
-                                onClick={() => setLightboxImage(img)}
-                              />
-                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                <button
-                                  onClick={() => setLightboxImage(img)}
-                                  className="p-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
-                                >
-                                  <EyeIcon size={16} className="text-white" />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteImage(img.id)}
-                                  className="p-2 bg-red-500/50 rounded-lg hover:bg-red-500/70 transition-colors"
-                                >
-                                  <Trash2 size={16} className="text-white" />
-                                </button>
-                              </div>
-                              <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent">
-                                <p className="text-xs text-white truncate">{img.fileName}</p>
-                                <p className="text-[10px] text-white/70">
-                                  {new Date(img.uploadedAt).toLocaleDateString()}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {projectImages.map(img => (
+                    <div
+                      key={img.id}
+                      className="relative group rounded-lg overflow-hidden border border-cc-border bg-cc-bg aspect-square"
+                    >
+                      <img
+                        src={img.dataUrl}
+                        alt={img.fileName}
+                        className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
+                        onClick={() => setLightboxImage(img)}
+                      />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => setLightboxImage(img)}
+                          className="p-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
+                        >
+                          <EyeIcon size={16} className="text-white" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteImage(img.id)}
+                          className="p-2 bg-red-500/50 rounded-lg hover:bg-red-500/70 transition-colors"
+                        >
+                          <Trash2 size={16} className="text-white" />
+                        </button>
                       </div>
-                    );
-                  })}
+                      <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent">
+                        <p className="text-xs text-white truncate">{img.fileName}</p>
+                        <p className="text-[10px] text-white/70">
+                          {new Date(img.uploadedAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
 
@@ -543,10 +504,10 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
                     className="max-w-full max-h-full object-contain"
                     onClick={(e) => e.stopPropagation()}
                   />
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 px-4 py-2 rounded-lg">
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 px-4 py-2 rounded-lg text-center">
                     <p className="text-white text-sm">{lightboxImage.fileName}</p>
-                    <p className="text-white/70 text-xs text-center">
-                      {IMAGE_CATEGORY_LABELS[lightboxImage.category]} • Uploaded by {lightboxImage.uploadedBy}
+                    <p className="text-white/70 text-xs">
+                      {new Date(lightboxImage.uploadedAt).toLocaleDateString()} • {lightboxImage.uploadedBy}
                     </p>
                   </div>
                 </div>
