@@ -43,11 +43,7 @@ export default function KeepVsSell({
 }: KeepVsSellProps) {
   const { user } = useAuth();
 
-  // Owner-only guard
-  if (user?.role !== 'owner') {
-    return <FinancialAccessDenied />;
-  }
-
+  // Hooks must be called before any conditional returns
   const [property, setProperty] = useState<PropertyFinancials>(initialProperty);
   const [taxInputs] = useState<TaxInputs>(initialTaxInputs);
   const [alternativeReturn, setAlternativeReturn] = useState(7); // S&P 500 average
@@ -59,6 +55,11 @@ export default function KeepVsSell({
     () => calculateKeepVsSell(property, taxInputs, alternativeReturn / 100, projectionYears),
     [property, taxInputs, alternativeReturn, projectionYears]
   );
+
+  // Owner-only guard (after hooks)
+  if (user?.role !== 'owner') {
+    return <FinancialAccessDenied />;
+  }
 
   // Prepare chart data
   const chartData = analysis.projections.map(proj => ({
