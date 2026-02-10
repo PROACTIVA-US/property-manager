@@ -120,7 +120,7 @@ export default function TenantDashboard() {
       )}
 
       {/* Three Main Cards */}
-      <div className="grid grid-cols-3 gap-4 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
         {/* Payments Card */}
         <button
           onClick={() => handleCardClick('payments')}

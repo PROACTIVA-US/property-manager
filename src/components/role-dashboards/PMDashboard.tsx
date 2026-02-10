@@ -58,7 +58,7 @@ export default function PMDashboard() {
       <PMAlertBar onViewIssues={() => navigate('/issues')} />
 
       {/* Three Main Cards */}
-      <div className="grid grid-cols-3 gap-4 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
         {/* Issues & Tasks Card */}
         <button
           onClick={() => handleCardClick('issues')}

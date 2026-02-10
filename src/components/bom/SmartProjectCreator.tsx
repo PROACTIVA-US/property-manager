@@ -319,7 +319,7 @@ export default function SmartProjectCreator({ isOpen, onClose, onSave }: SmartPr
               <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{generatedProject.title}</h3>
                 <p className="text-sm text-gray-600 mb-4">{generatedProject.description}</p>
-                <div className="grid grid-cols-3 gap-4 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                   <div>
                     <span className="text-gray-500">Category:</span>
                     <span className="ml-2 font-medium text-gray-900 capitalize">{generatedProject.category}</span>

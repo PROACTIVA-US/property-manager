@@ -219,7 +219,7 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
             </div>
 
             {/* Category, Priority, Status Grid */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-cc-text mb-1">Category</label>
                 <select
@@ -286,7 +286,7 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
             </div>
 
             {/* Cost & Timeline */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-cc-text mb-1">Estimated Cost</label>
                 <input
