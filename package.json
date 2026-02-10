@@ -16,6 +16,7 @@
     "@anthropic-ai/sdk": "^0.71.2",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
+    "@supabase/supabase-js": "^2.95.3",
     "clsx": "^2.1.1",
     "dexie": "^4.3.0",
     "lucide-react": "^0.555.0",

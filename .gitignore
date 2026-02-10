@@ -31,3 +31,4 @@ worktrees/
 
 # Property value data (user-specific)
 property-value-data.json
+.env.local
