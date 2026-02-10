@@ -26,7 +26,6 @@ import Inspections from './pages/Inspections';
 import Rent from './pages/Rent';
 import Leases from './pages/Leases';
 import HelpCenter from './components/help/HelpCenter';
-import ContextualTip from './components/help/ContextualTip';
 import AIAssistant from './components/ai-assistant/AIAssistant';
 import { useHelpStore } from './stores/helpStore';
 import { useAIAssistantStore } from './stores/aiAssistantStore';
@@ -83,7 +82,6 @@ export default function App() {
         <KeyboardShortcuts />
         <HelpCenter />
         <AIAssistant />
-        <ContextualTip />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
