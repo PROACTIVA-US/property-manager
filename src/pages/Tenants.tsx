@@ -264,7 +264,7 @@ export default function Tenants() {
 
       {/* Expandable Sections */}
       {/* Payments Section */}
-      <div className="card bg-slate-800/50 overflow-hidden">
+      <div className="card bg-cc-surface overflow-hidden">
         <button
           onClick={() => toggleSection('payments')}
           className="w-full flex items-center justify-between p-5 text-left hover:bg-cc-border/30 transition-colors"
@@ -321,7 +321,7 @@ export default function Tenants() {
       </div>
 
       {/* Maintenance Section */}
-      <div className="card bg-slate-800/50 overflow-hidden">
+      <div className="card bg-cc-surface overflow-hidden">
         <button
           onClick={() => toggleSection('maintenance')}
           className="w-full flex items-center justify-between p-5 text-left hover:bg-cc-border/30 transition-colors"
@@ -381,7 +381,7 @@ export default function Tenants() {
       </div>
 
       {/* Lease Details Section */}
-      <div className="card bg-slate-800/50 overflow-hidden">
+      <div className="card bg-cc-surface overflow-hidden">
         <button
           onClick={() => toggleSection('lease')}
           className="w-full flex items-center justify-between p-5 text-left hover:bg-cc-border/30 transition-colors"

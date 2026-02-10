@@ -53,7 +53,7 @@ export default function Tooltip({
       {children}
       {isVisible && (
         <div className={`absolute ${positionClasses[position]} z-50 pointer-events-none`}>
-          <div className="bg-gray-800 text-gray-100 text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap">
+          <div className="bg-cc-surface text-cc-text text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap">
             {content}
             <div
               className={`absolute ${arrowClasses[position]} w-0 h-0 border-4`}

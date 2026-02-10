@@ -167,7 +167,7 @@ export default function QuickStartSection() {
 
   return (
     <div className="mb-8">
-      <h2 className="text-xl font-semibold text-gray-100 mb-4">Quick Start</h2>
+      <h2 className="text-xl font-semibold text-cc-text mb-4">Quick Start</h2>
       <div className={`grid gap-4 ${user?.role === 'owner' ? 'grid-cols-4' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
         {filteredActions.map((action) => {
           const Icon = action.icon;
@@ -179,19 +179,19 @@ export default function QuickStartSection() {
               onClick={action.action}
               onMouseEnter={() => setHoveredAction(action.id)}
               onMouseLeave={() => setHoveredAction(null)}
-              className={`group relative flex items-start gap-4 p-4 rounded-lg border border-gray-700 ${action.bgColor} ${action.hoverBgColor} transition-all text-left`}
+              className={`group relative flex items-start gap-4 p-4 rounded-lg border border-cc-border ${action.bgColor} ${action.hoverBgColor} transition-all text-left`}
             >
               <div className={`p-2 ${action.bgColor} rounded-lg`}>
                 <Icon className={`w-5 h-5 ${action.iconColor}`} />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-gray-100 mb-1">{action.title}</h3>
+                <h3 className="font-medium text-cc-text mb-1">{action.title}</h3>
                 {action.description && (
-                  <p className="text-sm text-gray-400">{action.description}</p>
+                  <p className="text-sm text-cc-muted">{action.description}</p>
                 )}
               </div>
               <ArrowRight
-                className={`w-4 h-4 text-gray-500 transition-opacity absolute top-4 right-4 ${
+                className={`w-4 h-4 text-cc-muted transition-opacity absolute top-4 right-4 ${
                   isHovered ? 'opacity-100' : 'opacity-0'
                 }`}
               />

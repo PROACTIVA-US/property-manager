@@ -33,17 +33,17 @@ export default function RecentActivitySection() {
       case 'vendor':
         return 'text-purple-400 bg-purple-500/10';
       default:
-        return 'text-gray-400 bg-gray-500/10';
+        return 'text-cc-muted bg-cc-border/50';
     }
   };
 
   const getStatusColor = (status?: string) => {
-    if (!status) return 'text-gray-400';
+    if (!status) return 'text-cc-muted';
     const lower = status.toLowerCase();
     if (lower === 'completed' || lower === 'done') return 'text-green-400';
     if (lower === 'in progress' || lower === 'active') return 'text-blue-400';
     if (lower === 'pending' || lower === 'planned') return 'text-yellow-400';
-    return 'text-gray-400';
+    return 'text-cc-muted';
   };
 
   const formatDate = (date: Date) => {
@@ -69,11 +69,11 @@ export default function RecentActivitySection() {
   if (loading) {
     return (
       <div className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-100 mb-4">Recent Activity</h2>
-        <div className="bg-gray-800/50 rounded-lg border border-gray-700 p-8">
+        <h2 className="text-xl font-semibold text-cc-text mb-4">Recent Activity</h2>
+        <div className="bg-cc-surface rounded-lg border border-cc-border p-8">
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
-            <span className="ml-3 text-gray-400">Loading activity...</span>
+            <span className="ml-3 text-cc-muted">Loading activity...</span>
           </div>
         </div>
       </div>
@@ -83,7 +83,7 @@ export default function RecentActivitySection() {
   if (error) {
     return (
       <div className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-100 mb-4">Recent Activity</h2>
+        <h2 className="text-xl font-semibold text-cc-text mb-4">Recent Activity</h2>
         <div className="bg-red-500/10 rounded-lg border border-red-500/30 p-8">
           <p className="text-red-400 text-center">Failed to load activity: {error}</p>
         </div>
@@ -94,12 +94,12 @@ export default function RecentActivitySection() {
   if (activities.length === 0) {
     return (
       <div className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-100 mb-4">Recent Activity</h2>
-        <div className="bg-gray-800/50 rounded-lg border border-gray-700 p-8">
+        <h2 className="text-xl font-semibold text-cc-text mb-4">Recent Activity</h2>
+        <div className="bg-cc-surface rounded-lg border border-cc-border p-8">
           <div className="text-center">
-            <Clock className="w-12 h-12 text-gray-500 mx-auto mb-3" />
-            <p className="text-gray-400 mb-2">No recent activity</p>
-            <p className="text-sm text-gray-500">
+            <Clock className="w-12 h-12 text-cc-muted mx-auto mb-3" />
+            <p className="text-cc-muted mb-2">No recent activity</p>
+            <p className="text-sm text-cc-muted">
               Create your first project or add a property to get started
             </p>
           </div>
@@ -110,8 +110,8 @@ export default function RecentActivitySection() {
 
   return (
     <div className="mb-8">
-      <h2 className="text-xl font-semibold text-gray-100 mb-4">Recent Activity</h2>
-      <div className="bg-gray-800/50 rounded-lg border border-gray-700 divide-y divide-gray-700">
+      <h2 className="text-xl font-semibold text-cc-text mb-4">Recent Activity</h2>
+      <div className="bg-cc-surface rounded-lg border border-cc-border divide-y divide-cc-border">
         {activities.map((activity) => {
           const Icon = getActivityIcon(activity.type);
           const colorClass = getActivityColor(activity.type);
@@ -120,15 +120,15 @@ export default function RecentActivitySection() {
             <button
               key={activity.id}
               onClick={() => handleActivityClick(activity)}
-              className="w-full flex items-start gap-4 p-4 hover:bg-gray-700/30 transition-colors text-left"
+              className="w-full flex items-start gap-4 p-4 hover:bg-cc-border/30 transition-colors text-left"
             >
               <div className={`p-2 rounded-lg ${colorClass} flex-shrink-0`}>
                 <Icon className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-gray-100 mb-1">{activity.title}</h3>
+                <h3 className="font-medium text-cc-text mb-1">{activity.title}</h3>
                 {activity.description && (
-                  <p className="text-sm text-gray-400 mb-2 line-clamp-1">
+                  <p className="text-sm text-cc-muted mb-2 line-clamp-1">
                     {activity.description}
                   </p>
                 )}
@@ -138,7 +138,7 @@ export default function RecentActivitySection() {
                       {activity.status}
                     </span>
                   )}
-                  <span className="text-gray-500">
+                  <span className="text-cc-muted">
                     {formatDate(activity.updatedAt || activity.createdAt)}
                   </span>
                 </div>

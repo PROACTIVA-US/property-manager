@@ -77,10 +77,10 @@ export default function FeatureOverview() {
   return (
     <div className="mb-8">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-100 mb-2">
+        <h2 className="text-2xl font-bold text-cc-text mb-2">
           Everything You Need in One Platform
         </h2>
-        <p className="text-gray-400">
+        <p className="text-cc-muted">
           Powerful features designed to simplify property management
         </p>
       </div>
@@ -91,15 +91,15 @@ export default function FeatureOverview() {
           return (
             <div
               key={feature.id}
-              className={`${feature.bgColor} border border-gray-700 rounded-lg p-6 hover:border-gray-600 transition-colors`}
+              className={`${feature.bgColor} border border-cc-border rounded-lg p-6 hover:border-cc-border transition-colors`}
             >
               <div className={`inline-flex p-3 ${feature.bgColor} rounded-lg mb-4`}>
                 <Icon className={`w-6 h-6 ${feature.iconColor}`} />
               </div>
-              <h3 className="text-lg font-semibold text-gray-100 mb-2">
+              <h3 className="text-lg font-semibold text-cc-text mb-2">
                 {feature.title}
               </h3>
-              <p className="text-sm text-gray-400 leading-relaxed">
+              <p className="text-sm text-cc-muted leading-relaxed">
                 {feature.description}
               </p>
             </div>

@@ -135,7 +135,7 @@ export default function AuthCallback() {
 
         {/* Role Selection State */}
         {state === 'role-selection' && (
-          <div className="bg-slate-800 rounded-xl p-6">
+          <div className="bg-cc-surface rounded-xl p-6">
             <div className="text-center mb-6">
               <h2 className="text-xl font-semibold text-white mb-2">
                 Welcome, {userEmail}!

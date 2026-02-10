@@ -284,7 +284,7 @@ export default function FinancialsOverview() {
           <h2 className="text-xl font-bold text-cc-text">Net Rental Cash Flow</h2>
         </div>
 
-        <div className={`card ${netRentalCashFlow >= 0 ? 'bg-cc-accent/5 border border-cc-accent/20' : 'bg-slate-800/50'}`}>
+        <div className={`card ${netRentalCashFlow >= 0 ? 'bg-cc-accent/5 border border-cc-accent/20' : 'bg-cc-surface'}`}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-green-500/10 rounded-lg p-4 text-center">
               <p className="text-sm text-green-400 mb-1">Monthly Income</p>
