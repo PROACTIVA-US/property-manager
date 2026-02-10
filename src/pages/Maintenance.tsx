@@ -31,11 +31,13 @@ const EXPENSE_CATEGORIES = [
   'Other',
 ];
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function loadExpenses(): Expense[] {
   const data = localStorage.getItem(STORAGE_KEY);
   return data ? JSON.parse(data) : [];
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function getExpensesByProject(projectId: string): Expense[] {
   return loadExpenses().filter(e => e.projectId === projectId);
 }
@@ -55,7 +57,8 @@ export default function Maintenance() {
   const [expenses, setExpenses] = useState<Expense[]>(loadExpenses());
   const [showAddForm, setShowAddForm] = useState(false);
   const [projectFilter, setProjectFilter] = useState<string>('all');
-  const [projects, setProjectsList] = useState<Project[]>([]);
+  // Use lazy initialization instead of effect
+  const [projects] = useState<Project[]>(() => getProjects());
   const [newExpense, setNewExpense] = useState({
     date: new Date().toISOString().split('T')[0],
     description: '',
@@ -64,10 +67,6 @@ export default function Maintenance() {
     isCapitalImprovement: false,
     projectId: '',
   });
-
-  useEffect(() => {
-    setProjectsList(getProjects());
-  }, []);
 
   useEffect(() => {
     saveExpenses(expenses);
@@ -97,7 +96,7 @@ export default function Maintenance() {
     }
   };
 
-  const handleCSVImport = (data: any[]) => {
+  const handleCSVImport = (data: Record<string, string>[]) => {
     const newExpenses: Expense[] = data.map((row, index) => ({
       id: `exp-csv-${Date.now()}-${index}`,
       date: row.date || new Date().toISOString().split('T')[0],

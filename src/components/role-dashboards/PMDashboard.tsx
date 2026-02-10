@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import MaintenanceChecklist from '../MaintenanceChecklist';
@@ -18,17 +18,11 @@ export default function PMDashboard() {
   const activeVendors = vendors.filter(v => v.status !== 'inactive').length;
 
   const [activeCard, setActiveCard] = useState<ActiveCard>(null);
-  const [threads, setThreads] = useState<Thread[]>([]);
-  const [inspections, setInspections] = useState<Inspection[]>([]);
-  const [satisfaction, setSatisfaction] = useState(0);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setThreads(getThreads());
-    setInspections(getInspections().filter(i => i.status === 'pending'));
-    setSatisfaction(getAverageSatisfaction());
-    setLoading(false);
-  }, []);
+  // Use lazy initialization instead of effect
+  const [threads] = useState<Thread[]>(() => getThreads());
+  const [inspections] = useState<Inspection[]>(() => getInspections().filter(i => i.status === 'pending'));
+  const [satisfaction] = useState(() => getAverageSatisfaction());
+  const [loading] = useState(false);
 
   const unreadCount = threads.reduce((acc, t) => acc + t.unreadCount, 0);
 

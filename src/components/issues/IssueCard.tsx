@@ -14,6 +14,18 @@ import {
 } from '../../types/issues.types';
 import { checkSLABreach } from '../../lib/issues';
 
+// Helper function to format time since - called outside of render
+function formatTimeSince(reportedAt: string): string {
+  const reportedTime = new Date(reportedAt).getTime();
+  const hoursAgo = Math.floor((Date.now() - reportedTime) / (1000 * 60 * 60));
+
+  if (hoursAgo < 1) return 'Just now';
+  if (hoursAgo < 24) return `${hoursAgo}h ago`;
+  const daysAgo = Math.floor(hoursAgo / 24);
+  if (daysAgo === 1) return '1 day ago';
+  return `${daysAgo} days ago`;
+}
+
 interface IssueCardProps {
   issue: Issue;
   onClick?: () => void;
@@ -33,18 +45,8 @@ export default function IssueCard({
 
   const isBreached = useMemo(() => checkSLABreach(issue), [issue]);
 
-  // Calculate time since reported
-  const timeSinceReported = useMemo(() => {
-    const reportedAt = new Date(issue.reportedAt).getTime();
-    const now = Date.now();
-    const hoursAgo = Math.floor((now - reportedAt) / (1000 * 60 * 60));
-
-    if (hoursAgo < 1) return 'Just now';
-    if (hoursAgo < 24) return `${hoursAgo}h ago`;
-    const daysAgo = Math.floor(hoursAgo / 24);
-    if (daysAgo === 1) return '1 day ago';
-    return `${daysAgo} days ago`;
-  }, [issue.reportedAt]);
+  // Calculate time since reported - using helper function
+  const timeSinceReported = formatTimeSince(issue.reportedAt);
 
   // Priority indicator colors
   const priorityColors = {

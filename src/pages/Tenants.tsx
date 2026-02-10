@@ -48,7 +48,7 @@ export default function Tenants() {
         setSettings(imported);
         setImportMessage('Tenant data imported successfully!');
         setTimeout(() => setImportMessage(''), 3000);
-      } catch (_error) {
+      } catch {
         setImportMessage('Failed to import. Invalid file format.');
         setTimeout(() => setImportMessage(''), 3000);
       } finally {

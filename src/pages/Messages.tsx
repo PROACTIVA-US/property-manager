@@ -42,15 +42,15 @@ export default function MessagesPage() {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // State
-  const [threads, setThreads] = useState<Thread[]>([]);
+  // State - use lazy initialization
+  const [threads, setThreads] = useState<Thread[]>(() => getThreads());
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(
     searchParams.get('thread')
   );
   const [showNewThread, setShowNewThread] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<Thread['category'] | 'all'>('all');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading] = useState(false);
 
   // Current user info
   const currentUser = {
@@ -59,15 +59,10 @@ export default function MessagesPage() {
     name: user?.displayName || 'User',
   };
 
-  // Load data
+  // Load data callback for refreshing
   const loadData = useCallback(() => {
     setThreads(getThreads());
   }, []);
-
-  useEffect(() => {
-    loadData();
-    setIsLoading(false);
-  }, [loadData]);
 
   // Update URL params
   useEffect(() => {
@@ -120,7 +115,7 @@ export default function MessagesPage() {
       category: data.category,
       participants: data.participants,
       lastMessage: data.initialMessage,
-      lastMessageTime: Date.now(),
+      // Let createThread handle the timestamp internally
       unreadCount: 0,
     });
 

@@ -249,7 +249,7 @@ export function getLease(): Lease {
         };
       }
     }
-  } catch (e) {
+  } catch {
     // Fall through to localStorage check
   }
 

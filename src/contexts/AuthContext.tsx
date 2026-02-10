@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 import { loadSettings } from '../lib/settings';
 import { clearOAuthTokens, type GoogleUserInfo } from '../lib/auth-google';
 
@@ -28,49 +28,50 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const MOCK_ROLE_KEY = 'mockUserRole';
 const OAUTH_USER_KEY = 'oauthUser';
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+// Helper function to load initial user from storage
+function loadInitialUser(): User | null {
+  const oauthUserStr = localStorage.getItem(OAUTH_USER_KEY);
+  const storedRole = localStorage.getItem(MOCK_ROLE_KEY) as UserRole;
 
-  useEffect(() => {
-    // Check for existing session
-    const oauthUserStr = localStorage.getItem(OAUTH_USER_KEY);
-    const storedRole = localStorage.getItem(MOCK_ROLE_KEY) as UserRole;
-
-    if (oauthUserStr) {
-      // OAuth user session
-      try {
-        const oauthUser = JSON.parse(oauthUserStr) as User;
-        setUser(oauthUser);
-      } catch {
-        localStorage.removeItem(OAUTH_USER_KEY);
-      }
-    } else if (storedRole) {
-      // Mock role-based session
-      const settings = loadSettings();
-
-      const displayNames: Record<string, string> = {
-        tenant: settings.tenant.name,
-        owner: settings.owner.name,
-        pm: settings.pm.name,
-      };
-
-      const emails: Record<string, string> = {
-        tenant: settings.tenant.email,
-        owner: settings.owner.email,
-        pm: settings.pm.email,
-      };
-
-      setUser({
-        uid: '123',
-        email: emails[storedRole] || storedRole + '@example.com',
-        displayName: displayNames[storedRole] || storedRole.charAt(0).toUpperCase() + storedRole.slice(1),
-        role: storedRole,
-        isOAuthUser: false,
-      });
+  if (oauthUserStr) {
+    // OAuth user session
+    try {
+      return JSON.parse(oauthUserStr) as User;
+    } catch {
+      localStorage.removeItem(OAUTH_USER_KEY);
+      return null;
     }
-    setLoading(false);
-  }, []);
+  } else if (storedRole) {
+    // Mock role-based session
+    const settings = loadSettings();
+
+    const displayNames: Record<string, string> = {
+      tenant: settings.tenant.name,
+      owner: settings.owner.name,
+      pm: settings.pm.name,
+    };
+
+    const emails: Record<string, string> = {
+      tenant: settings.tenant.email,
+      owner: settings.owner.email,
+      pm: settings.pm.email,
+    };
+
+    return {
+      uid: '123',
+      email: emails[storedRole] || storedRole + '@example.com',
+      displayName: displayNames[storedRole] || storedRole.charAt(0).toUpperCase() + storedRole.slice(1),
+      role: storedRole,
+      isOAuthUser: false,
+    };
+  }
+  return null;
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  // Use lazy initialization instead of effect
+  const [user, setUser] = useState<User | null>(() => loadInitialUser());
+  const [loading, setLoading] = useState(false);
 
   // Mock role-based login (for demo purposes)
   const login = async (role: UserRole) => {
@@ -160,6 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

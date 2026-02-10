@@ -211,7 +211,7 @@ export default function SmartProjectCreator({ isOpen, onClose, onSave }: SmartPr
                     </label>
                     <select
                       value={propertyContext.propertyType || ''}
-                      onChange={(e) => setPropertyContext({ ...propertyContext, propertyType: e.target.value as any })}
+                      onChange={(e) => setPropertyContext({ ...propertyContext, propertyType: e.target.value as PropertyContext['propertyType'] })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     >
                       <option value="">Select type...</option>
@@ -258,7 +258,7 @@ export default function SmartProjectCreator({ isOpen, onClose, onSave }: SmartPr
                     </label>
                     <select
                       value={constraints.diyLevel || ''}
-                      onChange={(e) => setConstraints({ ...constraints, diyLevel: e.target.value as any })}
+                      onChange={(e) => setConstraints({ ...constraints, diyLevel: e.target.value as ProjectConstraints['diyLevel'] })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     >
                       <option value="">Select level...</option>

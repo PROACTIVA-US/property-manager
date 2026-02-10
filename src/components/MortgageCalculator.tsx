@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
   LineChart,
   Line,
@@ -20,6 +20,14 @@ import {
 } from '../lib/mortgage';
 import { RefreshCw, Table as TableIcon } from 'lucide-react';
 
+interface ManualInputs {
+  principal: number;
+  rate: number;
+  pi: number;
+  escrow: number;
+  total: number;
+}
+
 export default function MortgageCalculator() {
   const [loanParams, setLoanParams] = useState<LoanParams>(DEFAULT_LOAN_PARAMS);
   const [extraPayment, setExtraPayment] = useState(0);
@@ -28,15 +36,23 @@ export default function MortgageCalculator() {
   const [showTable, setShowTable] = useState(false);
   const [targetDateIndex, setTargetDateIndex] = useState(0);
 
-  // Manual Input State
+  // Manual Input State - derive from loanParams when not in manual mode
   const [isManualInput, setIsManualInput] = useState(false);
-  const [manualInputs, setManualInputs] = useState({
+
+  // Compute manualInputs from loanParams when not in manual mode
+  const derivedManualInputs = useMemo(() => ({
     principal: loanParams.principal,
     rate: loanParams.annualRate * 100,
     pi: loanParams.baseMonthlyPAndI,
     escrow: loanParams.escrow,
     total: loanParams.totalPayment
-  });
+  }), [loanParams]);
+
+  const [manualInputsState, setManualInputsState] = useState(derivedManualInputs);
+
+  // Use derived values when not in manual mode, otherwise use manual state
+  const manualInputs = isManualInput ? manualInputsState : derivedManualInputs;
+  const setManualInputs = setManualInputsState;
 
   const comparison = useMemo(() => {
     const originalSchedule = calculateAmortizationSchedule(loanParams, 0, { amount: 0, month: 0 });
@@ -49,7 +65,7 @@ export default function MortgageCalculator() {
 
   // Handle Payoff Date Slider Logic
   const maxMonths = comparison.originalSchedule.length;
-  
+
   const handleTargetDateChange = (monthsToAdd: number) => {
      setTargetDateIndex(monthsToAdd);
      if (monthsToAdd === 0 || !comparison.originalSchedule.length) {
@@ -67,23 +83,10 @@ export default function MortgageCalculator() {
      }
   };
 
-  // Sync manual inputs when loan params change externally (e.g. reset)
-  useEffect(() => {
-    if (!isManualInput) {
-      setManualInputs({
-        principal: loanParams.principal,
-        rate: loanParams.annualRate * 100,
-        pi: loanParams.baseMonthlyPAndI,
-        escrow: loanParams.escrow,
-        total: loanParams.totalPayment
-      });
-    }
-  }, [loanParams, isManualInput]);
-
-  const handleManualInputChange = (field: string, value: string) => {
+  const handleManualInputChange = (field: keyof ManualInputs, value: string) => {
     const numValue = parseFloat(value) || 0;
-    const newInputs = { ...manualInputs, [field]: numValue };
-    setManualInputs(newInputs as any);
+    const newInputs: ManualInputs = { ...manualInputs, [field]: numValue };
+    setManualInputs(newInputs);
 
     // Update Loan Params based on input logic
     if (field === 'rate' || field === 'principal') {

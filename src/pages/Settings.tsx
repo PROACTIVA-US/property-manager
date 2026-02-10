@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Settings as SettingsIcon,
@@ -57,12 +57,9 @@ export default function Settings() {
   const [activeTab, setActiveTab] = useState<TabId>(
     initialTab && tabs.find(t => t.id === initialTab) ? initialTab : 'account'
   );
-  const [settings, setSettings] = useState<SettingsData>(loadSettings());
+  // Use lazy initialization for settings - no effect needed
+  const [settings, setSettings] = useState<SettingsData>(() => loadSettings());
   const { theme, setTheme } = useTheme();
-
-  useEffect(() => {
-    setSettings(loadSettings());
-  }, [activeTab]);
 
   const handleTabChange = (tabId: TabId) => {
     setActiveTab(tabId);

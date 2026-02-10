@@ -71,7 +71,7 @@ export default function Expenses() {
     }
   };
 
-  const handleCSVImport = (data: any[]) => {
+  const handleCSVImport = (data: Record<string, string>[]) => {
     const newExpenses: Expense[] = data.map((row, index) => ({
       id: `exp-csv-${Date.now()}-${index}`,
       date: row.date || new Date().toISOString().split('T')[0],

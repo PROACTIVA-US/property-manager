@@ -48,7 +48,7 @@ export function calculateAmortizationSchedule(
   let currentBalance = loanParams.principal;
   const monthlyRate = loanParams.annualRate / 12;
   let monthNumber = 0;
-  let paymentDate = new Date(loanParams.startDate);
+  const paymentDate = new Date(loanParams.startDate);
   const maxMonths = 60 * 12;
 
   while (currentBalance > 0.005 && monthNumber < maxMonths) {

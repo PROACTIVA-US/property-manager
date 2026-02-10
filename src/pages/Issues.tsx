@@ -3,7 +3,7 @@
  * Main page for issue tracking system
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Plus, AlertTriangle, CheckCircle, Clock, TrendingUp } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { getIssues, getIssuesByReporter, getIssueMetrics, generateSampleIssues, getEscalatedIssues } from '../lib/issues';
@@ -12,41 +12,48 @@ import IssueList from '../components/issues/IssueList';
 import IssueCreateForm from '../components/issues/IssueCreateForm';
 import IssueDetailModal from '../components/issues/IssueDetailModal';
 
+// Helper function to load issues based on user role
+function loadIssuesForUser(user: ReturnType<typeof useAuth>['user']) {
+  // Generate sample issues on first load if none exist
+  generateSampleIssues();
+
+  const isOwner = user?.role === 'owner';
+  const isTenant = user?.role === 'tenant';
+
+  // Owners ONLY see escalated issues
+  if (isOwner) {
+    return getEscalatedIssues();
+  } else if (isTenant && user) {
+    // Tenants only see their own issues
+    return getIssuesByReporter(user.uid);
+  } else {
+    // PM sees all issues
+    return getIssues();
+  }
+}
+
 export default function IssuesPage() {
   const { user } = useAuth();
   const isPM = user?.role === 'pm';
   const isOwner = user?.role === 'owner';
   const isTenant = user?.role === 'tenant';
 
-  const [issues, setIssues] = useState<Issue[]>([]);
+  // Use lazy initialization
+  const [issues, setIssues] = useState<Issue[]>(() => loadIssuesForUser(user));
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
-  const [metrics, setMetrics] = useState<ReturnType<typeof getIssueMetrics> | null>(null);
+  const [metrics, setMetrics] = useState<ReturnType<typeof getIssueMetrics> | null>(() =>
+    (isPM || isOwner) ? getIssueMetrics() : null
+  );
 
   const loadIssues = useCallback(() => {
-    // Generate sample issues on first load if none exist
-    generateSampleIssues();
-
-    // Owners ONLY see escalated issues
-    if (isOwner) {
-      setIssues(getEscalatedIssues());
-    } else if (isTenant && user) {
-      // Tenants only see their own issues
-      setIssues(getIssuesByReporter(user.uid));
-    } else {
-      // PM sees all issues
-      setIssues(getIssues());
-    }
+    setIssues(loadIssuesForUser(user));
 
     // Load metrics for PM/Owner
     if (isPM || isOwner) {
       setMetrics(getIssueMetrics());
     }
-  }, [isTenant, isPM, isOwner, user]);
-
-  useEffect(() => {
-    loadIssues();
-  }, [loadIssues]);
+  }, [isPM, isOwner, user]);
 
   const handleIssueClick = (issue: Issue) => {
     setSelectedIssue(issue);

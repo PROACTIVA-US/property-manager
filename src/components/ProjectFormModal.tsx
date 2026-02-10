@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { X, Sparkles } from 'lucide-react';
 import type { Project, ProjectCategory, ProjectPriority, ProjectStatus } from '../lib/projects';
 import { createProject, updateProject, CATEGORY_LABELS, PRIORITY_LABELS } from '../lib/projects';
@@ -12,9 +12,24 @@ interface ProjectFormModalProps {
   onSave: () => void;
 }
 
-export default function ProjectFormModal({ project, isOpen, onClose, onSave }: ProjectFormModalProps) {
-  const { user } = useAuth();
-  const [formData, setFormData] = useState({
+// Helper function to get initial form data based on project
+function getInitialFormData(project: Project | null) {
+  if (project) {
+    return {
+      title: project.title,
+      description: project.description,
+      category: project.category,
+      status: project.status,
+      priority: project.priority,
+      primaryVendorId: project.primaryVendorId || '',
+      estimatedCost: project.estimatedCost?.toString() || '',
+      estimatedStartDate: project.estimatedStartDate || '',
+      estimatedEndDate: project.estimatedEndDate || '',
+      notes: project.notes || '',
+      tags: project.tags.join(', '),
+    };
+  }
+  return {
     title: '',
     description: '',
     category: 'maintenance' as ProjectCategory,
@@ -26,44 +41,30 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
     estimatedEndDate: '',
     notes: '',
     tags: '',
-  });
+  };
+}
+
+export default function ProjectFormModal({ project, isOpen, onClose, onSave }: ProjectFormModalProps) {
+  const { user } = useAuth();
+
+  // Track the project ID and isOpen state to detect changes
+  const [syncKey, setSyncKey] = useState({ projectId: project?.id, isOpen });
+
+  // Initialize form data from project
+  const [formData, setFormData] = useState(() => getInitialFormData(project));
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const vendors = getVendors();
 
-  useEffect(() => {
-    if (project) {
-      // Edit mode - populate form with project data
-      setFormData({
-        title: project.title,
-        description: project.description,
-        category: project.category,
-        status: project.status,
-        priority: project.priority,
-        primaryVendorId: project.primaryVendorId || '',
-        estimatedCost: project.estimatedCost?.toString() || '',
-        estimatedStartDate: project.estimatedStartDate || '',
-        estimatedEndDate: project.estimatedEndDate || '',
-        notes: project.notes || '',
-        tags: project.tags.join(', '),
-      });
-    } else {
-      // Create mode - reset form
-      setFormData({
-        title: '',
-        description: '',
-        category: 'maintenance',
-        status: 'draft',
-        priority: 'medium',
-        primaryVendorId: '',
-        estimatedCost: '',
-        estimatedStartDate: '',
-        estimatedEndDate: '',
-        notes: '',
-        tags: '',
-      });
+  // Reset form when modal opens with a different project (derived state pattern)
+  const currentKey = { projectId: project?.id, isOpen };
+  if (syncKey.projectId !== currentKey.projectId || (currentKey.isOpen && !syncKey.isOpen)) {
+    setSyncKey(currentKey);
+    if (isOpen) {
+      setFormData(getInitialFormData(project));
+      setErrors({});
     }
-  }, [project, isOpen]);
+  }
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};

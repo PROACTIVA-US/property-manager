@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { Upload, Download, AlertCircle, CheckCircle, FileText } from 'lucide-react';
 
+// CSV record with dynamic string keys mapped from column headers
+type CSVRecord = Record<string, string>;
+
 interface CSVImportProps {
-  onRecordsImported: (records: any[]) => void;
+  onRecordsImported: (records: CSVRecord[]) => void;
   templateColumns: string[];
   title: string;
   description: string;
@@ -26,16 +29,16 @@ export default function CSVImport({ onRecordsImported, templateColumns, title, d
     URL.revokeObjectURL(url);
   };
 
-  const parseCSV = (text: string): any[] => {
+  const parseCSV = (text: string): CSVRecord[] => {
     const lines = text.trim().split('\n');
     if (lines.length < 2) return [];
 
     const headers = lines[0].split(',').map(h => h.trim());
-    const rows = [];
+    const rows: CSVRecord[] = [];
 
     for (let i = 1; i < lines.length; i++) {
       const values = lines[i].split(',').map(v => v.trim());
-      const obj: any = {};
+      const obj: CSVRecord = {};
       headers.forEach((header, index) => {
         obj[header] = values[index] || '';
       });
@@ -65,9 +68,10 @@ export default function CSVImport({ onRecordsImported, templateColumns, title, d
       setImportSuccess(true);
       setImportMessage(`✓ Successfully imported ${records.length} rows`);
       setTimeout(() => setImportMessage(''), 5000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setImportSuccess(false);
-      setImportMessage(`✗ Import failed: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setImportMessage(`✗ Import failed: ${errorMessage}`);
       setTimeout(() => setImportMessage(''), 5000);
     } finally {
       setImporting(false);

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState } from 'react';
 import { Plus, ClipboardCheck, Calendar, CheckCircle, Clock, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import InspectionScheduler from '../components/InspectionScheduler';
@@ -12,17 +12,10 @@ import {
 
 export default function Inspections() {
   const { user } = useAuth();
-  const [inspections, setInspections] = useState<Inspection[]>([]);
+  // Use lazy initialization instead of effect
+  const [inspections, setInspections] = useState<Inspection[]>(() => getInspections());
   const [activeTab, setActiveTab] = useState<'scheduled' | 'history'>('scheduled');
   const [showScheduler, setShowScheduler] = useState(false);
-
-  const loadInspections = useCallback(() => {
-    setInspections(getInspections());
-  }, []);
-
-  useEffect(() => {
-    loadInspections();
-  }, [loadInspections]);
 
   const currentUser = {
     id: user?.uid || 'pm_1',

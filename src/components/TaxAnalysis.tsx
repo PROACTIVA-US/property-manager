@@ -54,11 +54,7 @@ export default function TaxAnalysis({
 }: TaxAnalysisProps) {
   const { user } = useAuth();
 
-  // Owner-only guard
-  if (user?.role !== 'owner') {
-    return <FinancialAccessDenied />;
-  }
-
+  // All hooks must be called before any conditional returns
   const [property, setProperty] = useState<PropertyFinancials>(initialProperty);
   const [taxInputs, setTaxInputs] = useState<TaxInputs>(initialTaxInputs);
   const [showInputs, setShowInputs] = useState(false);
@@ -74,6 +70,11 @@ export default function TaxAnalysis({
     () => getMarginalTaxRate(taxInputs.annualIncome, taxInputs.filingStatus),
     [taxInputs.annualIncome, taxInputs.filingStatus]
   );
+
+  // Owner-only guard - must come after all hooks
+  if (user?.role !== 'owner') {
+    return <FinancialAccessDenied />;
+  }
 
   // Data for tax breakdown chart
   const taxBreakdownData = [

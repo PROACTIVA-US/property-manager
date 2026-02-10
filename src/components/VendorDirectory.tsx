@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Search,
   Plus,
@@ -35,8 +35,8 @@ interface VendorDirectoryProps {
 }
 
 export default function VendorDirectory({ compact = false }: VendorDirectoryProps) {
-  const [vendors, setVendors] = useState<Vendor[]>([]);
-  const [filteredVendors, setFilteredVendors] = useState<Vendor[]>([]);
+  // Use lazy initialization instead of effect
+  const [vendors, setVendors] = useState<Vendor[]>(() => getVendors());
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<VendorStatus | 'all'>('all');
   const [specialtyFilter, setSpecialtyFilter] = useState<VendorSpecialty | 'all'>('all');
@@ -50,20 +50,15 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
 
   // Delete confirmation
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Use lazy initialization instead of effect - loading state not needed
+  const [loading] = useState(false);
 
   const loadVendors = () => {
-    const loaded = getVendors();
-    setVendors(loaded);
-    setFilteredVendors(loaded);
+    setVendors(getVendors());
   };
 
-  useEffect(() => {
-    loadVendors();
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
+  // Use useMemo for filtering instead of effect with setState
+  const filteredVendors = useMemo(() => {
     let result = vendors;
 
     // Search filter
@@ -87,7 +82,7 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
       result = result.filter(v => v.specialty === specialtyFilter);
     }
 
-    setFilteredVendors(result);
+    return result;
   }, [vendors, searchQuery, statusFilter, specialtyFilter]);
 
   const handleEdit = (vendor: Vendor) => {

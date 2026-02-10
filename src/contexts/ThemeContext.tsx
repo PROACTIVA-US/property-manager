@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useSyncExternalStore, type ReactNode } from 'react';
 
 export type Theme = 'light' | 'dark' | 'system';
 
@@ -19,6 +19,14 @@ function getSystemTheme(): 'light' | 'dark' {
   return 'dark';
 }
 
+// Subscribe to system theme changes
+function subscribeToSystemTheme(callback: () => void) {
+  if (typeof window === 'undefined') return () => {};
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  mediaQuery.addEventListener('change', callback);
+  return () => mediaQuery.removeEventListener('change', callback);
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window !== 'undefined') {
@@ -30,46 +38,30 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     return 'dark';
   });
 
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>(() => {
-    if (theme === 'system') {
-      return getSystemTheme();
-    }
-    return theme;
-  });
+  // Use useSyncExternalStore to track system theme changes
+  const systemTheme = useSyncExternalStore(
+    subscribeToSystemTheme,
+    getSystemTheme,
+    () => 'dark' as const
+  );
 
-  // Apply theme class to document
+  // Derive resolvedTheme instead of using state
+  const resolvedTheme = useMemo(() => {
+    return theme === 'system' ? systemTheme : theme;
+  }, [theme, systemTheme]);
+
+  // Apply theme class to document (side effect only - no state updates)
   useEffect(() => {
     const root = document.documentElement;
-    const resolved = theme === 'system' ? getSystemTheme() : theme;
-    
-    setResolvedTheme(resolved);
-    
+
     // Remove both classes first
     root.classList.remove('light', 'dark');
     // Add the resolved theme class
-    root.classList.add(resolved);
-    
+    root.classList.add(resolvedTheme);
+
     // Update color-scheme for native elements
-    root.style.colorScheme = resolved;
-  }, [theme]);
-
-  // Listen for system theme changes
-  useEffect(() => {
-    if (theme !== 'system') return;
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
-    const handleChange = (e: MediaQueryListEvent) => {
-      const newTheme = e.matches ? 'dark' : 'light';
-      setResolvedTheme(newTheme);
-      document.documentElement.classList.remove('light', 'dark');
-      document.documentElement.classList.add(newTheme);
-      document.documentElement.style.colorScheme = newTheme;
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme]);
+    root.style.colorScheme = resolvedTheme;
+  }, [resolvedTheme]);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
@@ -83,6 +75,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (context === undefined) {

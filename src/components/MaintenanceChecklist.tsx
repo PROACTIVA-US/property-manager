@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
   CheckCircle2,
   Circle,
@@ -68,7 +68,8 @@ export default function MaintenanceChecklist() {
   const isTenant = user?.role === 'tenant';
 
   // All hooks must be called before any early returns (React rules of hooks)
-  const [tasks, setTasks] = useState<MaintenanceTask[]>([]);
+  // Use lazy initialization to avoid effect-based setState
+  const [tasks, setTasks] = useState<MaintenanceTask[]>(() => loadTasks());
   const [expandedCategories, setExpandedCategories] = useState<Set<TaskCategory>>(
     new Set(CATEGORY_ORDER)
   );
@@ -78,11 +79,6 @@ export default function MaintenanceChecklist() {
   const [editingTask, setEditingTask] = useState<MaintenanceTask | null>(null);
   const [formData, setFormData] = useState<TaskFormData>(INITIAL_FORM_DATA);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-
-  // Load tasks on mount
-  useEffect(() => {
-    setTasks(loadTasks());
-  }, []);
 
   // Filter tasks based on selected filters
   const filteredTasks = useMemo(() => {

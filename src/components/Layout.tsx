@@ -29,15 +29,41 @@ import { getThreads } from '../lib/messages';
 import AIAssistant from './ai-assistant/AIAssistant';
 import ThemeToggle from './ThemeToggle';
 import { useAIAssistantStore } from '../stores/aiAssistantStore';
+import type { LucideIcon } from 'lucide-react';
+
+interface NavItem {
+  name: string;
+  href: string;
+  icon: LucideIcon;
+  badge?: number;
+}
 
 const SIDEBAR_COLLAPSED_KEY = 'property-manager-sidebar-collapsed';
+
+// Mobile menu state is keyed by pathname to auto-close on navigation
+function useMobileMenuState(pathname: string) {
+  // Store state with pathname as key - reset to false on pathname change
+  const [menuState, setMenuState] = useState<{ pathname: string; isOpen: boolean }>({
+    pathname,
+    isOpen: false
+  });
+
+  // If pathname changed, menu should be closed
+  const isOpen = menuState.pathname === pathname ? menuState.isOpen : false;
+
+  const setIsOpen = (open: boolean) => {
+    setMenuState({ pathname, isOpen: open });
+  };
+
+  return [isOpen, setIsOpen] as const;
+}
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
   const { toggleAssistant, isOpen: isAIOpen } = useAIAssistantStore();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useMobileMenuState(location.pathname);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     const stored = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
     return stored === 'true';
@@ -47,11 +73,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(isSidebarCollapsed));
   }, [isSidebarCollapsed]);
-
-  // Close mobile menu on route change
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [location.pathname]);
 
   // Keyboard shortcut for AI Assistant (Cmd+. or Ctrl+.)
   useEffect(() => {
@@ -166,7 +187,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
    */
 
   // Get role-specific navigation
-  const getPrimaryNavByRole = (userRole: string | null) => {
+  const getPrimaryNavByRole = (userRole: string | null): NavItem[] => {
     switch (userRole) {
       // OWNER: 5 items (Dashboard, Financials, Properties, Documents, Messages)
       case 'owner':
@@ -286,7 +307,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <nav className="flex-1 px-2 space-y-1">
               {filteredPrimaryNav.map((item) => {
                 const isActive = location.pathname === item.href;
-                const badge = (item as any).badge;
+                const badge = item.badge;
                 const showBadge = badge && badge > 0;
                 return (
                   <Link
@@ -404,7 +425,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               {/* Primary Navigation */}
               {filteredPrimaryNav.map((item) => {
                 const isActive = location.pathname === item.href;
-                const badge = (item as any).badge;
+                const badge = item.badge;
                 const showBadge = badge && badge > 0;
                 return (
                   <Link

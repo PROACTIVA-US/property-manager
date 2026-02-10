@@ -1,8 +1,30 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Property3DViewer } from '../components/viewer3d/Property3DViewer';
 import { getProjects } from '../lib/projects';
 import type { Annotation, ViewerMode } from '../types/viewer3d.types';
+
+// Helper function to convert projects to annotations
+function projectsToAnnotations(): Annotation[] {
+  const projects = getProjects();
+  return projects
+    .filter((project: { status: string }) => project.status !== 'completed')
+    .map((project: { id: string; title: string; description: string; priority: string; status: string; createdAt: string; createdBy: string }, index: number) => ({
+      id: project.id,
+      projectId: project.id,
+      position: [
+        (index % 3) * 3 - 3,  // Spread annotations across x-axis
+        2,
+        Math.floor(index / 3) * 3,  // Spread across z-axis
+      ] as [number, number, number],
+      label: project.title,
+      description: project.description,
+      color: project.priority === 'high' ? '#ef4444' : project.priority === 'medium' ? '#f59e0b' : '#3b82f6',
+      type: project.status === 'draft' ? 'proposed' : 'project',
+      createdAt: project.createdAt,
+      createdBy: project.createdBy,
+    }));
+}
 
 /**
  * View3D Page
@@ -12,34 +34,9 @@ import type { Annotation, ViewerMode } from '../types/viewer3d.types';
 export default function View3D() {
   const navigate = useNavigate();
   const [selectedPropertyId] = useState<string>('property_1');
-  const [annotations, setAnnotations] = useState<Annotation[]>([]);
+  // Use lazy initialization to load annotations - no effect needed
+  const [annotations] = useState<Annotation[]>(() => projectsToAnnotations());
   const [mode, setMode] = useState<ViewerMode>('view');
-
-  // Load annotations from projects on mount
-  useEffect(() => {
-    const projects = getProjects();
-
-    // Convert projects to annotations
-    const projectAnnotations: Annotation[] = projects
-      .filter((project: { status: string }) => project.status !== 'completed')
-      .map((project: { id: string; title: string; description: string; priority: string; status: string; createdAt: string; createdBy: string }, index: number) => ({
-        id: project.id,
-        projectId: project.id,
-        position: [
-          (index % 3) * 3 - 3,  // Spread annotations across x-axis
-          2,
-          Math.floor(index / 3) * 3,  // Spread across z-axis
-        ] as [number, number, number],
-        label: project.title,
-        description: project.description,
-        color: project.priority === 'high' ? '#ef4444' : project.priority === 'medium' ? '#f59e0b' : '#3b82f6',
-        type: project.status === 'draft' ? 'proposed' : 'project',
-        createdAt: project.createdAt,
-        createdBy: project.createdBy,
-      }));
-
-    setAnnotations(projectAnnotations);
-  }, []);
 
   const handleAnnotationClick = (annotationId: string) => {
     const annotation = annotations.find((a) => a.id === annotationId);

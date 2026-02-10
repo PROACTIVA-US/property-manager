@@ -130,6 +130,7 @@ export function ModelViewer({
 }
 
 // Preload models for better performance
+// eslint-disable-next-line react-refresh/only-export-components
 export function preloadModel(url: string) {
   useGLTF.preload(url);
 }

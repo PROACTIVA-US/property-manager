@@ -69,6 +69,7 @@ export default function RoleBasedRoute({
  * Hook to check if current user can access a route
  * Useful for conditional rendering in components
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useCanAccess(path: string): boolean {
   const { user } = useAuth();
   if (!user) return false;
@@ -78,6 +79,7 @@ export function useCanAccess(path: string): boolean {
 /**
  * Hook to check if current user has a specific role
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useHasRole(roles: Array<'owner' | 'pm' | 'tenant'>): boolean {
   const { user } = useAuth();
   if (!user || !user.role) return false;

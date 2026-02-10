@@ -13,14 +13,14 @@ import type { Property3DViewerProps, ViewerMode, ModelAsset } from '../../types/
  * Integrates all 3D viewer components and manages the scene state.
  */
 export function Property3DViewer({
-  propertyId: _propertyId,
+  /* propertyId, */
   modelUrl: externalModelUrl,
   annotations,
   mode: externalMode = 'view',
   onAnnotationClick,
-  onAnnotationAdd: _onAnnotationAdd,
-  onAnnotationUpdate: _onAnnotationUpdate,
-  onAnnotationDelete: _onAnnotationDelete,
+  /* onAnnotationAdd, */
+  /* onAnnotationUpdate, */
+  /* onAnnotationDelete, */
   onModeChange,
   className = '',
 }: Property3DViewerProps) {
@@ -45,7 +45,7 @@ export function Property3DViewer({
     setShowLibrary(false);
   };
 
-  const handleModelUpload = async (_file: File) => {
+  const handleModelUpload = async (/* file: File */) => {
     // File is already processed in ModelUploader
     // Just close the uploader modal
     setShowUploader(false);

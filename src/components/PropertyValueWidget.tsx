@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { TrendingUp, RefreshCw, ExternalLink, AlertCircle } from 'lucide-react';
 import { loadSettings, updateProperty } from '../lib/settings';
 import { useAuth } from '../contexts/AuthContext';
@@ -17,16 +17,11 @@ import {
  */
 export default function PropertyValueWidget() {
   const { user } = useAuth();
-  const [estimate, setEstimate] = useState<ZillowEstimate | null>(null);
+  // Use lazy initialization instead of effect
+  const [estimate, setEstimate] = useState<ZillowEstimate | null>(() => loadZillowEstimate());
   const [manualValue, setManualValue] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
   const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    // Load saved estimate on mount
-    const savedEstimate = loadZillowEstimate();
-    setEstimate(savedEstimate);
-  }, []);
 
   // Zillow Integration is owner-only - tenants and PMs should not see property values
   if (user?.role !== 'owner') {

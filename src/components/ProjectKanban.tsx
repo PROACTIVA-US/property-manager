@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Plus,
   GripVertical,
@@ -41,7 +41,8 @@ interface ProjectKanbanProps {
 export default function ProjectKanban({ compact = false, onProjectSelect }: ProjectKanbanProps) {
   const { user } = useAuth();
   const isPM = user?.role === 'pm';
-  const [projects, setProjects] = useState<Project[]>([]);
+  // Use lazy initialization instead of effect
+  const [projects, setProjects] = useState<Project[]>(() => getProjects());
   const [draggedProject, setDraggedProject] = useState<Project | null>(null);
   const [dragOverStage, setDragOverStage] = useState<ProjectStatus | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -51,7 +52,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [isAICreatorOpen, setIsAICreatorOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading] = useState(false);
 
   // Which stages to show in compact mode
   const compactStages: ProjectStatus[] = ['pending_approval', 'approved', 'in_progress'];
@@ -62,11 +63,6 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
   const loadProjects = () => {
     setProjects(getProjects());
   };
-
-  useEffect(() => {
-    loadProjects();
-    setLoading(false);
-  }, []);
 
   const getProjectsByStage = (status: ProjectStatus) => {
     return projects.filter(p => p.status === status);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
   DollarSign,
   TrendingUp,
@@ -69,16 +69,11 @@ function ValueSlider({
 }
 
 export default function FinancialsOverview() {
-  const [settings, setSettings] = useState<SettingsData>(loadSettings());
+  // Use lazy initialization instead of effect
+  const [settings, setSettings] = useState<SettingsData>(() => loadSettings());
   const [showMortgageDetails, setShowMortgageDetails] = useState(true);
   const [extraPayment, setExtraPayment] = useState(0);
-  const [loading, setLoading] = useState(true);
-
-  // Reload settings on mount
-  useEffect(() => {
-    setSettings(loadSettings());
-    setLoading(false);
-  }, []);
+  const [loading] = useState(false);
 
   // Save settings when values change
   const handleSettingChange = (

@@ -175,7 +175,7 @@ export async function uploadImage(
     saveImages(images);
 
     return image;
-  } catch (error) {
+  } catch {
     return { error: 'Failed to upload image' };
   }
 }

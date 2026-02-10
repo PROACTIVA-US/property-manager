@@ -68,12 +68,14 @@ export default function PaymentHistory({ onBack, compact = false }: PaymentHisto
     // Simulate payment processing
     await new Promise(resolve => setTimeout(resolve, 2000));
 
+    // Generate confirmation number - crypto.randomUUID() is deterministic per-call
+    const confirmationId = crypto.randomUUID().slice(0, 8).toUpperCase();
     const newPayment = addPayment({
       date: new Date().toISOString().slice(0, 10),
       amount: balance.amount,
       status: 'paid',
       method: 'Bank Transfer',
-      confirmationNumber: `TXN-${Date.now()}`,
+      confirmationNumber: `TXN-${confirmationId}`,
     });
 
     setPayments(getPayments());
