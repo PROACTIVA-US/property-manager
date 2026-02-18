@@ -8,8 +8,14 @@ export default function PortalHeader() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Don't render on login or callback pages, or when not authenticated
-  if (!user || location.pathname === '/login' || location.pathname === '/auth/callback') {
+  // Don't render on login, callback, dashboard, or public pages (when not authed)
+  if (
+    !user ||
+    location.pathname === '/login' ||
+    location.pathname === '/auth/callback' ||
+    location.pathname === '/dashboard' ||
+    location.pathname === '/'
+  ) {
     return null;
   }
 
@@ -18,7 +24,7 @@ export default function PortalHeader() {
   return (
     <header className="fixed top-0 left-0 right-0 h-12 z-[60] bg-cc-surface border-b border-cc-border/50 flex items-center justify-between px-4">
       {/* Left: brand */}
-      <Link to="/" className="text-lg font-bold text-cc-accent hover:text-cc-accent/80 transition-colors">
+      <Link to="/dashboard" className="text-lg font-bold text-cc-accent hover:text-cc-accent/80 transition-colors">
         wildvine
       </Link>
 

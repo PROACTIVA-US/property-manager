@@ -7,7 +7,8 @@ import LoadingSpinner from './components/ui/LoadingSpinner';
 import RoleBasedRoute from './components/RoleBasedRoute';
 import LoginPage from './pages/Login';
 import AuthCallback from './pages/AuthCallback';
-import PortalHome from './pages/PortalHome';
+import MeetTheTeacher from './pages/MeetTheTeacher';
+import AdminDashboard from './pages/AdminDashboard';
 import TeachEmbed from './pages/TeachEmbed';
 import Dashboard from './pages/Dashboard';
 import Financials from './pages/Financials';
@@ -58,6 +59,19 @@ function ProtectedPortal({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// Public route: show page if not logged in, redirect to dashboard if logged in
+function PublicOrDashboard({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+
+  if (loading) return <LoadingSpinner fullPage message="Loading..." />;
+
+  if (user) {
+    return <Navigate to="/dashboard" />;
+  }
+
+  return <>{children}</>;
+}
+
 // Keyboard shortcuts handler
 function KeyboardShortcuts() {
   const { toggleHelp } = useHelpStore();
@@ -103,10 +117,17 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
 
-          {/* Portal routes (no Layout) */}
+          {/* Public Meet the Teacher page (or redirect to dashboard if logged in) */}
           <Route path="/" element={
+            <PublicOrDashboard>
+              <MeetTheTeacher />
+            </PublicOrDashboard>
+          } />
+
+          {/* Authenticated dashboard with Profile/Teach/House tabs */}
+          <Route path="/dashboard" element={
             <ProtectedPortal>
-              <PortalHome />
+              <AdminDashboard />
             </ProtectedPortal>
           } />
 

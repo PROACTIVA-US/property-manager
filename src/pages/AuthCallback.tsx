@@ -50,7 +50,7 @@ export default function AuthCallback() {
         if (session) {
           setState('success');
           // Wait briefly to show success state, then redirect
-          setTimeout(() => navigate('/home'), 1500);
+          setTimeout(() => navigate('/dashboard'), 1500);
         } else {
           // No session yet, wait for auth state change
           // The AuthContext listener will handle it
@@ -69,7 +69,7 @@ export default function AuthCallback() {
   useEffect(() => {
     if (user && state === 'processing') {
       setState('success');
-      setTimeout(() => navigate('/home'), 1500);
+      setTimeout(() => navigate('/dashboard'), 1500);
     }
   }, [user, state, navigate]);
 
