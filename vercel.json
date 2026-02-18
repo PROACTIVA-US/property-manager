@@ -1,8 +1,16 @@
 {
   "rewrites": [
     {
+      "source": "/Shanie",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/Shanie/",
+      "destination": "/index.html"
+    },
+    {
       "source": "/Shanie/:path*",
-      "destination": "/Shanie/index.html"
+      "destination": "/index.html"
     }
   ],
   "redirects": [
