@@ -1,81 +1,77 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Loader2, AlertCircle, CheckCircle } from 'lucide-react';
-import { handleOAuthCallback } from '../lib/auth-google';
+import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
-type CallbackState = 'processing' | 'success' | 'error' | 'role-selection';
+type CallbackState = 'processing' | 'success' | 'error';
 
 export default function AuthCallback() {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { loginWithGoogle } = useAuth();
+  const { user } = useAuth();
   const [state, setState] = useState<CallbackState>('processing');
   const [error, setError] = useState<string | null>(null);
-  const [userEmail, setUserEmail] = useState<string>('');
 
   useEffect(() => {
-    const processCallback = async () => {
-      const code = searchParams.get('code');
-      const stateParam = searchParams.get('state');
-      const errorParam = searchParams.get('error');
-
-      // Check for OAuth errors
-      if (errorParam) {
-        setError('Google sign-in was cancelled or failed: ' + errorParam);
-        setState('error');
-        return;
-      }
-
-      // Validate required parameters
-      if (!code || !stateParam) {
-        setError('Invalid callback parameters. Please try signing in again.');
-        setState('error');
-        return;
-      }
-
+    const handleCallback = async () => {
       try {
-        // Exchange code for user info
-        const userInfo = await handleOAuthCallback(code, stateParam);
-        setUserEmail(userInfo.email);
-        
-        // For demo, show role selection
-        // In production, you might look up the user in a database
-        setState('role-selection');
+        // Supabase automatically handles the OAuth callback
+        // We just need to check if there's an error in the URL hash
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const errorParam = hashParams.get('error');
+        const errorDescription = hashParams.get('error_description');
+
+        if (errorParam) {
+          setError(errorDescription || errorParam);
+          setState('error');
+          return;
+        }
+
+        // Check for error in query params (some OAuth flows use query params)
+        const queryParams = new URLSearchParams(window.location.search);
+        const queryError = queryParams.get('error');
+        const queryErrorDescription = queryParams.get('error_description');
+
+        if (queryError) {
+          setError(queryErrorDescription || queryError);
+          setState('error');
+          return;
+        }
+
+        // Get the session - Supabase should have processed the callback
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+        if (sessionError) {
+          setError(sessionError.message);
+          setState('error');
+          return;
+        }
+
+        if (session) {
+          setState('success');
+          // Wait briefly to show success state, then redirect
+          setTimeout(() => navigate('/home'), 1500);
+        } else {
+          // No session yet, wait for auth state change
+          // The AuthContext listener will handle it
+          setState('processing');
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to complete sign-in');
         setState('error');
       }
     };
 
-    processCallback();
-  }, [searchParams]);
+    handleCallback();
+  }, [navigate]);
 
-  const handleRoleSelect = async (role: 'owner' | 'pm' | 'tenant') => {
-    setState('processing');
-    
-    try {
-      // Get user info from session (stored during callback)
-      const userInfo = {
-        id: 'google-user',
-        email: userEmail,
-        verified_email: true,
-        name: userEmail.split('@')[0],
-        given_name: userEmail.split('@')[0],
-        family_name: '',
-        picture: '',
-      };
-
-      await loginWithGoogle(userInfo, role);
+  // If user becomes available (from auth state change), redirect
+  useEffect(() => {
+    if (user && state === 'processing') {
       setState('success');
-      
-      // Redirect to dashboard after brief success message
-      setTimeout(() => navigate('/'), 1000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to complete login');
-      setState('error');
+      setTimeout(() => navigate('/home'), 1500);
     }
-  };
+  }, [user, state, navigate]);
 
   const handleRetry = () => {
     navigate('/login');
@@ -130,50 +126,6 @@ export default function AuthCallback() {
             >
               Try Again
             </button>
-          </div>
-        )}
-
-        {/* Role Selection State */}
-        {state === 'role-selection' && (
-          <div className="bg-cc-surface rounded-xl p-6">
-            <div className="text-center mb-6">
-              <h2 className="text-xl font-semibold text-white mb-2">
-                Welcome, {userEmail}!
-              </h2>
-              <p className="text-slate-400 text-sm">
-                Select your role to continue. An admin can change this later.
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <button
-                onClick={() => handleRoleSelect('owner')}
-                className="w-full bg-slate-700 hover:bg-slate-600 text-white p-4 rounded-lg text-left transition-colors"
-              >
-                <div className="font-medium">Property Owner</div>
-                <div className="text-sm text-slate-400">I own property and want to manage it</div>
-              </button>
-
-              <button
-                onClick={() => handleRoleSelect('pm')}
-                className="w-full bg-slate-700 hover:bg-slate-600 text-white p-4 rounded-lg text-left transition-colors"
-              >
-                <div className="font-medium">Property Manager</div>
-                <div className="text-sm text-slate-400">I manage properties for owners</div>
-              </button>
-
-              <button
-                onClick={() => handleRoleSelect('tenant')}
-                className="w-full bg-slate-700 hover:bg-slate-600 text-white p-4 rounded-lg text-left transition-colors"
-              >
-                <div className="font-medium">Tenant</div>
-                <div className="text-sm text-slate-400">I rent a property</div>
-              </button>
-            </div>
-
-            <p className="text-xs text-slate-500 text-center mt-4">
-              This is a demo app. In production, roles would be assigned by an administrator.
-            </p>
           </div>
         )}
       </div>

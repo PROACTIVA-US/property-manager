@@ -7,7 +7,7 @@ export default function VendorsPage() {
 
   // Only PM and Owner roles can access vendor directory
   if (user?.role !== 'pm' && user?.role !== 'owner') {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   return (

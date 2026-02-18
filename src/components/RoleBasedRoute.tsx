@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { canAccessRoute, getFallbackPath } from '../config/roleRoutes';
 
@@ -34,6 +34,7 @@ export default function RoleBasedRoute({
   fallbackPath,
 }: RoleBasedRouteProps) {
   const { user } = useAuth();
+  const location = useLocation();
 
   // If no user (shouldn't happen if wrapped in ProtectedRoute), redirect to login
   if (!user) {
@@ -53,7 +54,7 @@ export default function RoleBasedRoute({
   // If using path-based permissions (no allowedRoles specified)
   // This allows using RoleBasedRoute without explicitly listing roles
   if (!allowedRoles) {
-    const currentPath = window.location.pathname;
+    const currentPath = location.pathname;
     if (!canAccessRoute(user.role, currentPath)) {
       console.warn(
         `[RoleBasedRoute] Access denied: ${user.role} cannot access ${currentPath}`

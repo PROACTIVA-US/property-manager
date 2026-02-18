@@ -2,13 +2,17 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Layout from './components/Layout';
+import PortalHeader from './components/PortalHeader';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import RoleBasedRoute from './components/RoleBasedRoute';
 import LoginPage from './pages/Login';
 import AuthCallback from './pages/AuthCallback';
+import PortalHome from './pages/PortalHome';
+import TeachEmbed from './pages/TeachEmbed';
 import Dashboard from './pages/Dashboard';
 import Financials from './pages/Financials';
 import VendorsPage from './pages/Vendors';
+import VendorProfile from './pages/VendorProfile';
 import TenantPortal from './pages/TenantPortal';
 import MessagesPage from './pages/Messages';
 import Maintenance from './pages/Maintenance';
@@ -40,6 +44,18 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   return <Layout>{children}</Layout>;
+}
+
+function ProtectedPortal({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+
+  if (loading) return <LoadingSpinner fullPage message="Loading..." />;
+
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+
+  return <>{children}</>;
 }
 
 // Keyboard shortcuts handler
@@ -78,7 +94,8 @@ function KeyboardShortcuts() {
 export default function App() {
   return (
     <AuthProvider>
-      <Router>
+      <Router basename="/Shanie">
+        <PortalHeader />
         <KeyboardShortcuts />
         <HelpCenter />
         <AIAssistant />
@@ -86,7 +103,21 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
 
+          {/* Portal routes (no Layout) */}
           <Route path="/" element={
+            <ProtectedPortal>
+              <PortalHome />
+            </ProtectedPortal>
+          } />
+
+          <Route path="/teach" element={
+            <ProtectedPortal>
+              <TeachEmbed />
+            </ProtectedPortal>
+          } />
+
+          {/* PM dashboard (moved from /) */}
+          <Route path="/home" element={
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
@@ -129,7 +160,7 @@ export default function App() {
           {/* PM-ONLY ROUTES */}
           <Route path="/issues" element={
             <ProtectedRoute>
-              <RoleBasedRoute allowedRoles={['pm']}>
+              <RoleBasedRoute allowedRoles={['owner', 'pm']}>
                 <IssuesPage />
               </RoleBasedRoute>
             </ProtectedRoute>
@@ -139,6 +170,14 @@ export default function App() {
             <ProtectedRoute>
               <RoleBasedRoute allowedRoles={['pm']}>
                 <VendorsPage />
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/vendors/:vendorId" element={
+            <ProtectedRoute>
+              <RoleBasedRoute allowedRoles={['owner', 'pm']}>
+                <VendorProfile />
               </RoleBasedRoute>
             </ProtectedRoute>
           } />
@@ -213,7 +252,7 @@ export default function App() {
           {/* PM & TENANT SHARED ROUTES */}
           <Route path="/maintenance" element={
             <ProtectedRoute>
-              <RoleBasedRoute allowedRoles={['pm', 'tenant']}>
+              <RoleBasedRoute allowedRoles={['owner', 'pm', 'tenant']}>
                 <Maintenance />
               </RoleBasedRoute>
             </ProtectedRoute>

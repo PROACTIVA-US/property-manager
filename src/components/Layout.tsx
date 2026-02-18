@@ -104,7 +104,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   // Owner gets a sidebar-free layout - the 3-card dashboard IS the navigation
   if (user?.role === 'owner') {
     const firstName = user.displayName?.split(' ')[0] || 'there';
-    const isHomePage = location.pathname === '/';
+    const isHomePage = location.pathname === '/home';
 
     // Get page title based on current path
     const getPageTitle = () => {
@@ -121,9 +121,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     };
 
     return (
-      <div className="min-h-screen bg-cc-bg">
+      <div className="min-h-screen bg-cc-bg pt-12">
         {/* Simple header for owner */}
-        <header className="h-14 border-b border-cc-border/50 bg-cc-surface flex items-center justify-between px-4 sm:px-6">
+        <header className="h-14 border-b border-cc-border/50 bg-cc-surface flex items-center justify-between px-4 sm:px-6 sticky top-12 z-50">
           <div className="flex items-center gap-3">
             {!isHomePage && (
               <button
@@ -134,7 +134,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <ChevronLeft className="h-5 w-5" />
               </button>
             )}
-            <Link to="/" className="text-xl font-bold text-cc-accent hover:text-cc-accent/80 transition-colors">
+            <Link to="/home" className="text-xl font-bold text-cc-accent hover:text-cc-accent/80 transition-colors">
               Hi {firstName}!
             </Link>
             {!isHomePage && (
@@ -192,7 +192,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       // OWNER: 5 items (Dashboard, Financials, Properties, Documents, Messages)
       case 'owner':
         return [
-          { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+          { name: 'Dashboard', href: '/home', icon: LayoutDashboard },
           { name: 'Financials', href: '/financials', icon: Calculator },
           { name: 'Properties', href: '/properties', icon: Building2 },
           { name: 'Documents', href: '/documents', icon: FileText },
@@ -202,7 +202,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       // PM: 8 items (Dashboard, Issues, Tenants, Inspections, Rent, Vendors, Leases, Expenses)
       case 'pm':
         return [
-          { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+          { name: 'Dashboard', href: '/home', icon: LayoutDashboard },
           { name: 'Issues', href: '/issues', icon: AlertCircle },
           { name: 'Tenants', href: '/tenants', icon: Users },
           { name: 'Inspections', href: '/inspections', icon: ClipboardCheck },
@@ -216,7 +216,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       // TENANT: 4 items (Home, Payments, Maintenance, Lease)
       case 'tenant':
         return [
-          { name: 'Home', href: '/', icon: Home },
+          { name: 'Home', href: '/home', icon: Home },
           { name: 'Payments', href: '/payments', icon: CreditCard },
           { name: 'Maintenance', href: '/maintenance', icon: Wrench },
           { name: 'Lease', href: '/lease', icon: FileText },
@@ -237,7 +237,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex">
       {/* Mobile header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-cc-surface border-b border-cc-border/50 flex items-center justify-between px-4 z-40">
+      <div className="md:hidden fixed top-12 left-0 right-0 h-14 bg-cc-surface border-b border-cc-border/50 flex items-center justify-between px-4 z-40">
         <button
           onClick={() => setIsMobileMenuOpen(true)}
           className="p-2 text-cc-muted hover:text-cc-text hover:bg-cc-border rounded-lg transition-colors"
@@ -262,7 +262,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Mobile sidebar */}
       <div
         className={cn(
-          'md:hidden fixed inset-y-0 left-0 w-64 bg-cc-surface border-r border-cc-border/50 z-50 transform transition-transform duration-200 ease-in-out',
+          'md:hidden fixed top-12 bottom-0 left-0 w-64 bg-cc-surface border-r border-cc-border/50 z-50 transform transition-transform duration-200 ease-in-out',
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
@@ -365,7 +365,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Desktop Sidebar */}
       <div
         className={cn(
-          'hidden md:flex flex-col fixed inset-y-0 bg-cc-surface border-r border-cc-border/50 transition-all duration-200 ease-in-out z-30',
+          'hidden md:flex flex-col fixed top-12 bottom-0 bg-cc-surface border-r border-cc-border/50 transition-all duration-200 ease-in-out z-30',
           sidebarWidth
         )}
       >
@@ -528,7 +528,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Main content */}
-      <div className={cn('flex flex-col flex-1 transition-all duration-200 ease-in-out pt-14 md:pt-0', mainMargin)}>
+      <div className={cn('flex flex-col flex-1 transition-all duration-200 ease-in-out pt-26 md:pt-12', mainMargin)}>
         <main className="flex-1">
           <div className="py-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">

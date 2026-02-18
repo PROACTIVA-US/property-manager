@@ -23,7 +23,7 @@ export default function FinancialAccessDenied() {
         </div>
 
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/home')}
           className="btn-primary flex items-center justify-center gap-2 mx-auto"
         >
           <ArrowLeft size={16} />

@@ -5,12 +5,12 @@ const DYNAMIC_CACHE = 'propertymanager-dynamic-v1';
 
 // Static assets to cache on install
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/vite.svg',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+  '/Shanie/',
+  '/Shanie/index.html',
+  '/Shanie/manifest.json',
+  '/Shanie/vite.svg',
+  '/Shanie/icons/icon-192x192.png',
+  '/Shanie/icons/icon-512x512.png'
 ];
 
 // Install event - cache static assets
@@ -130,7 +130,7 @@ async function networkFirst(request) {
 
     // Return offline page for navigation requests
     if (request.mode === 'navigate') {
-      return caches.match('/');
+      return caches.match('/Shanie/');
     }
 
     return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });

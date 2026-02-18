@@ -12,7 +12,7 @@ export default function TenantPortal() {
 
   // Only allow tenants to access this portal
   if (user?.role !== 'tenant') {
-    return <Navigate to="/" />;
+    return <Navigate to="/home" />;
   }
 
   const renderSection = () => {
@@ -24,7 +24,7 @@ export default function TenantPortal() {
       case 'maintenance':
         return <MaintenanceRequest onBack={() => window.history.back()} />;
       default:
-        return <Navigate to="/" />;
+        return <Navigate to="/home" />;
     }
   };
 

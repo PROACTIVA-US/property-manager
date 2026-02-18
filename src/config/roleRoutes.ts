@@ -20,7 +20,7 @@ export interface RouteConfig {
  * Focus: Investment performance, financial analysis, escalations only
  */
 export const OWNER_NAV = [
-  { path: '/', label: 'Dashboard' },
+  { path: '/home', label: 'Dashboard' },
   { path: '/financials', label: 'Financials' },
   { path: '/properties', label: 'Properties' },
   { path: '/documents', label: 'Documents' },
@@ -32,7 +32,7 @@ export const OWNER_NAV = [
  * Focus: Full operational toolkit, issue management, tenant relations
  */
 export const PM_NAV = [
-  { path: '/', label: 'Dashboard' },
+  { path: '/home', label: 'Dashboard' },
   { path: '/issues', label: 'Issues' },
   { path: '/tenants', label: 'Tenants' },
   { path: '/inspections', label: 'Inspections' },
@@ -47,7 +47,7 @@ export const PM_NAV = [
  * Focus: Rent, maintenance, lease - personal data only
  */
 export const TENANT_NAV = [
-  { path: '/', label: 'Home' },
+  { path: '/home', label: 'Home' },
   { path: '/payments', label: 'Payments' },
   { path: '/maintenance', label: 'Maintenance' },
   { path: '/lease', label: 'Lease' },
@@ -59,6 +59,7 @@ export const TENANT_NAV = [
 export const ROUTE_PERMISSIONS: Record<string, Array<'owner' | 'pm' | 'tenant'>> = {
   // Shared routes - all authenticated users
   '/': ['owner', 'pm', 'tenant'],
+  '/home': ['owner', 'pm', 'tenant'],
   '/messages': ['owner', 'pm', 'tenant'],
   '/settings': ['owner', 'pm', 'tenant'],
 
@@ -71,14 +72,14 @@ export const ROUTE_PERMISSIONS: Record<string, Array<'owner' | 'pm' | 'tenant'>>
   '/accounts': ['owner', 'pm'],
 
   // PM-only routes
-  '/issues': ['pm'],
+  '/issues': ['owner', 'pm'],
   '/tenants': ['pm'],
   '/vendors': ['pm'],
   '/inspections': ['pm'],
   '/rent': ['pm'],
   '/leases': ['pm'],
   '/expenses': ['pm'],
-  '/maintenance': ['pm', 'tenant'],
+  '/maintenance': ['owner', 'pm', 'tenant'],
   '/responsibilities': ['pm', 'owner'],
 
   // Tenant-only routes
@@ -112,7 +113,6 @@ export const RESTRICTED_ROUTES: Record<string, string[]> = {
   ],
   // Routes owner cannot access (operational routes)
   owner: [
-    '/issues',
     '/inspections',
     '/rent',
     '/leases',
@@ -167,7 +167,7 @@ export function canAccessRoute(userRole: UserRole, path: string): boolean {
 export function getFallbackPath(_userRole: UserRole): string {
   // All roles redirect to dashboard for now
   // Could be customized per role if needed
-  return '/';
+  return '/home';
 }
 
 /**
