@@ -6,7 +6,7 @@ import TenantDashboard from '../components/role-dashboards/TenantDashboard';
 import { LayoutDashboard } from 'lucide-react';
 
 export default function Dashboard() {
-  const { user, login } = useAuth();
+  const { user, loginAsDemo: login } = useAuth();
 
   const renderDashboard = () => {
     if (!user?.role) {

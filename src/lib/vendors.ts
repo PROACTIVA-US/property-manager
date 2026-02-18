@@ -88,6 +88,7 @@ export interface Vendor {
   // Rating and reliability
   averageRating?: number;
   responseTime?: 'same_day' | 'next_day' | '2_3_days' | 'week_plus';
+  isPreferred?: boolean;
   createdAt: string;
   updatedAt: string;
 }
