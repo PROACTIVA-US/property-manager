@@ -25,7 +25,7 @@ export default function PortalHeader() {
     <header className="fixed top-0 left-0 right-0 h-12 z-[60] bg-cc-surface border-b border-cc-border/50 flex items-center justify-between px-4">
       {/* Left: brand */}
       <Link to="/dashboard" className="text-lg font-bold text-cc-accent hover:text-cc-accent/80 transition-colors">
-        Shanie
+        Shanie Holman
       </Link>
 
       {/* Center: pill toggle */}
