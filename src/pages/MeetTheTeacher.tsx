@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import HeroNav from '../components/teacher/HeroNav';
 import AboutSection from '../components/teacher/AboutSection';
 import ScheduleSection from '../components/teacher/ScheduleSection';
@@ -8,6 +10,8 @@ import LoginModal from '../components/LoginModal';
 import { getTeacherProfile, DEFAULT_PROFILE, type TeacherProfile } from '../lib/teacherProfile';
 
 export default function MeetTheTeacher() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<TeacherProfile | null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -27,6 +31,14 @@ export default function MeetTheTeacher() {
     updatedAt: '',
   };
 
+  const handleNavAction = () => {
+    if (user) {
+      navigate('/dashboard');
+    } else {
+      setLoginOpen(true);
+    }
+  };
+
   if (!loaded) {
     return (
       <div className="min-h-screen bg-cc-bg flex items-center justify-center">
@@ -39,7 +51,8 @@ export default function MeetTheTeacher() {
     <div className="min-h-screen bg-cc-bg">
       <HeroNav
         teacherName={display.name}
-        onLoginClick={() => setLoginOpen(true)}
+        onActionClick={handleNavAction}
+        isLoggedIn={!!user}
       />
 
       {/* Spacer for fixed nav */}
@@ -63,7 +76,7 @@ export default function MeetTheTeacher() {
 
       {/* Footer */}
       <footer className="py-8 text-center text-cc-muted text-sm border-t border-cc-border/50">
-        <p>&copy; {new Date().getFullYear()} {display.name} &middot; Powered by wildvine</p>
+        <p>&copy; {new Date().getFullYear()} {display.name}</p>
       </footer>
     </div>
   );

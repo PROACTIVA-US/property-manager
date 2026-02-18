@@ -38,7 +38,7 @@ export default function AdminDashboard() {
           onClick={() => navigate('/')}
           className="text-lg font-bold text-cc-accent hover:text-cc-accent/80 transition-colors cursor-pointer"
         >
-          wildvine
+          Shanie
         </span>
 
         {/* Center: tab toggle */}
