@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { X, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { X, Sparkles, ExternalLink } from 'lucide-react';
 import type { Project, ProjectCategory, ProjectPriority, ProjectStatus } from '../lib/projects';
 import { createProject, updateProject, CATEGORY_LABELS, PRIORITY_LABELS } from '../lib/projects';
 import { getVendors } from '../lib/vendors';
@@ -46,6 +47,7 @@ function getInitialFormData(project: Project | null) {
 
 export default function ProjectFormModal({ project, isOpen, onClose, onSave }: ProjectFormModalProps) {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   // Track the project ID and isOpen state to detect changes
   const [syncKey, setSyncKey] = useState({ projectId: project?.id, isOpen });
@@ -154,9 +156,9 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-cc-bger rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col border border-white/10">
+      <div className="bg-cc-surface rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col border border-cc-border">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/10">
+        <div className="flex items-center justify-between p-6 border-b border-cc-border">
           <h2 className="text-2xl font-bold text-cc-text">
             {project ? 'Edit Project' : 'New Project'}
           </h2>
@@ -218,8 +220,8 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
               )}
             </div>
 
-            {/* Category, Priority, Status Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Category & Priority */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-cc-text mb-1">Category</label>
                 <select
@@ -249,40 +251,39 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
                   ))}
                 </select>
               </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-cc-text mb-1">Status</label>
-                <select
-                  value={formData.status}
-                  onChange={e => setFormData({ ...formData, status: e.target.value as ProjectStatus })}
-                  className="input-field w-full"
-                >
-                  <option value="draft">Draft</option>
-                  <option value="pending_approval">Pending Approval</option>
-                  <option value="approved">Approved</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="on_hold">On Hold</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
             </div>
 
             {/* Vendor */}
             <div>
               <label className="block text-sm font-semibold text-cc-text mb-1">Primary Vendor</label>
-              <select
-                value={formData.primaryVendorId}
-                onChange={e => setFormData({ ...formData, primaryVendorId: e.target.value })}
-                className="input-field w-full"
-              >
-                <option value="">None</option>
-                {vendors.map(vendor => (
-                  <option key={vendor.id} value={vendor.id}>
-                    {vendor.name} - {vendor.specialty}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center gap-2">
+                <select
+                  value={formData.primaryVendorId}
+                  onChange={e => setFormData({ ...formData, primaryVendorId: e.target.value })}
+                  className="input-field w-full"
+                >
+                  <option value="">None</option>
+                  {vendors.map(vendor => (
+                    <option key={vendor.id} value={vendor.id}>
+                      {vendor.name} - {vendor.specialty}
+                    </option>
+                  ))}
+                </select>
+                {formData.primaryVendorId && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      navigate(`/vendors/${formData.primaryVendorId}`);
+                    }}
+                    className="flex items-center gap-1 px-3 py-2 text-sm text-cc-accent hover:text-indigo-300 bg-cc-accent/10 hover:bg-cc-accent/20 rounded-lg transition-colors whitespace-nowrap"
+                    title="View vendor profile"
+                  >
+                    <ExternalLink size={14} />
+                    Profile
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Cost & Timeline */}
@@ -336,19 +337,6 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
               </div>
             </div>
 
-            {/* Tags */}
-            <div>
-              <label className="block text-sm font-semibold text-cc-text mb-1">Tags</label>
-              <input
-                type="text"
-                value={formData.tags}
-                onChange={e => setFormData({ ...formData, tags: e.target.value })}
-                className="input-field w-full"
-                placeholder="urgent, winter, electrical (comma-separated)"
-              />
-              <p className="text-xs text-cc-muted mt-1">Separate tags with commas</p>
-            </div>
-
             {/* Notes */}
             <div>
               <label className="block text-sm font-semibold text-cc-text mb-1">Additional Notes</label>
@@ -379,7 +367,7 @@ export default function ProjectFormModal({ project, isOpen, onClose, onSave }: P
         </form>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 p-6 border-t border-white/10">
+        <div className="flex items-center justify-end gap-3 p-6 border-t border-cc-border">
           <button
             type="button"
             onClick={onClose}

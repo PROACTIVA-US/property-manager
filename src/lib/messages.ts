@@ -1,7 +1,19 @@
+/**
+ * Messages & Threads - Supabase Implementation
+ * Handles general messaging, inspections, and satisfaction tracking
+ */
+
+import { supabase } from './supabase';
+import type { Tables, TablesInsert } from './database.types';
 import type { UserRole } from '../contexts/AuthContext';
 import { markMessageNotificationAsRead } from './notifications';
 
-// Message Types
+// Database types
+type DbThread = Tables<'message_threads'>;
+type DbMessage = Tables<'messages'>;
+
+// ============ Types ============
+
 export interface Message {
   id: string;
   threadId: string;
@@ -21,9 +33,9 @@ export interface Thread {
   lastMessageTime: number;
   unreadCount: number;
   category: 'general' | 'maintenance' | 'lease' | 'inspection';
+  propertyId?: string;
 }
 
-// Inspection Types
 export interface Inspection {
   id: string;
   title: string;
@@ -42,7 +54,6 @@ export interface ProposedTime {
   votes: { id: string; role: UserRole }[];
 }
 
-// Satisfaction Types
 export interface SatisfactionEntry {
   id: string;
   tenantId: string;
@@ -52,7 +63,6 @@ export interface SatisfactionEntry {
   timestamp: number;
 }
 
-// Notification Types
 export interface Notification {
   id: string;
   type: 'message' | 'inspection' | 'maintenance' | 'payment' | 'general' | 'utility';
@@ -61,10 +71,11 @@ export interface Notification {
   read: boolean;
   timestamp: number;
   link?: string;
-  targetRoles?: ('owner' | 'pm' | 'tenant')[]; // Which roles should see this notification
+  targetRoles?: ('owner' | 'pm' | 'tenant')[];
 }
 
-// Storage Keys
+// ============ Demo Mode Storage ============
+
 const STORAGE_KEYS = {
   THREADS: 'pm_threads',
   MESSAGES: 'pm_messages',
@@ -73,12 +84,243 @@ const STORAGE_KEYS = {
   NOTIFICATIONS: 'pm_notifications',
 } as const;
 
-// Generate unique ID
-export function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+function isDemoMode(): boolean {
+  const demoUser = localStorage.getItem('demoUser');
+  return !!demoUser;
 }
 
-// Thread Helpers
+export function generateId(): string {
+  return crypto.randomUUID ? crypto.randomUUID() :
+    `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+// ============ Thread Operations - Supabase ============
+
+export async function getThreadsAsync(): Promise<Thread[]> {
+  if (isDemoMode()) {
+    return getThreads();
+  }
+
+  const { data: threads, error } = await supabase
+    .from('message_threads')
+    .select(`
+      *,
+      messages(id, content, created_at, sender_id)
+    `)
+    .order('updated_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching threads:', error);
+    return [];
+  }
+
+  // Get current user for unread count
+  const { data: { user } } = await supabase.auth.getUser();
+  const userId = user?.id;
+
+  return threads.map(t => {
+    const messages = (t.messages as { id: string; content: string; created_at: string; sender_id: string }[]) || [];
+    const lastMsg = messages.sort((a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )[0];
+
+    // Parse participants from subject or use empty array
+    // In production, you'd have a thread_participants table
+    const participants: Thread['participants'] = [];
+
+    return {
+      id: t.id,
+      participants,
+      subject: t.subject,
+      lastMessage: lastMsg?.content || '',
+      lastMessageTime: lastMsg ? new Date(lastMsg.created_at).getTime() : new Date(t.updated_at || t.created_at || '').getTime(),
+      unreadCount: messages.filter(m => m.sender_id !== userId).length, // Simplified
+      category: 'general' as const,
+      propertyId: t.property_id || undefined,
+    };
+  });
+}
+
+export async function getThreadAsync(threadId: string): Promise<Thread | null> {
+  if (isDemoMode()) {
+    return getThread(threadId) || null;
+  }
+
+  const { data: thread, error } = await supabase
+    .from('message_threads')
+    .select('*')
+    .eq('id', threadId)
+    .single();
+
+  if (error || !thread) {
+    console.error('Error fetching thread:', error);
+    return null;
+  }
+
+  const messages = await getMessagesAsync(threadId);
+  const lastMsg = messages[messages.length - 1];
+
+  return {
+    id: thread.id,
+    participants: [],
+    subject: thread.subject,
+    lastMessage: lastMsg?.content || '',
+    lastMessageTime: lastMsg?.timestamp || new Date(thread.updated_at || thread.created_at || '').getTime(),
+    unreadCount: messages.filter(m => !m.read).length,
+    category: 'general',
+    propertyId: thread.property_id || undefined,
+  };
+}
+
+export async function createThreadAsync(
+  threadData: Omit<Thread, 'id' | 'lastMessageTime'> & { lastMessageTime?: number }
+): Promise<Thread> {
+  if (isDemoMode()) {
+    return createThread(threadData);
+  }
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const insertData: TablesInsert<'message_threads'> = {
+    subject: threadData.subject,
+    property_id: threadData.propertyId,
+    created_by: user?.id,
+  };
+
+  const { data, error } = await supabase
+    .from('message_threads')
+    .insert(insertData)
+    .select()
+    .single();
+
+  if (error || !data) {
+    throw new Error('Failed to create thread: ' + error?.message);
+  }
+
+  return {
+    id: data.id,
+    participants: threadData.participants,
+    subject: data.subject,
+    lastMessage: threadData.lastMessage,
+    lastMessageTime: threadData.lastMessageTime || Date.now(),
+    unreadCount: threadData.unreadCount,
+    category: threadData.category,
+    propertyId: data.property_id || undefined,
+  };
+}
+
+export async function deleteThreadAsync(threadId: string): Promise<void> {
+  if (isDemoMode()) {
+    deleteThread(threadId);
+    return;
+  }
+
+  await supabase.from('messages').delete().eq('thread_id', threadId);
+  await supabase.from('message_threads').delete().eq('id', threadId);
+}
+
+// ============ Message Operations - Supabase ============
+
+export async function getMessagesAsync(threadId: string): Promise<Message[]> {
+  if (isDemoMode()) {
+    return getMessages(threadId);
+  }
+
+  const { data: messages, error } = await supabase
+    .from('messages')
+    .select(`
+      *,
+      sender:profiles!messages_sender_id_fkey(display_name, role)
+    `)
+    .eq('thread_id', threadId)
+    .order('created_at');
+
+  if (error) {
+    console.error('Error fetching messages:', error);
+    return [];
+  }
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  return messages.map(m => ({
+    id: m.id,
+    threadId: m.thread_id || '',
+    senderId: m.sender_id || '',
+    senderRole: ((m.sender as { role: string } | null)?.role as UserRole) || null,
+    senderName: (m.sender as { display_name: string } | null)?.display_name || 'Unknown',
+    content: m.content,
+    timestamp: new Date(m.created_at || '').getTime(),
+    read: m.sender_id === user?.id, // Mark own messages as read
+  }));
+}
+
+export async function sendMessageAsync(
+  message: Omit<Message, 'id' | 'timestamp' | 'read'>
+): Promise<Message> {
+  if (isDemoMode()) {
+    return sendMessage(message);
+  }
+
+  const insertData: TablesInsert<'messages'> = {
+    thread_id: message.threadId,
+    sender_id: message.senderId,
+    content: message.content,
+  };
+
+  const { data, error } = await supabase
+    .from('messages')
+    .insert(insertData)
+    .select()
+    .single();
+
+  if (error || !data) {
+    throw new Error('Failed to send message: ' + error?.message);
+  }
+
+  // Update thread updated_at
+  await supabase
+    .from('message_threads')
+    .update({ updated_at: new Date().toISOString() })
+    .eq('id', message.threadId);
+
+  return {
+    id: data.id,
+    threadId: data.thread_id || '',
+    senderId: data.sender_id || '',
+    senderRole: message.senderRole,
+    senderName: message.senderName,
+    content: data.content,
+    timestamp: new Date(data.created_at || '').getTime(),
+    read: false,
+  };
+}
+
+export async function markMessagesAsReadAsync(threadId: string, _userId: string): Promise<void> {
+  if (isDemoMode()) {
+    markMessagesAsRead(threadId, _userId);
+    return;
+  }
+
+  // In Supabase, we'd use a message_reads table similar to project_message_reads
+  // For now, just mark the notification as read
+  markMessageNotificationAsRead(threadId);
+}
+
+export async function deleteMessageAsync(messageId: string): Promise<boolean> {
+  if (isDemoMode()) {
+    return deleteMessage(messageId);
+  }
+
+  const { error } = await supabase
+    .from('messages')
+    .delete()
+    .eq('id', messageId);
+
+  return !error;
+}
+
+// ============ Synchronous Functions (Demo Mode) ============
+
 export function getThreads(): Thread[] {
   const data = localStorage.getItem(STORAGE_KEYS.THREADS);
   return data ? JSON.parse(data) : getDefaultThreads();
@@ -113,7 +355,6 @@ export function updateThread(threadId: string, updates: Partial<Thread>): void {
   }
 }
 
-// Message Helpers
 export function getMessages(threadId: string): Message[] {
   const data = localStorage.getItem(STORAGE_KEYS.MESSAGES);
   const allMessages: Message[] = data ? JSON.parse(data) : getDefaultMessages();
@@ -140,7 +381,6 @@ export function sendMessage(message: Omit<Message, 'id' | 'timestamp' | 'read'>)
   allMessages.push(newMessage);
   saveMessages(allMessages);
 
-  // Update thread's last message
   updateThread(message.threadId, {
     lastMessage: message.content,
     lastMessageTime: newMessage.timestamp,
@@ -155,15 +395,10 @@ export function markMessagesAsRead(threadId: string, userId: string): void {
     m.threadId === threadId && m.senderId !== userId ? { ...m, read: true } : m
   );
   saveMessages(updated);
-
-  // Reset thread unread count
   updateThread(threadId, { unreadCount: 0 });
-
-  // Clean up any notification for this thread
   markMessageNotificationAsRead(threadId);
 }
 
-// Delete a single message
 export function deleteMessage(messageId: string): boolean {
   const allMessages = getAllMessages();
   const message = allMessages.find(m => m.id === messageId);
@@ -172,7 +407,6 @@ export function deleteMessage(messageId: string): boolean {
   const filtered = allMessages.filter(m => m.id !== messageId);
   saveMessages(filtered);
 
-  // Update thread's last message if this was the latest
   const threadMessages = filtered
     .filter(m => m.threadId === message.threadId)
     .sort((a, b) => b.timestamp - a.timestamp);
@@ -187,20 +421,18 @@ export function deleteMessage(messageId: string): boolean {
   return true;
 }
 
-// Delete an entire thread and all its messages
 export function deleteThread(threadId: string): void {
-  // Delete all messages in the thread
   const allMessages = getAllMessages();
   const filtered = allMessages.filter(m => m.threadId !== threadId);
   saveMessages(filtered);
 
-  // Delete the thread itself
   const threads = getThreads();
   const filteredThreads = threads.filter(t => t.id !== threadId);
   saveThreads(filteredThreads);
 }
 
-// Inspection Helpers
+// ============ Inspection Operations (localStorage only for now) ============
+
 export function getInspections(): Inspection[] {
   const data = localStorage.getItem(STORAGE_KEYS.INSPECTIONS);
   return data ? JSON.parse(data) : getDefaultInspections();
@@ -257,7 +489,8 @@ export function voteForTime(inspectionId: string, timeId: string, voter: { id: s
   }
 }
 
-// Satisfaction Helpers
+// ============ Satisfaction Operations (localStorage only) ============
+
 export function getSatisfactionEntries(): SatisfactionEntry[] {
   const data = localStorage.getItem(STORAGE_KEYS.SATISFACTION);
   return data ? JSON.parse(data) : getDefaultSatisfaction();
@@ -286,7 +519,8 @@ export function getAverageSatisfaction(): number {
   return Math.round((sum / entries.length) * 10) / 10;
 }
 
-// Notification Helpers
+// ============ Legacy Notification Functions (moved to notifications.ts) ============
+
 export function getNotifications(): Notification[] {
   const data = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
   return data ? JSON.parse(data) : getDefaultNotifications();
@@ -323,12 +557,10 @@ export function getUnreadNotificationCount(): number {
 }
 
 export function getUnreadMessageCount(_userId: string): number {
-  // userId reserved for future user-specific filtering
   const threads = getThreads();
   return threads.reduce((acc, t) => acc + t.unreadCount, 0);
 }
 
-// Create utility overage notification for both owner and tenant
 export function createUtilityOverageNotification(
   month: string,
   actualAmount: number,
@@ -349,14 +581,14 @@ export function createUtilityOverageNotification(
   });
 }
 
-// Get notifications filtered by user role
 export function getNotificationsForRole(role: 'owner' | 'pm' | 'tenant'): Notification[] {
   return getNotifications().filter(n =>
     !n.targetRoles || n.targetRoles.includes(role)
   );
 }
 
-// Default Data for Demo
+// ============ Default Data ============
+
 function getDefaultThreads(): Thread[] {
   return [
     {
@@ -391,7 +623,7 @@ function getDefaultThreads(): Thread[] {
         { id: 'tenant-1', role: 'tenant', name: 'Gregg Marshall' },
       ],
       subject: 'Upcoming Lease Renewal',
-      lastMessage: 'The current lease expires in August. Let\'s discuss renewal terms.',
+      lastMessage: "The current lease expires in August. Let's discuss renewal terms.",
       lastMessageTime: Date.now() - 7 * 24 * 60 * 60 * 1000,
       unreadCount: 2,
       category: 'lease',
@@ -427,7 +659,7 @@ function getDefaultMessages(): Message[] {
       senderId: 'pm-1',
       senderRole: 'pm',
       senderName: 'Dan Connolly',
-      content: 'Hi Shanie, here\'s your monthly property update.',
+      content: "Hi Shanie, here's your monthly property update.",
       timestamp: Date.now() - 6 * 24 * 60 * 60 * 1000,
       read: true,
     },
@@ -457,7 +689,7 @@ function getDefaultMessages(): Message[] {
       senderId: 'owner-1',
       senderRole: 'owner',
       senderName: 'Shanie Holman',
-      content: 'Thanks Dan. I\'m open to discussing terms. What does Gregg think?',
+      content: "Thanks Dan. I'm open to discussing terms. What does Gregg think?",
       timestamp: Date.now() - 7.5 * 24 * 60 * 60 * 1000,
       read: true,
     },
@@ -467,7 +699,7 @@ function getDefaultMessages(): Message[] {
       senderId: 'pm-1',
       senderRole: 'pm',
       senderName: 'Dan Connolly',
-      content: 'The current lease expires in August. Let\'s discuss renewal terms.',
+      content: "The current lease expires in August. Let's discuss renewal terms.",
       timestamp: Date.now() - 7 * 24 * 60 * 60 * 1000,
       read: false,
     },
@@ -552,7 +784,8 @@ function getDefaultNotifications(): Notification[] {
   ];
 }
 
-// Utility function to format relative time
+// ============ Utility Functions ============
+
 export function formatRelativeTime(timestamp: number): string {
   const now = Date.now();
   const diff = now - timestamp;
@@ -569,7 +802,6 @@ export function formatRelativeTime(timestamp: number): string {
   return new Date(timestamp).toLocaleDateString();
 }
 
-// Utility function to format date
 export function formatDate(timestamp: number): string {
   return new Date(timestamp).toLocaleDateString('en-US', {
     weekday: 'short',

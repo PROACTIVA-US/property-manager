@@ -10,7 +10,8 @@
 | :---: | :---: | :---: |
 | **Owner** | Shanie Holman | The property owner who requires financial oversight, view rent payments, high level project status and vendor information. |
 | **Tenant** | Gregg Marshall | The current tenant who needs to , lease details, and request maintenance/communication. |
-| **Property Manager (PM)** | Dan Connolly | The onsite manager responsible for maintenance, communication, and vendor management, as well as detailed project modeling, B.O.M. and etailed project management tools |
+| **Property Manager (PM)** | Dan Connolly | The onsite manager responsible for maintenance, communication, and vendor management, as well as detailed project modeli
+ng, B.O.M. and etailed project management tools |
 
 ## 3. Product Requirements
 

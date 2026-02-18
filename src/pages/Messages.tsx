@@ -11,15 +11,16 @@ import { useAuth } from '../contexts/AuthContext';
 import MessageThread from '../components/MessageThread';
 import { MessageComposer, NewThreadComposer } from '../components/MessageComposer';
 import {
-  getThreads,
-  getMessages,
-  sendMessage,
-  markMessagesAsRead,
-  createThread,
-  deleteMessage,
-  deleteThread,
+  getThreadsAsync,
+  getMessagesAsync,
+  sendMessageAsync,
+  markMessagesAsReadAsync,
+  createThreadAsync,
+  deleteMessageAsync,
+  deleteThreadAsync,
   formatRelativeTime,
   type Thread,
+  type Message,
 } from '../lib/messages';
 import { cn } from '../lib/utils';
 import type { UserRole } from '../contexts/AuthContext';
@@ -42,15 +43,15 @@ export default function MessagesPage() {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // State - use lazy initialization
-  const [threads, setThreads] = useState<Thread[]>(() => getThreads());
+  const [threads, setThreads] = useState<Thread[]>([]);
+  const [threadMessages, setThreadMessages] = useState<Message[]>([]);
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(
     searchParams.get('thread')
   );
   const [showNewThread, setShowNewThread] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<Thread['category'] | 'all'>('all');
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Current user info
   const currentUser = {
@@ -60,9 +61,30 @@ export default function MessagesPage() {
   };
 
   // Load data callback for refreshing
-  const loadData = useCallback(() => {
-    setThreads(getThreads());
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await getThreadsAsync();
+      setThreads(data);
+    } catch (error) {
+      console.error('Error loading threads:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Load messages when thread is selected
+  useEffect(() => {
+    if (selectedThreadId) {
+      getMessagesAsync(selectedThreadId).then(setThreadMessages);
+    } else {
+      setThreadMessages([]);
+    }
+  }, [selectedThreadId]);
 
   // Update URL params
   useEffect(() => {
@@ -74,7 +96,6 @@ export default function MessagesPage() {
 
   // Selected thread data
   const selectedThread = threads.find(t => t.id === selectedThreadId);
-  const threadMessages = selectedThreadId ? getMessages(selectedThreadId) : [];
 
   // Filter threads
   const filteredThreads = threads.filter(thread => {
@@ -85,41 +106,42 @@ export default function MessagesPage() {
   });
 
   // Handlers
-  const handleSendMessage = (content: string) => {
+  const handleSendMessage = async (content: string) => {
     if (selectedThreadId && user) {
-      sendMessage({
+      await sendMessageAsync({
         threadId: selectedThreadId,
         senderId: currentUser.id,
         senderRole: user.role,
         senderName: user.displayName,
         content,
       });
-      loadData();
+      await loadData();
+      const messages = await getMessagesAsync(selectedThreadId);
+      setThreadMessages(messages);
     }
   };
 
-  const handleSelectThread = (threadId: string) => {
+  const handleSelectThread = async (threadId: string) => {
     setSelectedThreadId(threadId);
-    markMessagesAsRead(threadId, currentUser.id);
-    loadData();
+    await markMessagesAsReadAsync(threadId, currentUser.id);
+    await loadData();
   };
 
-  const handleCreateThread = (data: {
+  const handleCreateThread = async (data: {
     subject: string;
     category: Thread['category'];
     participants: { id: string; role: UserRole; name: string }[];
     initialMessage: string;
   }) => {
-    const newThread = createThread({
+    const newThread = await createThreadAsync({
       subject: data.subject,
       category: data.category,
       participants: data.participants,
       lastMessage: data.initialMessage,
-      // Let createThread handle the timestamp internally
       unreadCount: 0,
     });
 
-    sendMessage({
+    await sendMessageAsync({
       threadId: newThread.id,
       senderId: currentUser.id,
       senderRole: user?.role || null,
@@ -127,20 +149,24 @@ export default function MessagesPage() {
       content: data.initialMessage,
     });
 
-    loadData();
+    await loadData();
     setSelectedThreadId(newThread.id);
     setShowNewThread(false);
   };
 
-  const handleDeleteMessage = (messageId: string) => {
-    deleteMessage(messageId);
-    loadData();
+  const handleDeleteMessage = async (messageId: string) => {
+    await deleteMessageAsync(messageId);
+    await loadData();
+    if (selectedThreadId) {
+      const messages = await getMessagesAsync(selectedThreadId);
+      setThreadMessages(messages);
+    }
   };
 
-  const handleDeleteThread = (threadId: string) => {
+  const handleDeleteThread = async (threadId: string) => {
     if (!window.confirm('Are you sure you want to delete this conversation? This cannot be undone.')) return;
-    deleteThread(threadId);
-    loadData();
+    await deleteThreadAsync(threadId);
+    await loadData();
     setSelectedThreadId(null);
   };
 

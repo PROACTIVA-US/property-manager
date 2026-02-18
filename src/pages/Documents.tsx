@@ -1,14 +1,15 @@
-import { useState, useRef, useEffect } from 'react';
-import { FileText, Upload, Download, Trash2, Search, Eye, FolderKanban, Filter } from 'lucide-react';
-import type { DocumentFile, DocumentCategory } from '../lib/documents';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { FileText, Upload, Download, Trash2, Search, Eye, FolderKanban, Filter, Loader2 } from 'lucide-react';
+import type { DocumentFile, DocumentCategory, DocumentsData } from '../lib/documents';
 import {
-  loadDocuments,
-  addDocument,
-  deleteDocument,
+  loadDocumentsAsync,
+  addDocumentAsync,
+  deleteDocumentAsync,
+  getDocumentsByCategoryAsync,
+  searchDocumentsAsync,
+  getDocumentUrlAsync,
   exportDocuments,
   importDocuments,
-  getDocumentsByCategory,
-  searchDocuments,
   formatFileSize,
   getFileIcon,
   getTotalStorageUsed,
@@ -17,7 +18,7 @@ import {
   CATEGORY_DESCRIPTIONS,
   ACCEPTED_FILE_TYPES,
 } from '../lib/documents';
-import { getProjects } from '../lib/projects';
+import { getProjectsAsync } from '../lib/projects';
 import type { Project } from '../lib/projects';
 
 type TabId = DocumentCategory;
@@ -36,7 +37,8 @@ const tabs: Tab[] = [
 
 export default function Documents() {
   const [activeTab, setActiveTab] = useState<TabId>('lease');
-  const [, setDocuments] = useState(() => loadDocuments());
+  const [documentsData, setDocumentsData] = useState<DocumentsData>({ files: [], lastUpdated: '' });
+  const [displayedDocs, setDisplayedDocs] = useState<DocumentFile[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
@@ -45,25 +47,54 @@ export default function Documents() {
   const [projectFilter, setProjectFilter] = useState<string>('all');
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
   const [projects, setProjectsList] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [categoryCounts, setCategoryCounts] = useState<Record<DocumentCategory, number>>({ lease: 0, receipt: 0, photo: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    setProjectsList(getProjects());
+  const refreshDocuments = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await loadDocumentsAsync();
+      setDocumentsData(data);
+
+      // Update category counts
+      const counts = { lease: 0, receipt: 0, photo: 0 };
+      data.files.forEach(f => { counts[f.category]++; });
+      setCategoryCounts(counts);
+    } catch (error) {
+      console.error('Error loading documents:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  const refreshDocuments = () => {
-    setDocuments(loadDocuments());
-  };
+  // Load documents on mount
+  useEffect(() => {
+    refreshDocuments();
+    getProjectsAsync().then(setProjectsList);
+  }, [refreshDocuments]);
 
-  const allDisplayedDocs = searchQuery
-    ? searchDocuments(searchQuery)
-    : getDocumentsByCategory(activeTab);
+  // Update displayed docs when filter/search/tab changes
+  useEffect(() => {
+    const loadDisplayedDocs = async () => {
+      let docs: DocumentFile[];
+      if (searchQuery) {
+        docs = await searchDocumentsAsync(searchQuery);
+      } else {
+        docs = await getDocumentsByCategoryAsync(activeTab);
+      }
 
-  const displayedDocs = projectFilter === 'all'
-    ? allDisplayedDocs
-    : projectFilter === 'unlinked'
-      ? allDisplayedDocs.filter(d => !d.projectId)
-      : allDisplayedDocs.filter(d => d.projectId === projectFilter);
+      // Apply project filter
+      if (projectFilter === 'unlinked') {
+        docs = docs.filter(d => !d.projectId);
+      } else if (projectFilter !== 'all') {
+        docs = docs.filter(d => d.projectId === projectFilter);
+      }
+
+      setDisplayedDocs(docs);
+    };
+    loadDisplayedDocs();
+  }, [activeTab, searchQuery, projectFilter, documentsData]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -72,9 +103,9 @@ export default function Documents() {
     setUploading(true);
     try {
       for (const file of Array.from(files)) {
-        await addDocument(file, activeTab, undefined, undefined, selectedProjectId || undefined);
+        await addDocumentAsync(file, activeTab, undefined, undefined, selectedProjectId || undefined);
       }
-      refreshDocuments();
+      await refreshDocuments();
       showMessage(`✓ ${files.length} file(s) uploaded successfully!`);
     } catch (error) {
       showMessage(`✗ Upload failed: ${(error as Error).message}`);
@@ -86,10 +117,10 @@ export default function Documents() {
     }
   };
 
-  const handleDelete = (id: string, name: string) => {
+  const handleDelete = async (id: string, name: string) => {
     if (window.confirm(`Are you sure you want to delete "${name}"?`)) {
-      deleteDocument(id);
-      refreshDocuments();
+      await deleteDocumentAsync(id);
+      await refreshDocuments();
       showMessage('✓ Document deleted');
     }
   };
@@ -128,13 +159,19 @@ export default function Documents() {
     reader.readAsText(file);
   };
 
-  const handleDownload = (doc: DocumentFile) => {
-    const link = document.createElement('a');
-    link.href = doc.dataUrl;
-    link.download = doc.name;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleDownload = async (doc: DocumentFile) => {
+    let url = doc.dataUrl;
+    if (!url && doc.storagePath) {
+      url = await getDocumentUrlAsync(doc.storagePath);
+    }
+    if (url) {
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = doc.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
   const handlePreview = (doc: DocumentFile) => {
@@ -255,7 +292,7 @@ export default function Documents() {
       <div className="border-b border-cc-border">
         <div className="flex flex-wrap gap-1">
           {tabs.map((tab) => {
-            const count = getDocumentsByCategory(tab.id).length;
+            const count = categoryCounts[tab.id];
             return (
               <button
                 key={tab.id}

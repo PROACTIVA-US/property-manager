@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Plus,
   GripVertical,
@@ -22,12 +22,12 @@ import {
   PRIORITY_LABELS,
   CATEGORY_LABELS,
   STATUS_LABELS,
-  getProjects,
-  updateProject,
-  deleteProject,
-  getProjectStats,
+  getProjectsAsync,
+  updateProjectAsync,
+  deleteProjectAsync,
+  getProjectStatsAsync,
 } from '../lib/projects';
-import { getVendorById } from '../lib/vendors';
+import { getVendorByIdAsync } from '../lib/vendors';
 import { notifyOwnerOfProjectUpdate } from '../lib/notifications';
 import { cn } from '../lib/utils';
 import ProjectDetailModal from './ProjectDetailModal';
@@ -40,11 +40,13 @@ interface ProjectKanbanProps {
   onProjectSelect?: (project: Project) => void;
 }
 
+// Cache for vendor names
+const vendorNameCache: Record<string, string> = {};
+
 export default function ProjectKanban({ compact = false, onProjectSelect }: ProjectKanbanProps) {
   const { user } = useAuth();
   const isPM = user?.role === 'pm';
-  // Use lazy initialization instead of effect
-  const [projects, setProjects] = useState<Project[]>(() => getProjects());
+  const [projects, setProjects] = useState<Project[]>([]);
   const [draggedProject, setDraggedProject] = useState<Project | null>(null);
   const [dragOverStage, setDragOverStage] = useState<ProjectStatus | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -54,7 +56,8 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [isAICreatorOpen, setIsAICreatorOpen] = useState(false);
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ activeCount: 0, completedCount: 0 });
 
   // Which stages to show in compact mode
   const compactStages: ProjectStatus[] = ['pending_approval', 'approved', 'in_progress'];
@@ -63,9 +66,34 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
     ? KANBAN_STAGES.filter(s => compactStages.includes(s.id))
     : KANBAN_STAGES.filter(s => s.id !== 'cancelled' && s.id !== 'on_hold');
 
-  const loadProjects = () => {
-    setProjects(getProjects());
-  };
+  const loadProjects = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [projectsData, statsData] = await Promise.all([
+        getProjectsAsync(),
+        getProjectStatsAsync(),
+      ]);
+      setProjects(projectsData);
+      setStats(statsData);
+
+      // Preload vendor names
+      const vendorIds = [...new Set(projectsData.map(p => p.primaryVendorId).filter(Boolean))] as string[];
+      await Promise.all(vendorIds.map(async (id) => {
+        if (!vendorNameCache[id]) {
+          const vendor = await getVendorByIdAsync(id);
+          if (vendor) vendorNameCache[id] = vendor.name;
+        }
+      }));
+    } catch (error) {
+      console.error('Error loading projects:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadProjects();
+  }, [loadProjects]);
 
   const getProjectsByStage = (status: ProjectStatus) => {
     return projects.filter(p => p.status === status);
@@ -86,7 +114,7 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
     setDragOverStage(null);
   };
 
-  const handleDrop = (e: React.DragEvent, newStatus: ProjectStatus) => {
+  const handleDrop = async (e: React.DragEvent, newStatus: ProjectStatus) => {
     e.preventDefault();
     setDragOverStage(null);
 
@@ -95,8 +123,8 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
       const validTransitions = getValidTransitions(draggedProject.status);
       if (validTransitions.includes(newStatus)) {
         const oldStatus = draggedProject.status;
-        updateProject(draggedProject.id, { status: newStatus });
-        loadProjects();
+        await updateProjectAsync(draggedProject.id, { status: newStatus });
+        await loadProjects();
 
         // Notify owner if PM changed the status
         if (isPM) {
@@ -157,9 +185,9 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
     setMenuOpenId(null);
   };
 
-  const handleDelete = (projectId: string) => {
-    deleteProject(projectId);
-    loadProjects();
+  const handleDelete = async (projectId: string) => {
+    await deleteProjectAsync(projectId);
+    await loadProjects();
     setDeleteConfirmId(null);
     setMenuOpenId(null);
   };
@@ -170,8 +198,8 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
     setIsFormOpen(true);
   };
 
-  const handleFormSave = () => {
-    loadProjects();
+  const handleFormSave = async () => {
+    await loadProjects();
     closeAllModals();
   };
 
@@ -180,8 +208,8 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
     setIsAICreatorOpen(true);
   };
 
-  const handleAICreatorSave = () => {
-    loadProjects();
+  const handleAICreatorSave = async () => {
+    await loadProjects();
     closeAllModals();
   };
 
@@ -225,8 +253,6 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
     };
     return colors[color] || colors.slate;
   };
-
-  const stats = getProjectStats();
 
   if (loading) {
     return (
@@ -287,9 +313,9 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
                       <span className={cn('text-[10px] px-1.5 py-0.5 rounded', getPriorityColor(project.priority))}>
                         {PRIORITY_LABELS[project.priority]}
                       </span>
-                      {project.primaryVendorId && (
+                      {project.primaryVendorId && vendorNameCache[project.primaryVendorId] && (
                         <span className="text-[10px] text-cc-muted truncate">
-                          {getVendorById(project.primaryVendorId)?.name}
+                          {vendorNameCache[project.primaryVendorId]}
                         </span>
                       )}
                     </div>
@@ -396,8 +422,8 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
             {/* Project Cards */}
             <div className="p-3 space-y-3 min-h-[120px] md:min-h-[200px] max-h-[40vh] md:max-h-[60vh] overflow-y-auto">
               {getProjectsByStage(stage.id).map(project => {
-                const vendor = project.primaryVendorId
-                  ? getVendorById(project.primaryVendorId)
+                const vendorName = project.primaryVendorId
+                  ? vendorNameCache[project.primaryVendorId]
                   : null;
 
                 return (
@@ -512,10 +538,10 @@ export default function ProjectKanban({ compact = false, onProjectSelect }: Proj
 
                     {/* Footer */}
                     <div className="flex items-center justify-between text-xs text-cc-muted pt-2 border-t border-white/10">
-                      {vendor ? (
+                      {vendorName ? (
                         <div className="flex items-center gap-1 truncate">
                           <Wrench size={12} />
-                          <span className="truncate">{vendor.name}</span>
+                          <span className="truncate">{vendorName}</span>
                         </div>
                       ) : (
                         <span className="text-cc-muted/50">No vendor</span>

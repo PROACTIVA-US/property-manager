@@ -104,7 +104,7 @@ export default function OwnerDashboard() {
 
       {/* Maintenance Card */}
       <Link
-        to="/issues"
+        to="/maintenance"
         className="card hover:border-cc-accent/50 transition-all group cursor-pointer"
       >
         <div className="flex items-center gap-3 mb-4">

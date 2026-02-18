@@ -1,4 +1,12 @@
-// Vendor Management - Data Types and Storage Helpers
+/**
+ * Vendor Management - Supabase Implementation
+ * Data Types and Storage Helpers for vendor management
+ */
+
+import { supabase } from './supabase';
+import type { Tables, TablesInsert, TablesUpdate } from './database.types';
+
+// ============ Types ============
 
 export type VendorStatus = 'available' | 'scheduled' | 'inactive';
 
@@ -44,6 +52,9 @@ export const RESPONSE_TIME_LABELS: Record<ResponseTime, string> = {
   week_plus: 'Week+',
 };
 
+// Database type
+type DbVendor = Tables<'vendors'>;
+
 export interface Estimate {
   id: string;
   vendorId: string;
@@ -52,6 +63,7 @@ export interface Estimate {
   uploadedAt: string;
   description?: string;
   amount?: number;
+  storagePath?: string;
 }
 
 export interface JobHistoryEntry {
@@ -60,7 +72,7 @@ export interface JobHistoryEntry {
   description: string;
   completedAt: string;
   cost?: number;
-  rating?: number; // 1-5
+  rating?: number;
   notes?: string;
 }
 
@@ -79,31 +91,307 @@ export interface Vendor {
   email: string;
   status: VendorStatus;
   notes?: string;
-  // Emergency contact for after-hours/urgent issues
+  propertyId?: string;
   emergencyContact?: VendorEmergencyContact;
-  // Business info
   companyName?: string;
   licenseNumber?: string;
   insuranceExpiry?: string;
-  // Rating and reliability
   averageRating?: number;
-  responseTime?: 'same_day' | 'next_day' | '2_3_days' | 'week_plus';
+  hourlyRate?: number;
+  responseTime?: ResponseTime;
   isPreferred?: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-// Storage keys
+// Extended data stored in insurance_info JSONB
+interface VendorExtendedData {
+  emergencyContact?: VendorEmergencyContact;
+  responseTime?: ResponseTime;
+  status?: VendorStatus;
+  insuranceExpiry?: string;
+}
+
+// ============ Demo Mode Storage ============
+
 const VENDORS_STORAGE_KEY = 'propertyMgr_vendors';
 const ESTIMATES_STORAGE_KEY = 'propertyMgr_estimates';
 const JOB_HISTORY_STORAGE_KEY = 'propertyMgr_jobHistory';
 
-// Generate a simple unique ID
-export function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+function isDemoMode(): boolean {
+  const demoUser = localStorage.getItem('demoUser');
+  return !!demoUser;
 }
 
-// ============ Vendor CRUD Operations ============
+// Generate a simple unique ID
+export function generateId(): string {
+  return crypto.randomUUID ? crypto.randomUUID() :
+    `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+// ============ Helper Functions ============
+
+function mapDbToVendor(dbVendor: DbVendor): Vendor {
+  const extendedData = (typeof dbVendor.insurance_info === 'string'
+    ? JSON.parse(dbVendor.insurance_info)
+    : dbVendor.insurance_info) as VendorExtendedData | null;
+
+  // Determine status from is_active flag and extended data
+  let status: VendorStatus = 'available';
+  if (!dbVendor.is_active) {
+    status = 'inactive';
+  } else if (extendedData?.status) {
+    status = extendedData.status;
+  }
+
+  return {
+    id: dbVendor.id,
+    name: dbVendor.contact_name || dbVendor.company_name,
+    specialty: (dbVendor.specialty?.[0] as VendorSpecialty) || 'other',
+    phone: dbVendor.phone || '',
+    email: dbVendor.email || '',
+    status,
+    notes: dbVendor.notes || undefined,
+    propertyId: dbVendor.property_id || undefined,
+    emergencyContact: extendedData?.emergencyContact,
+    companyName: dbVendor.company_name,
+    licenseNumber: dbVendor.license_number || undefined,
+    insuranceExpiry: extendedData?.insuranceExpiry,
+    averageRating: dbVendor.rating ? Number(dbVendor.rating) : undefined,
+    hourlyRate: dbVendor.hourly_rate ? Number(dbVendor.hourly_rate) : undefined,
+    responseTime: extendedData?.responseTime,
+    isPreferred: dbVendor.is_preferred || false,
+    createdAt: dbVendor.created_at || new Date().toISOString(),
+    updatedAt: dbVendor.updated_at || new Date().toISOString(),
+  };
+}
+
+function mapVendorToDb(vendor: Partial<Vendor>): Partial<TablesInsert<'vendors'>> {
+  const extendedData: VendorExtendedData = {
+    emergencyContact: vendor.emergencyContact,
+    responseTime: vendor.responseTime,
+    status: vendor.status,
+    insuranceExpiry: vendor.insuranceExpiry,
+  };
+
+  return {
+    company_name: vendor.companyName || vendor.name,
+    contact_name: vendor.name,
+    email: vendor.email,
+    phone: vendor.phone,
+    specialty: vendor.specialty ? [vendor.specialty] : undefined,
+    license_number: vendor.licenseNumber,
+    insurance_info: JSON.stringify(extendedData),
+    hourly_rate: vendor.hourlyRate,
+    rating: vendor.averageRating,
+    notes: vendor.notes,
+    is_preferred: vendor.isPreferred,
+    is_active: vendor.status !== 'inactive',
+    property_id: vendor.propertyId,
+  };
+}
+
+// ============ Vendor CRUD - Supabase ============
+
+export async function getVendorsAsync(): Promise<Vendor[]> {
+  if (isDemoMode()) {
+    return getVendors();
+  }
+
+  const { data, error } = await supabase
+    .from('vendors')
+    .select('*')
+    .order('company_name');
+
+  if (error) {
+    console.error('Error fetching vendors:', error);
+    return [];
+  }
+
+  return data.map(mapDbToVendor);
+}
+
+export async function getVendorByIdAsync(id: string): Promise<Vendor | null> {
+  if (isDemoMode()) {
+    return getVendorById(id) || null;
+  }
+
+  const { data, error } = await supabase
+    .from('vendors')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error || !data) {
+    console.error('Error fetching vendor:', error);
+    return null;
+  }
+
+  return mapDbToVendor(data);
+}
+
+export async function getVendorsBySpecialtyAsync(specialty: VendorSpecialty): Promise<Vendor[]> {
+  if (isDemoMode()) {
+    return getVendors().filter(v => v.specialty === specialty);
+  }
+
+  const { data, error } = await supabase
+    .from('vendors')
+    .select('*')
+    .contains('specialty', [specialty])
+    .order('rating', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching vendors by specialty:', error);
+    return [];
+  }
+
+  return data.map(mapDbToVendor);
+}
+
+export async function getActiveVendorsAsync(): Promise<Vendor[]> {
+  if (isDemoMode()) {
+    return getVendors().filter(v => v.status !== 'inactive');
+  }
+
+  const { data, error } = await supabase
+    .from('vendors')
+    .select('*')
+    .eq('is_active', true)
+    .order('is_preferred', { ascending: false })
+    .order('rating', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching active vendors:', error);
+    return [];
+  }
+
+  return data.map(mapDbToVendor);
+}
+
+export async function createVendorAsync(
+  vendorData: Omit<Vendor, 'id' | 'createdAt' | 'updatedAt'>
+): Promise<Vendor> {
+  if (isDemoMode()) {
+    return createVendor(vendorData);
+  }
+
+  const dbData = mapVendorToDb(vendorData);
+
+  const { data, error } = await supabase
+    .from('vendors')
+    .insert(dbData as TablesInsert<'vendors'>)
+    .select()
+    .single();
+
+  if (error || !data) {
+    throw new Error('Failed to create vendor: ' + error?.message);
+  }
+
+  return mapDbToVendor(data);
+}
+
+export async function updateVendorAsync(
+  id: string,
+  updates: Partial<Omit<Vendor, 'id' | 'createdAt'>>
+): Promise<Vendor | null> {
+  if (isDemoMode()) {
+    return updateVendor(id, updates);
+  }
+
+  // Get existing vendor to merge extended data
+  const existing = await getVendorByIdAsync(id);
+  if (!existing) return null;
+
+  const merged = { ...existing, ...updates };
+  const dbData = mapVendorToDb(merged);
+
+  // Remove undefined values
+  Object.keys(dbData).forEach(key => {
+    if (dbData[key as keyof typeof dbData] === undefined) {
+      delete dbData[key as keyof typeof dbData];
+    }
+  });
+
+  const { data, error } = await supabase
+    .from('vendors')
+    .update(dbData as TablesUpdate<'vendors'>)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error || !data) {
+    console.error('Error updating vendor:', error);
+    return null;
+  }
+
+  return mapDbToVendor(data);
+}
+
+export async function deleteVendorAsync(id: string): Promise<boolean> {
+  if (isDemoMode()) {
+    return deleteVendor(id);
+  }
+
+  const { error } = await supabase
+    .from('vendors')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting vendor:', error);
+    return false;
+  }
+
+  return true;
+}
+
+// ============ Estimate Operations - Supabase ============
+// Note: Estimates are stored in localStorage for now (no dedicated table in schema)
+// In production, create a vendor_estimates table
+
+export async function getEstimatesAsync(): Promise<Estimate[]> {
+  // For now, use localStorage - would need a dedicated table
+  return getEstimates();
+}
+
+export async function getEstimatesByVendorAsync(vendorId: string): Promise<Estimate[]> {
+  return getEstimatesByVendor(vendorId);
+}
+
+export async function createEstimateAsync(
+  estimateData: Omit<Estimate, 'id' | 'uploadedAt'>
+): Promise<Estimate> {
+  return createEstimate(estimateData);
+}
+
+export async function deleteEstimateAsync(id: string): Promise<boolean> {
+  return deleteEstimate(id);
+}
+
+// ============ Job History Operations - Supabase ============
+// Note: Job history is stored in localStorage for now (no dedicated table)
+// In production, create a vendor_job_history table or use expenses table
+
+export async function getJobHistoryAsync(): Promise<JobHistoryEntry[]> {
+  return getJobHistory();
+}
+
+export async function getJobHistoryByVendorAsync(vendorId: string): Promise<JobHistoryEntry[]> {
+  return getJobHistoryByVendor(vendorId);
+}
+
+export async function createJobHistoryEntryAsync(
+  entryData: Omit<JobHistoryEntry, 'id'>
+): Promise<JobHistoryEntry> {
+  return createJobHistoryEntry(entryData);
+}
+
+export async function deleteJobHistoryEntryAsync(id: string): Promise<boolean> {
+  return deleteJobHistoryEntry(id);
+}
+
+// ============ Synchronous Functions (Demo Mode / Backwards Compatibility) ============
 
 export function getVendors(): Vendor[] {
   try {
@@ -178,7 +466,7 @@ export function deleteVendor(id: string): boolean {
   return true;
 }
 
-// ============ Estimate Operations ============
+// ============ Estimate Operations (localStorage) ============
 
 export function getEstimates(): Estimate[] {
   try {
@@ -234,7 +522,7 @@ function deleteEstimatesByVendor(vendorId: string): void {
   saveEstimates(estimates);
 }
 
-// ============ Job History Operations ============
+// ============ Job History Operations (localStorage) ============
 
 export function getJobHistory(): JobHistoryEntry[] {
   try {
@@ -289,11 +577,34 @@ function deleteJobHistoryByVendor(vendorId: string): void {
   saveJobHistory(history);
 }
 
-// ============ Default Data ============
+// ============ Default Demo Data ============
 
 function getDefaultVendors(): Vendor[] {
   const now = new Date().toISOString();
   return [
+    {
+      id: 'vendor-dan',
+      name: 'Dan',
+      specialty: 'general_contractor',
+      phone: '(555) 800-1234',
+      email: 'dan@dcdesignandbuild.com',
+      status: 'available',
+      notes: 'Full-service design and build firm specializing in residential remodels, custom decks, and siding.',
+      companyName: 'DC Design and Build',
+      licenseNumber: 'GC-2024-DC001',
+      insuranceExpiry: '2027-01-31',
+      responseTime: 'next_day',
+      averageRating: 4.9,
+      isPreferred: true,
+      emergencyContact: {
+        name: 'Dan (Owner)',
+        phone: '(555) 800-1234',
+        email: 'dan@dcdesignandbuild.com',
+        available24x7: false,
+      },
+      createdAt: now,
+      updatedAt: now,
+    },
     {
       id: 'vendor-1',
       name: 'Smith Plumbing',

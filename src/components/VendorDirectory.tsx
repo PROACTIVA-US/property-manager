@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   Search,
   Plus,
@@ -19,11 +19,11 @@ import {
   type VendorStatus,
   type VendorSpecialty,
   type Estimate,
-  getVendors,
-  deleteVendor,
-  getEstimatesByVendor,
-  createEstimate,
-  deleteEstimate,
+  getVendorsAsync,
+  deleteVendorAsync,
+  getEstimatesByVendorAsync,
+  createEstimateAsync,
+  deleteEstimateAsync,
   SPECIALTY_LABELS,
   STATUS_LABELS,
 } from '../lib/vendors';
@@ -35,8 +35,7 @@ interface VendorDirectoryProps {
 }
 
 export default function VendorDirectory({ compact = false }: VendorDirectoryProps) {
-  // Use lazy initialization instead of effect
-  const [vendors, setVendors] = useState<Vendor[]>(() => getVendors());
+  const [vendors, setVendors] = useState<Vendor[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<VendorStatus | 'all'>('all');
   const [specialtyFilter, setSpecialtyFilter] = useState<VendorSpecialty | 'all'>('all');
@@ -50,12 +49,23 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
 
   // Delete confirmation
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  // Use lazy initialization instead of effect - loading state not needed
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const loadVendors = () => {
-    setVendors(getVendors());
-  };
+  const loadVendors = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await getVendorsAsync();
+      setVendors(data);
+    } catch (error) {
+      console.error('Error loading vendors:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadVendors();
+  }, [loadVendors]);
 
   // Use useMemo for filtering instead of effect with setState
   const filteredVendors = useMemo(() => {
@@ -95,42 +105,42 @@ export default function VendorDirectory({ compact = false }: VendorDirectoryProp
     setIsFormOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    deleteVendor(id);
-    loadVendors();
+  const handleDelete = async (id: string) => {
+    await deleteVendorAsync(id);
+    await loadVendors();
     setDeleteConfirmId(null);
   };
 
-  const handleFormSave = () => {
-    loadVendors();
+  const handleFormSave = async () => {
+    await loadVendors();
   };
 
-  const toggleExpanded = (vendorId: string) => {
+  const toggleExpanded = async (vendorId: string) => {
     if (expandedVendorId === vendorId) {
       setExpandedVendorId(null);
     } else {
       setExpandedVendorId(vendorId);
       // Load estimates for this vendor
-      const estimates = getEstimatesByVendor(vendorId);
+      const estimates = await getEstimatesByVendorAsync(vendorId);
       setVendorEstimates(prev => ({ ...prev, [vendorId]: estimates }));
     }
   };
 
-  const handleEstimateUpload = (vendorId: string, file: File) => {
-    createEstimate({
+  const handleEstimateUpload = async (vendorId: string, file: File) => {
+    await createEstimateAsync({
       vendorId,
       fileName: file.name,
       fileSize: file.size,
       description: '',
     });
     // Reload estimates
-    const estimates = getEstimatesByVendor(vendorId);
+    const estimates = await getEstimatesByVendorAsync(vendorId);
     setVendorEstimates(prev => ({ ...prev, [vendorId]: estimates }));
   };
 
-  const handleEstimateDelete = (estimateId: string, vendorId: string) => {
-    deleteEstimate(estimateId);
-    const estimates = getEstimatesByVendor(vendorId);
+  const handleEstimateDelete = async (estimateId: string, vendorId: string) => {
+    await deleteEstimateAsync(estimateId);
+    const estimates = await getEstimatesByVendorAsync(vendorId);
     setVendorEstimates(prev => ({ ...prev, [vendorId]: estimates }));
   };
 

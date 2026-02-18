@@ -102,6 +102,87 @@ export function isTaskOverdue(task: MaintenanceTask): boolean {
 }
 
 /**
+ * Get the number of days in one period for a given frequency
+ */
+function getFrequencyDays(frequency: TaskFrequency): number | null {
+  switch (frequency) {
+    case 'Monthly': return 30;
+    case 'Quarterly': return 90;
+    case 'Bi-Annual': return 180;
+    case 'Annually': return 365;
+    case 'Long-Term': return null; // Don't auto-recur
+  }
+}
+
+/**
+ * Calculate the next due date based on frequency from a reference date
+ */
+function getNextDueDate(fromDate: string, frequency: TaskFrequency): string {
+  const date = new Date(fromDate);
+  switch (frequency) {
+    case 'Monthly':
+      date.setMonth(date.getMonth() + 1);
+      break;
+    case 'Quarterly':
+      date.setMonth(date.getMonth() + 3);
+      break;
+    case 'Bi-Annual':
+      date.setMonth(date.getMonth() + 6);
+      break;
+    case 'Annually':
+      date.setFullYear(date.getFullYear() + 1);
+      break;
+    default:
+      return fromDate;
+  }
+  return date.toISOString().split('T')[0];
+}
+
+/**
+ * Auto-reset completed recurring tasks whose period has elapsed.
+ * Returns updated tasks array (saves if any changes were made).
+ */
+export function autoResetRecurringTasks(tasks: MaintenanceTask[]): MaintenanceTask[] {
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  let changed = false;
+
+  const updated = tasks.map(task => {
+    // Skip non-completed, Long-Term, or tasks without completion date
+    if (!task.completed || !task.completedAt || task.frequency === 'Long-Term') {
+      return task;
+    }
+
+    const periodDays = getFrequencyDays(task.frequency);
+    if (periodDays === null) return task;
+
+    const completedDate = new Date(task.completedAt);
+    completedDate.setHours(0, 0, 0, 0);
+    const daysSinceCompletion = Math.floor((now.getTime() - completedDate.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (daysSinceCompletion >= periodDays) {
+      changed = true;
+      const referenceDate = task.dueDate || task.completedAt.split('T')[0];
+      return {
+        ...task,
+        completed: false,
+        completedAt: undefined,
+        dueDate: getNextDueDate(referenceDate, task.frequency),
+        updatedAt: getCurrentTimestamp(),
+      };
+    }
+
+    return task;
+  });
+
+  if (changed) {
+    saveTasks(updated);
+  }
+
+  return updated;
+}
+
+/**
  * Load tasks from localStorage
  */
 export function loadTasks(): MaintenanceTask[] {
@@ -109,7 +190,7 @@ export function loadTasks(): MaintenanceTask[] {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const state: MaintenanceState = JSON.parse(stored);
-      return state.tasks;
+      return autoResetRecurringTasks(state.tasks);
     }
   } catch (error) {
     console.error('Failed to load maintenance tasks:', error);
@@ -184,17 +265,32 @@ export function deleteTask(tasks: MaintenanceTask[], taskId: string): Maintenanc
 }
 
 /**
- * Toggle task completion status
+ * Toggle task completion status.
+ * When completing a recurring task, sets the next due date based on frequency.
  */
 export function toggleTaskCompletion(tasks: MaintenanceTask[], taskId: string): MaintenanceTask[] {
   const updatedTasks = tasks.map(task => {
     if (task.id === taskId) {
       const completed = !task.completed;
+      const now = getCurrentTimestamp();
+
+      if (completed && task.frequency !== 'Long-Term') {
+        // Set next due date when completing a recurring task
+        const referenceDate = task.dueDate || getCurrentDate();
+        return {
+          ...task,
+          completed,
+          completedAt: now,
+          dueDate: getNextDueDate(referenceDate, task.frequency),
+          updatedAt: now,
+        };
+      }
+
       return {
         ...task,
         completed,
-        completedAt: completed ? getCurrentTimestamp() : undefined,
-        updatedAt: getCurrentTimestamp(),
+        completedAt: completed ? now : undefined,
+        updatedAt: now,
       };
     }
     return task;
