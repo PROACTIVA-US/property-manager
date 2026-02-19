@@ -96,7 +96,7 @@ function KeyboardShortcuts() {
 export default function App() {
   return (
     <AuthProvider>
-      <Router basename="/propertymanager">
+      <Router>
         <PortalHeader />
         <KeyboardShortcuts />
         <HelpCenter />

@@ -3,6 +3,8 @@ import { LogOut, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { cn } from '../lib/utils';
 
+const HUB_URL = import.meta.env.VITE_HUB_URL || 'http://localhost:3000/shanie';
+
 export default function PortalHeader() {
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -26,7 +28,7 @@ export default function PortalHeader() {
       {/* Left: back + brand */}
       <div className="flex items-center gap-2">
         <a
-          href="/shanie"
+          href={HUB_URL}
           className="p-1 text-cc-muted hover:text-cc-text transition-colors"
           title="Back to Shanie hub"
         >
