@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut } from 'lucide-react';
+import { LogOut, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { cn } from '../lib/utils';
 
@@ -23,10 +23,19 @@ export default function PortalHeader() {
 
   return (
     <header className="fixed top-0 left-0 right-0 h-12 z-[60] bg-cc-surface border-b border-cc-border/50 flex items-center justify-between px-4">
-      {/* Left: brand */}
-      <Link to="/dashboard" className="text-lg font-bold text-cc-accent hover:text-cc-accent/80 transition-colors">
-        Shanie Holman
-      </Link>
+      {/* Left: back + brand */}
+      <div className="flex items-center gap-2">
+        <a
+          href="/shanie"
+          className="p-1 text-cc-muted hover:text-cc-text transition-colors"
+          title="Back to Shanie hub"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </a>
+        <Link to="/dashboard" className="text-lg font-bold text-cc-accent hover:text-cc-accent/80 transition-colors">
+          Shanie Holman
+        </Link>
+      </div>
 
       {/* Center: pill toggle */}
       <div className="flex items-center bg-cc-bg rounded-full p-0.5 border border-cc-border/50">
