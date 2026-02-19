@@ -31,6 +31,19 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Email allowlist — comma-separated env var; empty = allow all (dev only)
+function parseAllowlist(value: string | undefined): Set<string> {
+  const raw = (value ?? '').trim();
+  if (!raw) return new Set();
+  return new Set(raw.split(',').map(s => s.trim().toLowerCase()).filter(Boolean));
+}
+const allowedEmails = parseAllowlist(import.meta.env.VITE_ALLOWED_EMAILS);
+
+function isEmailAllowed(email: string): boolean {
+  if (allowedEmails.size === 0) return true; // No allowlist = allow all (dev)
+  return allowedEmails.has(email.toLowerCase());
+}
+
 // Demo mode storage key
 const DEMO_USER_KEY = 'demoUser';
 
@@ -119,6 +132,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Set up Supabase auth listener
     const { data: { subscription } } = onAuthStateChange(async (event: string, session: Session | null) => {
       if (session?.user) {
+        // Enforce email allowlist
+        const email = session.user.email || '';
+        if (!isEmailAllowed(email)) {
+          console.warn('Access denied for:', email);
+          await signOut();
+          setUser(null);
+          setProfile(null);
+          setLoading(false);
+          return;
+        }
+
         let userProfile = await fetchProfile(session.user.id);
 
         // If no profile exists (new OAuth user), create one
@@ -144,6 +168,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Check current session on mount
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
+        const email = session.user.email || '';
+        if (!isEmailAllowed(email)) {
+          await signOut();
+          setLoading(false);
+          return;
+        }
         const userProfile = await fetchProfile(session.user.id);
         setProfile(userProfile);
         setUser(mapSupabaseUser(session.user, userProfile));
@@ -183,7 +213,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/Shanie/auth/callback`,
+        redirectTo: `${window.location.origin}/propertymanager/auth/callback`,
       },
     });
     return { error: error ? new Error(error.message) : null };
