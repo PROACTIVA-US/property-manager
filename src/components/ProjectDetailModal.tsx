@@ -456,7 +456,7 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
                       className="relative group rounded-lg overflow-hidden border border-cc-border bg-cc-bg aspect-square"
                     >
                       <img
-                        src={img.dataUrl}
+                        src={(img as any).dataUrl}
                         alt={img.fileName}
                         className="w-full h-full object-cover cursor-pointer transition-transform group-hover:scale-105"
                         onClick={() => setLightboxImage(img)}
@@ -499,7 +499,7 @@ export default function ProjectDetailModal({ project, isOpen, onClose, onUpdate 
                     <X size={24} />
                   </button>
                   <img
-                    src={lightboxImage.dataUrl}
+                    src={(lightboxImage as any).dataUrl}
                     alt={lightboxImage.fileName}
                     className="max-w-full max-h-full object-contain"
                     onClick={(e) => e.stopPropagation()}

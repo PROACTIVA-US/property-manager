@@ -19,7 +19,6 @@ import {
   CATEGORY_LABELS,
   STATUS_LABELS,
   getProjectsAsync,
-  deleteProjectAsync,
   getProjectStatsAsync,
 } from '../lib/projects';
 import {

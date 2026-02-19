@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { FileText, Upload, Download, Trash2, Search, Eye, FolderKanban, Filter, Loader2 } from 'lucide-react';
+import { FileText, Upload, Download, Trash2, Search, Eye, FolderKanban, Filter } from 'lucide-react';
 import type { DocumentFile, DocumentCategory, DocumentsData } from '../lib/documents';
 import {
   loadDocumentsAsync,
@@ -47,7 +47,7 @@ export default function Documents() {
   const [projectFilter, setProjectFilter] = useState<string>('all');
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
   const [projects, setProjectsList] = useState<Project[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [_isLoading, setIsLoading] = useState(true);
   const [categoryCounts, setCategoryCounts] = useState<Record<DocumentCategory, number>>({ lease: 0, receipt: 0, photo: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
 

@@ -4,10 +4,14 @@
  */
 
 import { supabase } from './supabase';
-import type { Tables, TablesInsert } from './database.types';
+import type { Tables } from './database.types';
 
 // Database type
 type DbDocument = Tables<'documents'>;
+
+// Untyped alias for Supabase calls referencing columns not in generated types
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = supabase as any;
 
 // ============ Types ============
 
@@ -74,6 +78,8 @@ function getDefaultDocumentsData(): DocumentsData {
 // ============ Helper Functions ============
 
 function mapDbToDocument(doc: DbDocument): DocumentFile {
+  // Cast to any to access description/tags columns not in generated types
+  const row = doc as any;
   return {
     id: doc.id,
     name: doc.name,
@@ -81,8 +87,8 @@ function mapDbToDocument(doc: DbDocument): DocumentFile {
     uploadDate: doc.created_at || new Date().toISOString(),
     fileSize: doc.file_size || 0,
     mimeType: doc.mime_type || '',
-    description: doc.description || undefined,
-    tags: doc.tags || undefined,
+    description: row.description || undefined,
+    tags: row.tags || undefined,
     projectId: doc.project_id || undefined,
     propertyId: doc.property_id || undefined,
     storagePath: doc.storage_path || undefined,
@@ -143,7 +149,7 @@ export async function addDocumentAsync(
   // Create database record
   const { data: { user } } = await supabase.auth.getUser();
 
-  const insertData: TablesInsert<'documents'> = {
+  const insertData = {
     name: file.name,
     category,
     file_size: file.size,
@@ -156,7 +162,7 @@ export async function addDocumentAsync(
     uploaded_by: user?.id,
   };
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('documents')
     .insert(insertData)
     .select()
@@ -200,7 +206,7 @@ export async function updateDocumentAsync(
     return;
   }
 
-  await supabase
+  await db
     .from('documents')
     .update({
       description: updates.description,

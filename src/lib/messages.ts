@@ -4,13 +4,11 @@
  */
 
 import { supabase } from './supabase';
-import type { Tables, TablesInsert } from './database.types';
+import type { TablesInsert } from './database.types';
 import type { UserRole } from '../contexts/AuthContext';
 import { markMessageNotificationAsRead } from './notifications';
 
-// Database types
-type DbThread = Tables<'message_threads'>;
-type DbMessage = Tables<'messages'>;
+// Database types (used implicitly via Supabase queries)
 
 // ============ Types ============
 

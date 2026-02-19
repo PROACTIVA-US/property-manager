@@ -242,7 +242,7 @@ function generatePaintProject(_request: ProjectGenerationRequest): GeneratedProj
   return {
     title: 'Interior Room Painting',
     description: 'Professional painting of interior room with prep work',
-    category: 'cosmetic',
+    category: 'other',
     priority: 'low',
     status: 'draft',
     phases: [],

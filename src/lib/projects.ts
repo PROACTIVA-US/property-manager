@@ -36,8 +36,7 @@ export type ProjectCategory =
 // Database types
 type DbProject = Tables<'projects'>;
 type DbProjectPhase = Tables<'project_phases'>;
-type DbProjectMessage = Tables<'project_messages'>;
-type DbProjectAttachment = Tables<'project_attachments'>;
+// DbProjectMessage and DbProjectAttachment used implicitly via Supabase queries
 
 // Kanban stage definitions
 export interface KanbanStage {
@@ -450,7 +449,7 @@ export async function createProjectAsync(
     estimated_end_date: data.estimatedEndDate,
     actual_start_date: data.actualStartDate,
     actual_end_date: data.actualEndDate,
-    impact_analysis: impactAnalysis,
+    impact_analysis: impactAnalysis as any,
   };
 
   const { data: project, error } = await supabase
@@ -533,7 +532,7 @@ export async function updateProjectAsync(
     estimated_end_date: updates.estimatedEndDate,
     actual_start_date: updates.actualStartDate,
     actual_end_date: updates.actualEndDate,
-    impact_analysis: impactAnalysis,
+    impact_analysis: impactAnalysis as any,
   };
 
   // Remove undefined values
