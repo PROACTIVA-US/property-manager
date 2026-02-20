@@ -1,5 +1,10 @@
 {
   "rewrites": [
-    { "source": "/property/(.*)", "destination": "/property/index.html" }
+    { "source": "/property/assets/:path*", "destination": "/assets/:path*" },
+    { "source": "/property/icons/:path*", "destination": "/icons/:path*" },
+    { "source": "/property/manifest.json", "destination": "/manifest.json" },
+    { "source": "/property/sw.js", "destination": "/sw.js" },
+    { "source": "/property/vite.svg", "destination": "/vite.svg" },
+    { "source": "/property/(.*)", "destination": "/index.html" }
   ]
 }
