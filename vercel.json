@@ -5,6 +5,7 @@
     { "source": "/property/manifest.json", "destination": "/manifest.json" },
     { "source": "/property/sw.js", "destination": "/sw.js" },
     { "source": "/property/vite.svg", "destination": "/vite.svg" },
+    { "source": "/property", "destination": "/index.html" },
     { "source": "/property/(.*)", "destination": "/index.html" }
   ]
 }
