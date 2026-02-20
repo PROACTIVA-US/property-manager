@@ -7,7 +7,6 @@ import LoadingSpinner from './components/ui/LoadingSpinner';
 import RoleBasedRoute from './components/RoleBasedRoute';
 import LoginPage from './pages/Login';
 import AuthCallback from './pages/AuthCallback';
-import MeetTheTeacher from './pages/MeetTheTeacher';
 import AdminDashboard from './pages/AdminDashboard';
 import TeachEmbed from './pages/TeachEmbed';
 import Dashboard from './pages/Dashboard';
@@ -105,8 +104,8 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
 
-          {/* Public Meet the Teacher page (always accessible) */}
-          <Route path="/" element={<MeetTheTeacher />} />
+          {/* Root redirects to login (or home if authenticated) */}
+          <Route path="/" element={<Navigate to="/home" replace />} />
 
           {/* Authenticated dashboard with Profile/Teach/House tabs */}
           <Route path="/dashboard" element={
