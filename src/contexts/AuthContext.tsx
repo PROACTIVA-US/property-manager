@@ -25,7 +25,6 @@ interface AuthContextType {
   setUserRole: (role: UserRole) => Promise<void>;
   showLoginModal: boolean;
   setShowLoginModal: (show: boolean) => void;
-  signInWithGoogle: () => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,15 +38,8 @@ function parseAllowlist(value: string | undefined): Set<string> {
 const allowedEmails = parseAllowlist(import.meta.env.VITE_ALLOWED_EMAILS);
 
 function isEmailAllowed(email: string): boolean {
-  const normalizedEmail = email.toLowerCase();
-
-  // Automatically allow anyone from the wildvine domains
-  if (normalizedEmail.endsWith('@wildvine.com') || normalizedEmail.endsWith('@wildvine.net')) {
-    return true;
-  }
-
   if (allowedEmails.size === 0) return true; // No allowlist = allow all (dev)
-  return allowedEmails.has(normalizedEmail);
+  return allowedEmails.has(email.toLowerCase());
 }
 
 // Map Supabase user to our User type
@@ -193,20 +185,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error ? new Error(error.message) : null };
   };
 
-  // Sign in with Google (OAuth)
-  const signInWithGoogle = async () => {
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin
-      }
-    });
-
-    setLoading(false);
-    return { error: error ? new Error(error.message) : null };
-  };
-
   // Log out
   const logout = async () => {
     setLoading(true);
@@ -242,7 +220,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loading,
         signInWithEmail,
         signUpWithEmail,
-        signInWithGoogle,
         logout,
         setUserRole,
         showLoginModal,
