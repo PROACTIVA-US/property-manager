@@ -2,13 +2,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Layout from './components/Layout';
-import PortalHeader from './components/PortalHeader';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import RoleBasedRoute from './components/RoleBasedRoute';
-import LoginPage from './pages/Login';
-import AuthCallback from './pages/AuthCallback';
-import AdminDashboard from './pages/AdminDashboard';
-import TeachEmbed from './pages/TeachEmbed';
+import LoginModal from './components/LoginModal';
 import Dashboard from './pages/Dashboard';
 import Financials from './pages/Financials';
 import VendorsPage from './pages/Vendors';
@@ -35,29 +31,40 @@ import { useHelpStore } from './stores/helpStore';
 import { useAIAssistantStore } from './stores/aiAssistantStore';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, setShowLoginModal } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      setShowLoginModal(true);
+    }
+  }, [loading, user, setShowLoginModal]);
 
   if (loading) return <LoadingSpinner fullPage message="Loading..." />;
 
   if (!user) {
-    return <Navigate to="/login" />;
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
+          <h2 className="text-xl font-bold text-cc-text">Sign in required</h2>
+          <p className="text-cc-muted mt-2">Please sign in to access this page.</p>
+        </div>
+      </Layout>
+    );
   }
 
   return <Layout>{children}</Layout>;
 }
 
-function ProtectedPortal({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
-
-  if (loading) return <LoadingSpinner fullPage message="Loading..." />;
-
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
-
-  return <>{children}</>;
+// Renders the login modal based on AuthContext state
+function LoginModalController() {
+  const { showLoginModal, setShowLoginModal } = useAuth();
+  return (
+    <LoginModal
+      isOpen={showLoginModal}
+      onClose={() => setShowLoginModal(false)}
+    />
+  );
 }
-
 
 // Keyboard shortcuts handler
 function KeyboardShortcuts() {
@@ -95,32 +102,16 @@ function KeyboardShortcuts() {
 export default function App() {
   return (
     <AuthProvider>
-      <Router>
-        <PortalHeader />
+      <Router basename="/property">
         <KeyboardShortcuts />
         <HelpCenter />
         <AIAssistant />
+        <LoginModalController />
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-
-          {/* Root redirects to login (or home if authenticated) */}
+          {/* Root redirects to home */}
           <Route path="/" element={<Navigate to="/home" replace />} />
 
-          {/* Authenticated dashboard with Profile/Teach/House tabs */}
-          <Route path="/dashboard" element={
-            <ProtectedPortal>
-              <AdminDashboard />
-            </ProtectedPortal>
-          } />
-
-          <Route path="/teach" element={
-            <ProtectedPortal>
-              <TeachEmbed />
-            </ProtectedPortal>
-          } />
-
-          {/* PM dashboard (moved from /) */}
+          {/* PM dashboard */}
           <Route path="/home" element={
             <ProtectedRoute>
               <Dashboard />

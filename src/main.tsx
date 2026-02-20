@@ -8,7 +8,7 @@ import { ThemeProvider } from './contexts/ThemeContext'
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
-      .register('/sw.js')
+      .register('/property/sw.js')
       .then((registration) => {
         console.log('[App] ServiceWorker registered:', registration.scope);
 

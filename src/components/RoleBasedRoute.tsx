@@ -38,7 +38,7 @@ export default function RoleBasedRoute({
 
   // If no user (shouldn't happen if wrapped in ProtectedRoute), redirect to login
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   // If specific roles are provided, check against them

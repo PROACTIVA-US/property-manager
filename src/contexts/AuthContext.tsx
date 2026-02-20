@@ -13,7 +13,6 @@ interface User {
   displayName: string;
   role: UserRole;
   photoURL?: string;
-  isDemo?: boolean;
 }
 
 interface AuthContextType {
@@ -22,11 +21,10 @@ interface AuthContextType {
   loading: boolean;
   signInWithEmail: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUpWithEmail: (email: string, password: string, displayName: string, role: UserRole) => Promise<{ error: Error | null }>;
-  signInWithGoogle: () => Promise<{ error: Error | null }>;
   logout: () => Promise<void>;
   setUserRole: (role: UserRole) => Promise<void>;
-  // Demo mode functions (for testing without real auth)
-  loginAsDemo: (role: UserRole) => void;
+  showLoginModal: boolean;
+  setShowLoginModal: (show: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,22 +42,6 @@ function isEmailAllowed(email: string): boolean {
   return allowedEmails.has(email.toLowerCase());
 }
 
-// Demo mode storage key
-const DEMO_USER_KEY = 'demoUser';
-
-// Helper to load demo user from storage
-function loadDemoUser(): User | null {
-  const stored = localStorage.getItem(DEMO_USER_KEY);
-  if (stored) {
-    try {
-      return JSON.parse(stored) as User;
-    } catch {
-      localStorage.removeItem(DEMO_USER_KEY);
-    }
-  }
-  return null;
-}
-
 // Map Supabase user to our User type
 function mapSupabaseUser(supabaseUser: SupabaseUser, profile: Profile | null): User {
   return {
@@ -68,7 +50,6 @@ function mapSupabaseUser(supabaseUser: SupabaseUser, profile: Profile | null): U
     displayName: profile?.display_name || supabaseUser.user_metadata?.display_name || supabaseUser.email?.split('@')[0] || 'User',
     role: (profile?.role as UserRole) || 'tenant',
     photoURL: profile?.avatar_url || supabaseUser.user_metadata?.avatar_url,
-    isDemo: false,
   };
 }
 
@@ -76,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Fetch profile from Supabase
   const fetchProfile = async (userId: string): Promise<Profile | null> => {
@@ -121,14 +103,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Handle auth state changes
   useEffect(() => {
-    // Check for demo user first
-    const demoUser = loadDemoUser();
-    if (demoUser) {
-      setUser(demoUser);
-      setLoading(false);
-      return;
-    }
-
     // Set up Supabase auth listener
     const { data: { subscription } } = onAuthStateChange(async (event: string, session: Session | null) => {
       if (session?.user) {
@@ -145,7 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         let userProfile = await fetchProfile(session.user.id);
 
-        // If no profile exists (new OAuth user), create one
+        // If no profile exists (new user), create one
         if (!userProfile && event === 'SIGNED_IN') {
           userProfile = await createProfile(
             session.user.id,
@@ -190,6 +164,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithEmail = async (email: string, password: string) => {
     setLoading(true);
     const { error } = await signIn(email, password);
+    if (!error) {
+      setShowLoginModal(false);
+    }
     setLoading(false);
     return { error: error ? new Error(error.message) : null };
   };
@@ -208,27 +185,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error ? new Error(error.message) : null };
   };
 
-  // Sign in with Google OAuth
-  const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-    return { error: error ? new Error(error.message) : null };
-  };
-
   // Log out
   const logout = async () => {
     setLoading(true);
-
-    // Clear demo user if exists
-    localStorage.removeItem(DEMO_USER_KEY);
-
-    // Sign out from Supabase
     await signOut();
-
     setUser(null);
     setProfile(null);
     setLoading(false);
@@ -237,14 +197,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Update user role
   const setUserRole = async (role: UserRole) => {
     if (!user) return;
-
-    if (user.isDemo) {
-      // Demo mode - just update local state
-      const updatedUser = { ...user, role };
-      setUser(updatedUser);
-      localStorage.setItem(DEMO_USER_KEY, JSON.stringify(updatedUser));
-      return;
-    }
 
     // Update in Supabase
     const { error } = await supabase
@@ -260,33 +212,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Demo mode login (for testing without real auth)
-  const loginAsDemo = (role: UserRole) => {
-    const demoNames: Record<string, string> = {
-      owner: 'Demo Owner',
-      pm: 'Demo PM',
-      tenant: 'Demo Tenant',
-    };
-
-    const demoEmails: Record<string, string> = {
-      owner: 'owner@demo.local',
-      pm: 'pm@demo.local',
-      tenant: 'tenant@demo.local',
-    };
-
-    const demoUser: User = {
-      uid: `demo-${role}`,
-      email: role ? demoEmails[role] : 'demo@demo.local',
-      displayName: role ? demoNames[role] : 'Demo User',
-      role,
-      isDemo: true,
-    };
-
-    setUser(demoUser);
-    setProfile(null);
-    localStorage.setItem(DEMO_USER_KEY, JSON.stringify(demoUser));
-  };
-
   return (
     <AuthContext.Provider
       value={{
@@ -295,10 +220,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loading,
         signInWithEmail,
         signUpWithEmail,
-        signInWithGoogle,
         logout,
         setUserRole,
-        loginAsDemo,
+        showLoginModal,
+        setShowLoginModal,
       }}
     >
       {children}

@@ -2,12 +2,12 @@
   "name": "PropertyManager",
   "short_name": "PropMgr",
   "description": "Property management application for owners, property managers, and tenants",
-  "start_url": "/Shanie/",
+  "start_url": "/property/",
   "display": "standalone",
   "background_color": "#0a0b0d",
   "theme_color": "#6366f1",
   "orientation": "portrait-primary",
-  "scope": "/Shanie/",
+  "scope": "/property/",
   "icons": [
     {
       "src": "/icons/icon.svg",

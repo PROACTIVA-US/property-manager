@@ -121,9 +121,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     };
 
     return (
-      <div className="min-h-screen bg-cc-bg pt-12">
+      <div className="min-h-screen bg-cc-bg">
         {/* Simple header for owner */}
-        <header className="h-14 border-b border-cc-border/50 bg-cc-surface flex items-center justify-between px-4 sm:px-6 sticky top-12 z-50">
+        <header className="h-14 border-b border-cc-border/50 bg-cc-surface flex items-center justify-between px-4 sm:px-6 sticky top-0 z-50">
           <div className="flex items-center gap-3">
             {!isHomePage && (
               <button
@@ -237,7 +237,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex">
       {/* Mobile header */}
-      <div className="md:hidden fixed top-12 left-0 right-0 h-14 bg-cc-surface border-b border-cc-border/50 flex items-center justify-between px-4 z-40">
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-cc-surface border-b border-cc-border/50 flex items-center justify-between px-4 z-40">
         <button
           onClick={() => setIsMobileMenuOpen(true)}
           className="p-2 text-cc-muted hover:text-cc-text hover:bg-cc-border rounded-lg transition-colors"
@@ -262,7 +262,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Mobile sidebar */}
       <div
         className={cn(
-          'md:hidden fixed top-12 bottom-0 left-0 w-64 bg-cc-surface border-r border-cc-border/50 z-50 transform transition-transform duration-200 ease-in-out',
+          'md:hidden fixed top-0 bottom-0 left-0 w-64 bg-cc-surface border-r border-cc-border/50 z-50 transform transition-transform duration-200 ease-in-out',
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
@@ -365,7 +365,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Desktop Sidebar */}
       <div
         className={cn(
-          'hidden md:flex flex-col fixed top-12 bottom-0 bg-cc-surface border-r border-cc-border/50 transition-all duration-200 ease-in-out z-30',
+          'hidden md:flex flex-col fixed top-0 bottom-0 bg-cc-surface border-r border-cc-border/50 transition-all duration-200 ease-in-out z-30',
           sidebarWidth
         )}
       >
@@ -528,7 +528,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Main content */}
-      <div className={cn('flex flex-col flex-1 transition-all duration-200 ease-in-out pt-26 md:pt-12', mainMargin)}>
+      <div className={cn('flex flex-col flex-1 transition-all duration-200 ease-in-out pt-14 md:pt-0', mainMargin)}>
         <main className="flex-1">
           <div className="py-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
