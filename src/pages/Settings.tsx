@@ -27,6 +27,7 @@ import MortgageForm from '../components/settings/MortgageForm';
 import RentalIncomeForm from '../components/settings/RentalIncomeForm';
 import TaxInfoForm from '../components/settings/TaxInfoForm';
 import TenantForm from '../components/settings/TenantForm';
+import ChangePasswordForm from '../components/settings/ChangePasswordForm';
 
 type TabId = 'account' | 'pm' | 'property' | 'mortgage' | 'rental' | 'tax' | 'tenant' | 'appearance' | 'security';
 
@@ -296,6 +297,10 @@ export default function Settings() {
             <p className="text-sm text-cc-muted mb-6">
               Information about your data storage and app security
             </p>
+
+            <ChangePasswordForm />
+
+            <hr className="border-cc-border" />
 
             {/* Data Storage Info */}
             <div className="space-y-4">
