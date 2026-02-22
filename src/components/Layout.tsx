@@ -23,6 +23,7 @@ import {
   Home,
   Receipt,
   ChevronLeft,
+  Shield,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { getThreads } from '../lib/messages';
@@ -221,6 +222,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           { name: 'Maintenance', href: '/maintenance', icon: Wrench },
           { name: 'Lease', href: '/lease', icon: FileText },
           { name: 'Messages', href: '/messages', icon: MessageSquare, badge: unreadCount },
+        ];
+
+      // ADMIN: 2 items (Dashboard, Users)
+      case 'admin':
+        return [
+          { name: 'Dashboard', href: '/home', icon: LayoutDashboard },
+          { name: 'Users', href: '/admin', icon: Shield },
         ];
 
       default:

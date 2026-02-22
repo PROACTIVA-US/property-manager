@@ -876,7 +876,7 @@ export type Database = {
         | "townhouse"
         | "multi_family"
         | "other"
-      user_role: "owner" | "pm" | "tenant"
+      user_role: "owner" | "pm" | "tenant" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1050,7 +1050,7 @@ export const Constants = {
         "multi_family",
         "other",
       ],
-      user_role: ["owner", "pm", "tenant"],
+      user_role: ["owner", "pm", "tenant", "admin"],
     },
   },
 } as const

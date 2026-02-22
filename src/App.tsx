@@ -25,6 +25,7 @@ import Accounts from './pages/Accounts';
 import Inspections from './pages/Inspections';
 import Rent from './pages/Rent';
 import Leases from './pages/Leases';
+import AdminDashboard from './pages/AdminDashboard';
 import HelpCenter from './components/help/HelpCenter';
 import AIAssistant from './components/ai-assistant/AIAssistant';
 import { useHelpStore } from './stores/helpStore';
@@ -258,6 +259,15 @@ export default function App() {
             <ProtectedRoute>
               <RoleBasedRoute allowedRoles={['owner', 'pm', 'tenant']}>
                 <MessagesPage />
+              </RoleBasedRoute>
+            </ProtectedRoute>
+          } />
+
+          {/* ADMIN-ONLY ROUTES */}
+          <Route path="/admin" element={
+            <ProtectedRoute>
+              <RoleBasedRoute allowedRoles={['admin']}>
+                <AdminDashboard />
               </RoleBasedRoute>
             </ProtectedRoute>
           } />

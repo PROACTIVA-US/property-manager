@@ -4,7 +4,7 @@ import { canAccessRoute, getFallbackPath } from '../config/roleRoutes';
 
 interface RoleBasedRouteProps {
   children: React.ReactNode;
-  allowedRoles?: Array<'owner' | 'pm' | 'tenant'>;
+  allowedRoles?: Array<'owner' | 'pm' | 'tenant' | 'admin'>;
   fallbackPath?: string;
 }
 
@@ -43,7 +43,7 @@ export default function RoleBasedRoute({
 
   // If specific roles are provided, check against them
   if (allowedRoles && allowedRoles.length > 0) {
-    if (!allowedRoles.includes(user.role as 'owner' | 'pm' | 'tenant')) {
+    if (!allowedRoles.includes(user.role as 'owner' | 'pm' | 'tenant' | 'admin')) {
       console.warn(
         `[RoleBasedRoute] Access denied: ${user.role} tried to access route restricted to ${allowedRoles.join(', ')}`
       );
@@ -81,8 +81,8 @@ export function useCanAccess(path: string): boolean {
  * Hook to check if current user has a specific role
  */
 // eslint-disable-next-line react-refresh/only-export-components
-export function useHasRole(roles: Array<'owner' | 'pm' | 'tenant'>): boolean {
+export function useHasRole(roles: Array<'owner' | 'pm' | 'tenant' | 'admin'>): boolean {
   const { user } = useAuth();
   if (!user || !user.role) return false;
-  return roles.includes(user.role as 'owner' | 'pm' | 'tenant');
+  return roles.includes(user.role as 'owner' | 'pm' | 'tenant' | 'admin');
 }

@@ -38,19 +38,19 @@ interface Tab {
   description: string;
   icon: React.ElementType;
   group: 'people' | 'property' | 'preferences';
-  allowedRoles: Array<'owner' | 'pm' | 'tenant'>;
+  allowedRoles: Array<'owner' | 'pm' | 'tenant' | 'admin'>;
 }
 
 const tabs: Tab[] = [
-  { id: 'account', label: 'Account', description: 'Your contact and business information', icon: User, group: 'people', allowedRoles: ['owner', 'pm', 'tenant'] },
+  { id: 'account', label: 'Account', description: 'Your contact and business information', icon: User, group: 'people', allowedRoles: ['owner', 'pm', 'tenant', 'admin'] },
   { id: 'pm', label: 'Property Manager', description: 'Property manager contact details', icon: Users, group: 'people', allowedRoles: ['owner', 'pm'] },
   { id: 'tenant', label: 'Tenant', description: 'Current tenant contact and lease details', icon: Users, group: 'people', allowedRoles: ['owner', 'pm'] },
   { id: 'property', label: 'Property', description: 'Property address, value, and details', icon: Building2, group: 'property', allowedRoles: ['owner', 'pm'] },
   { id: 'mortgage', label: 'Mortgage', description: 'Mortgage and loan information', icon: DollarSign, group: 'property', allowedRoles: ['owner'] },
   { id: 'rental', label: 'Rental Income', description: 'Rental income and operating expenses', icon: Home, group: 'property', allowedRoles: ['owner'] },
   { id: 'tax', label: 'Tax Info', description: 'Tax planning information', icon: FileText, group: 'property', allowedRoles: ['owner'] },
-  { id: 'appearance', label: 'Appearance', description: 'Theme and display preferences', icon: Palette, group: 'preferences', allowedRoles: ['owner', 'pm', 'tenant'] },
-  { id: 'security', label: 'Security & Data', description: 'Data storage and app information', icon: Shield, group: 'preferences', allowedRoles: ['owner', 'pm', 'tenant'] },
+  { id: 'appearance', label: 'Appearance', description: 'Theme and display preferences', icon: Palette, group: 'preferences', allowedRoles: ['owner', 'pm', 'tenant', 'admin'] },
+  { id: 'security', label: 'Security & Data', description: 'Data storage and app information', icon: Shield, group: 'preferences', allowedRoles: ['owner', 'pm', 'tenant', 'admin'] },
 ];
 
 
@@ -60,7 +60,7 @@ export default function Settings() {
 
   // Filter tabs based on user role
   const visibleTabs = useMemo(() => {
-    return tabs.filter(tab => tab.allowedRoles.includes(userRole as 'owner' | 'pm' | 'tenant'));
+    return tabs.filter(tab => tab.allowedRoles.includes(userRole as 'owner' | 'pm' | 'tenant' | 'admin'));
   }, [userRole]);
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -75,7 +75,7 @@ export default function Settings() {
   const handleTabChange = (tabId: TabId) => {
     // Verify user has access to this tab before switching
     const tab = tabs.find(t => t.id === tabId);
-    if (!tab || !tab.allowedRoles.includes(userRole as 'owner' | 'pm' | 'tenant')) return;
+    if (!tab || !tab.allowedRoles.includes(userRole as 'owner' | 'pm' | 'tenant' | 'admin')) return;
     setActiveTab(tabId);
     setSearchParams({ tab: tabId });
   };

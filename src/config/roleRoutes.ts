@@ -11,7 +11,7 @@ import type { UserRole } from '../contexts/AuthContext';
 
 export interface RouteConfig {
   path: string;
-  allowedRoles: Array<'owner' | 'pm' | 'tenant'>;
+  allowedRoles: Array<'owner' | 'pm' | 'tenant' | 'admin'>;
   label?: string;
 }
 
@@ -54,14 +54,26 @@ export const TENANT_NAV = [
 ];
 
 /**
+ * Admin Navigation (2 items)
+ * Focus: System administration, user management
+ */
+export const ADMIN_NAV = [
+  { path: '/home', label: 'Dashboard' },
+  { path: '/admin', label: 'Users' },
+];
+
+/**
  * Route access permissions by role
  */
-export const ROUTE_PERMISSIONS: Record<string, Array<'owner' | 'pm' | 'tenant'>> = {
+export const ROUTE_PERMISSIONS: Record<string, Array<'owner' | 'pm' | 'tenant' | 'admin'>> = {
   // Shared routes - all authenticated users
-  '/': ['owner', 'pm', 'tenant'],
-  '/home': ['owner', 'pm', 'tenant'],
+  '/': ['owner', 'pm', 'tenant', 'admin'],
+  '/home': ['owner', 'pm', 'tenant', 'admin'],
   '/messages': ['owner', 'pm', 'tenant'],
-  '/settings': ['owner', 'pm', 'tenant'],
+  '/settings': ['owner', 'pm', 'tenant', 'admin'],
+
+  // Admin-only routes
+  '/admin': ['admin'],
 
   // Owner-only routes
   '/financials': ['owner'],
@@ -119,6 +131,24 @@ export const RESTRICTED_ROUTES: Record<string, string[]> = {
     '/payments',
     '/lease',
   ],
+  // Routes admin cannot access (operational/financial routes)
+  admin: [
+    '/financials',
+    '/properties',
+    '/vendors',
+    '/tenants',
+    '/inspections',
+    '/rent',
+    '/leases',
+    '/expenses',
+    '/payments',
+    '/lease',
+    '/issues',
+    '/documents',
+    '/accounts',
+    '/maintenance',
+    '/messages',
+  ],
 };
 
 /**
@@ -132,6 +162,8 @@ export function getNavByRole(role: UserRole) {
       return PM_NAV;
     case 'tenant':
       return TENANT_NAV;
+    case 'admin':
+      return ADMIN_NAV;
     default:
       return [];
   }
@@ -146,7 +178,7 @@ export function canAccessRoute(userRole: UserRole, path: string): boolean {
   // Check exact match first
   const permissions = ROUTE_PERMISSIONS[path];
   if (permissions) {
-    return permissions.includes(userRole);
+    return permissions.includes(userRole as 'owner' | 'pm' | 'tenant' | 'admin');
   }
 
   // Check if path starts with any restricted route

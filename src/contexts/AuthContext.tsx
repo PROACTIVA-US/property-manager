@@ -3,7 +3,7 @@ import { supabase, signIn, signUp, signOut, onAuthStateChange } from '../lib/sup
 import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import type { Tables } from '../lib/database.types';
 
-export type UserRole = 'owner' | 'tenant' | 'pm' | null;
+export type UserRole = 'owner' | 'tenant' | 'pm' | 'admin' | null;
 
 type Profile = Tables<'profiles'>;
 
