@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Settings as SettingsIcon,
@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import type { SettingsData } from '../lib/settings';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
 import { loadSettings } from '../lib/settings';
 import OwnerForm from '../components/settings/OwnerForm';
 import PMForm from '../components/settings/PMForm';
@@ -37,32 +38,44 @@ interface Tab {
   description: string;
   icon: React.ElementType;
   group: 'people' | 'property' | 'preferences';
+  allowedRoles: Array<'owner' | 'pm' | 'tenant'>;
 }
 
 const tabs: Tab[] = [
-  { id: 'account', label: 'Account', description: 'Your contact and business information', icon: User, group: 'people' },
-  { id: 'pm', label: 'Property Manager', description: 'Property manager contact details', icon: Users, group: 'people' },
-  { id: 'tenant', label: 'Tenant', description: 'Current tenant contact and lease details', icon: Users, group: 'people' },
-  { id: 'property', label: 'Property', description: 'Property address, value, and details', icon: Building2, group: 'property' },
-  { id: 'mortgage', label: 'Mortgage', description: 'Mortgage and loan information', icon: DollarSign, group: 'property' },
-  { id: 'rental', label: 'Rental Income', description: 'Rental income and operating expenses', icon: Home, group: 'property' },
-  { id: 'tax', label: 'Tax Info', description: 'Tax planning information', icon: FileText, group: 'property' },
-  { id: 'appearance', label: 'Appearance', description: 'Theme and display preferences', icon: Palette, group: 'preferences' },
-  { id: 'security', label: 'Security & Data', description: 'Data storage and app information', icon: Shield, group: 'preferences' },
+  { id: 'account', label: 'Account', description: 'Your contact and business information', icon: User, group: 'people', allowedRoles: ['owner', 'pm', 'tenant'] },
+  { id: 'pm', label: 'Property Manager', description: 'Property manager contact details', icon: Users, group: 'people', allowedRoles: ['owner', 'pm'] },
+  { id: 'tenant', label: 'Tenant', description: 'Current tenant contact and lease details', icon: Users, group: 'people', allowedRoles: ['owner', 'pm'] },
+  { id: 'property', label: 'Property', description: 'Property address, value, and details', icon: Building2, group: 'property', allowedRoles: ['owner', 'pm'] },
+  { id: 'mortgage', label: 'Mortgage', description: 'Mortgage and loan information', icon: DollarSign, group: 'property', allowedRoles: ['owner'] },
+  { id: 'rental', label: 'Rental Income', description: 'Rental income and operating expenses', icon: Home, group: 'property', allowedRoles: ['owner'] },
+  { id: 'tax', label: 'Tax Info', description: 'Tax planning information', icon: FileText, group: 'property', allowedRoles: ['owner'] },
+  { id: 'appearance', label: 'Appearance', description: 'Theme and display preferences', icon: Palette, group: 'preferences', allowedRoles: ['owner', 'pm', 'tenant'] },
+  { id: 'security', label: 'Security & Data', description: 'Data storage and app information', icon: Shield, group: 'preferences', allowedRoles: ['owner', 'pm', 'tenant'] },
 ];
 
 
 export default function Settings() {
+  const { user } = useAuth();
+  const userRole = user?.role || 'tenant';
+
+  // Filter tabs based on user role
+  const visibleTabs = useMemo(() => {
+    return tabs.filter(tab => tab.allowedRoles.includes(userRole as 'owner' | 'pm' | 'tenant'));
+  }, [userRole]);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = searchParams.get('tab') as TabId;
   const [activeTab, setActiveTab] = useState<TabId>(
-    initialTab && tabs.find(t => t.id === initialTab) ? initialTab : 'account'
+    initialTab && visibleTabs.find(t => t.id === initialTab) ? initialTab : 'account'
   );
   // Use lazy initialization for settings - no effect needed
   const [settings, setSettings] = useState<SettingsData>(() => loadSettings());
   const { theme, setTheme } = useTheme();
 
   const handleTabChange = (tabId: TabId) => {
+    // Verify user has access to this tab before switching
+    const tab = tabs.find(t => t.id === tabId);
+    if (!tab || !tab.allowedRoles.includes(userRole as 'owner' | 'pm' | 'tenant')) return;
     setActiveTab(tabId);
     setSearchParams({ tab: tabId });
   };
@@ -106,10 +119,13 @@ export default function Settings() {
       {/* Tabs - grouped */}
       <div className="border-b border-cc-border">
         <div className="flex flex-wrap gap-1 items-center">
-          {(['people', 'property', 'preferences'] as const).map((group, gi) => (
+          {(['people', 'property', 'preferences'] as const).map((group, gi) => {
+            const groupTabs = visibleTabs.filter(t => t.group === group);
+            if (groupTabs.length === 0) return null;
+            return (
             <div key={group} className="flex items-center">
               {gi > 0 && <div className="w-px h-6 bg-cc-border mx-1" />}
-              {tabs.filter(t => t.group === group).map((tab) => {
+              {groupTabs.map((tab) => {
                 const Icon = tab.icon as React.ElementType<{ size?: number }>;
                 return (
                   <button
@@ -130,7 +146,8 @@ export default function Settings() {
                 );
               })}
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -149,7 +166,7 @@ export default function Settings() {
           </div>
         )}
 
-        {activeTab === 'pm' && (
+        {activeTab === 'pm' && (userRole === 'owner' || userRole === 'pm') && (
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-4">
               <Users className="text-cc-accent" size={20} />
@@ -162,7 +179,7 @@ export default function Settings() {
           </div>
         )}
 
-        {activeTab === 'tenant' && (
+        {activeTab === 'tenant' && (userRole === 'owner' || userRole === 'pm') && (
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-4">
               <Users className="text-cc-accent" size={20} />
@@ -175,7 +192,7 @@ export default function Settings() {
           </div>
         )}
 
-        {activeTab === 'property' && (
+        {activeTab === 'property' && (userRole === 'owner' || userRole === 'pm') && (
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-4">
               <Building2 className="text-cc-accent" size={20} />
@@ -188,7 +205,7 @@ export default function Settings() {
           </div>
         )}
 
-        {activeTab === 'mortgage' && (
+        {activeTab === 'mortgage' && userRole === 'owner' && (
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-4">
               <DollarSign className="text-cc-accent" size={20} />
@@ -201,7 +218,7 @@ export default function Settings() {
           </div>
         )}
 
-        {activeTab === 'rental' && (
+        {activeTab === 'rental' && userRole === 'owner' && (
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-4">
               <Home className="text-cc-accent" size={20} />
@@ -214,7 +231,7 @@ export default function Settings() {
           </div>
         )}
 
-        {activeTab === 'tax' && (
+        {activeTab === 'tax' && userRole === 'owner' && (
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-4">
               <FileText className="text-cc-accent" size={20} />
@@ -357,20 +374,22 @@ export default function Settings() {
               </div>
             </div>
 
-            {/* Link to Financials for Import/Export */}
-            <div className="bg-cc-surface/30 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-cc-text mb-2">Data Management</h4>
-              <p className="text-sm text-cc-muted mb-3">
-                To import or export your financial data, visit the Financials section where you can
-                backup and restore your property, mortgage, and rental information.
-              </p>
-              <a
-                href="/financials"
-                className="text-cc-accent hover:underline text-sm font-medium"
-              >
-                Go to Financials &rarr;
-              </a>
-            </div>
+            {/* Link to Financials for Import/Export - owners only */}
+            {userRole === 'owner' && (
+              <div className="bg-cc-surface/30 rounded-lg p-4">
+                <h4 className="text-sm font-medium text-cc-text mb-2">Data Management</h4>
+                <p className="text-sm text-cc-muted mb-3">
+                  To import or export your financial data, visit the Financials section where you can
+                  backup and restore your property, mortgage, and rental information.
+                </p>
+                <a
+                  href="/financials"
+                  className="text-cc-accent hover:underline text-sm font-medium"
+                >
+                  Go to Financials &rarr;
+                </a>
+              </div>
+            )}
           </div>
         )}
       </div>

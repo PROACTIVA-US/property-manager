@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth, type UserRole } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { X, Loader2 } from 'lucide-react';
 
 interface LoginModalProps {
@@ -13,7 +13,6 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [role, setRole] = useState<UserRole>('tenant');
   const [error, setError] = useState<string | null>(null);
   const [signUpSuccess, setSignUpSuccess] = useState(false);
 
@@ -23,7 +22,6 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     setEmail('');
     setPassword('');
     setDisplayName('');
-    setRole('tenant');
     setError(null);
     setSignUpSuccess(false);
   };
@@ -47,7 +45,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    const { error } = await signUpWithEmail(email, password, displayName, role);
+    const { error } = await signUpWithEmail(email, password, displayName, 'tenant');
     if (error) {
       setError(error.message);
     } else {
@@ -133,20 +131,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               />
             </div>
 
-            {mode === 'signup' && (
-              <div>
-                <label className="block text-sm font-medium text-cc-text mb-1">Role</label>
-                <select
-                  value={role || 'tenant'}
-                  onChange={(e) => setRole(e.target.value as UserRole)}
-                  className="w-full px-3 py-2 bg-cc-bg border border-cc-border rounded-lg text-cc-text focus:outline-none focus:ring-2 focus:ring-cc-accent focus:border-transparent"
-                >
-                  <option value="tenant">Tenant</option>
-                  <option value="owner">Owner</option>
-                  <option value="pm">Property Manager</option>
-                </select>
-              </div>
-            )}
+            {/* Role is assigned by admin after account creation - new users default to tenant */}
 
             <button
               type="submit"

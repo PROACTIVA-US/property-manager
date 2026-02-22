@@ -22,7 +22,6 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUpWithEmail: (email: string, password: string, displayName: string, role: UserRole) => Promise<{ error: Error | null }>;
   logout: () => Promise<void>;
-  setUserRole: (role: UserRole) => Promise<void>;
   showLoginModal: boolean;
   setShowLoginModal: (show: boolean) => void;
 }
@@ -221,7 +220,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signInWithEmail,
         signUpWithEmail,
         logout,
-        setUserRole,
         showLoginModal,
         setShowLoginModal,
       }}

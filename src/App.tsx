@@ -256,7 +256,9 @@ export default function App() {
           {/* SHARED ROUTES - All authenticated users */}
           <Route path="/messages" element={
             <ProtectedRoute>
-              <MessagesPage />
+              <RoleBasedRoute allowedRoles={['owner', 'pm', 'tenant']}>
+                <MessagesPage />
+              </RoleBasedRoute>
             </ProtectedRoute>
           } />
 
@@ -269,7 +271,9 @@ export default function App() {
           {/* OTHER ROUTES */}
           <Route path="/gallery" element={
             <ProtectedRoute>
-              <Gallery />
+              <RoleBasedRoute allowedRoles={['owner', 'pm']}>
+                <Gallery />
+              </RoleBasedRoute>
             </ProtectedRoute>
           } />
 
@@ -291,7 +295,9 @@ export default function App() {
 
           <Route path="/3d-view" element={
             <ProtectedRoute>
-              <View3D />
+              <RoleBasedRoute allowedRoles={['owner', 'pm']}>
+                <View3D />
+              </RoleBasedRoute>
             </ProtectedRoute>
           } />
 
