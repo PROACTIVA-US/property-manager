@@ -449,7 +449,7 @@ export async function createProjectAsync(
     estimated_end_date: data.estimatedEndDate,
     actual_start_date: data.actualStartDate,
     actual_end_date: data.actualEndDate,
-    impact_analysis: impactAnalysis as any,
+    impact_analysis: impactAnalysis as unknown as TablesInsert<'projects'>['impact_analysis'],
   };
 
   const { data: project, error } = await supabase
@@ -532,7 +532,7 @@ export async function updateProjectAsync(
     estimated_end_date: updates.estimatedEndDate,
     actual_start_date: updates.actualStartDate,
     actual_end_date: updates.actualEndDate,
-    impact_analysis: impactAnalysis as any,
+    impact_analysis: impactAnalysis as unknown as TablesUpdate<'projects'>['impact_analysis'],
   };
 
   // Remove undefined values

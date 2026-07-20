@@ -26,6 +26,7 @@ import Inspections from './pages/Inspections';
 import Rent from './pages/Rent';
 import Leases from './pages/Leases';
 import AdminDashboard from './pages/AdminDashboard';
+import ClientApproval from './pages/ClientApproval';
 import HelpCenter from './components/help/HelpCenter';
 import AIAssistant from './components/ai-assistant/AIAssistant';
 import { useHelpStore } from './stores/helpStore';
@@ -112,6 +113,9 @@ export default function App() {
           {/* Root redirects to home */}
           <Route path="/" element={<Navigate to="/home" replace />} />
 
+          {/* Public tokenized portal — intentionally outside authentication */}
+          <Route path="/client-approval" element={<ClientApproval />} />
+
           {/* PM dashboard */}
           <Route path="/home" element={
             <ProtectedRoute>
@@ -156,7 +160,7 @@ export default function App() {
           {/* PM-ONLY ROUTES */}
           <Route path="/issues" element={
             <ProtectedRoute>
-              <RoleBasedRoute allowedRoles={['owner', 'pm']}>
+              <RoleBasedRoute allowedRoles={['owner', 'pm', 'admin']}>
                 <IssuesPage />
               </RoleBasedRoute>
             </ProtectedRoute>
@@ -297,7 +301,7 @@ export default function App() {
 
           <Route path="/projects" element={
             <ProtectedRoute>
-              <RoleBasedRoute allowedRoles={['pm', 'owner']}>
+              <RoleBasedRoute allowedRoles={['pm', 'owner', 'admin']}>
                 <Projects />
               </RoleBasedRoute>
             </ProtectedRoute>

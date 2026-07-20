@@ -67,7 +67,7 @@ describe('messages.ts', () => {
 
     it('should generate IDs with expected format', () => {
       const id = generateId()
-      expect(id).toMatch(/^\d+-[a-z0-9]+$/)
+      expect(id).toMatch(/^(?:[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|\d+-[a-z0-9]+)$/)
     })
   })
 
