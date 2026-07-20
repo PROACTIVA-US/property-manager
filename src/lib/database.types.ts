@@ -14,10 +14,74 @@ export type Database = {
   }
   public: {
     Tables: {
+      approval_requests: {
+        Row: {
+          action_question: string
+          composite_image_url: string
+          created_at: string
+          created_by: string
+          decided_at: string | null
+          description: string
+          expires_at: string
+          id: string
+          project_id: string | null
+          status: string
+          storage_path: string
+          token_hash: string
+          updated_at: string
+        }
+        Insert: {
+          action_question: string
+          composite_image_url: string
+          created_at?: string
+          created_by: string
+          decided_at?: string | null
+          description: string
+          expires_at?: string
+          id?: string
+          project_id?: string | null
+          status?: string
+          storage_path: string
+          token_hash: string
+          updated_at?: string
+        }
+        Update: {
+          action_question?: string
+          composite_image_url?: string
+          created_at?: string
+          created_by?: string
+          decided_at?: string | null
+          description?: string
+          expires_at?: string
+          id?: string
+          project_id?: string | null
+          status?: string
+          storage_path?: string
+          token_hash?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approval_requests_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approval_requests_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           category: string | null
           created_at: string | null
+          description: string | null
           file_size: number | null
           id: string
           mime_type: string | null
@@ -25,11 +89,13 @@ export type Database = {
           project_id: string | null
           property_id: string | null
           storage_path: string
+          tags: string[]
           uploaded_by: string | null
         }
         Insert: {
           category?: string | null
           created_at?: string | null
+          description?: string | null
           file_size?: number | null
           id?: string
           mime_type?: string | null
@@ -37,11 +103,13 @@ export type Database = {
           project_id?: string | null
           property_id?: string | null
           storage_path: string
+          tags?: string[]
           uploaded_by?: string | null
         }
         Update: {
           category?: string | null
           created_at?: string | null
+          description?: string | null
           file_size?: number | null
           id?: string
           mime_type?: string | null
@@ -49,6 +117,7 @@ export type Database = {
           project_id?: string | null
           property_id?: string | null
           storage_path?: string
+          tags?: string[]
           uploaded_by?: string | null
         }
         Relationships: [
@@ -832,7 +901,63 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_client_approval: {
+        Args: {
+          request_action_question: string
+          request_description: string
+          request_id: string
+          request_image_url: string
+          request_storage_path: string
+          request_token_hash: string
+        }
+        Returns: {
+          action_question: string
+          composite_image_url: string
+          created_at: string
+          decided_at: string | null
+          description: string
+          expires_at: string
+          id: string
+          project_id: string | null
+          status: string
+        }[]
+      }
+      decide_client_approval: {
+        Args: {
+          request_decision: string
+          request_token: string
+        }
+        Returns: {
+          created_project_id: string | null
+          final_status: string
+        }[]
+      }
+      get_client_approval: {
+        Args: { request_token: string }
+        Returns: {
+          action_question: string
+          composite_image_url: string
+          decided_at: string | null
+          description: string
+          expires_at: string
+          id: string
+          status: string
+        }[]
+      }
+      list_client_approvals: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          action_question: string
+          composite_image_url: string
+          created_at: string
+          decided_at: string | null
+          description: string
+          expires_at: string
+          id: string
+          project_id: string | null
+          status: string
+        }[]
+      }
     }
     Enums: {
       attachment_category:

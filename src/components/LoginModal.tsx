@@ -45,7 +45,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    const { error } = await signUpWithEmail(email, password, displayName, 'tenant');
+    const { error } = await signUpWithEmail(email, password, displayName);
     if (error) {
       setError(error.message);
     } else {

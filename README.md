@@ -1,73 +1,62 @@
-# React + TypeScript + Vite
+# Property Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React, TypeScript, and Supabase application for property operations, issues, vendors, documents, financials, and projects.
 
-Currently, two official plugins are available:
+The app is served below `/property/`. Vercel redirects the domain root there and rewrites client-side routes to the Vite entry point.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Local development
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cp .env.example .env.local
+npm ci
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Open `http://localhost:5180/property/`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Required browser configuration:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- `VITE_SUPABASE_URL`: Supabase project URL.
+- `VITE_SUPABASE_ANON_KEY`: public Supabase anon/client key.
+- `VITE_ALLOWED_EMAILS`: optional comma-separated sign-in allowlist.
+
+Never store a provider secret in a `VITE_*` variable. Vite embeds those values in the public browser bundle. The AI project generator stays in mock mode unless it is moved behind a server-side proxy.
+
+## Database
+
+Migrations live in `supabase/migrations`. Link the intended project and review the pending list before applying changes:
+
+```bash
+supabase link --project-ref YOUR_PROJECT_REF
+supabase migration list --linked
+supabase db push --linked
 ```
+
+The client-approval migration adds:
+
+- a private `approval_requests` table;
+- a public image bucket with staff-only uploads;
+- hashed, expiring, one-time approval tokens;
+- public lookup and decision functions with limited return fields;
+- atomic approved-request conversion into the existing Projects Kanban.
+
+## Client approval workflow
+
+1. An owner, property manager, or admin opens **Issues & Approvals**.
+2. **Request approval** accepts a decision question, context, and stitched composite image.
+3. The app creates a 30-day client portal link. Only the token hash is retained by the database.
+4. The client reviews the evidence and confirms Approve or Decline.
+5. Approval atomically creates a high-priority project in the `approved` Kanban stage. Reusing the link is rejected.
+
+## Quality checks
+
+```bash
+npm run build
+npm run lint
+npm test
+npm audit --audit-level=low
+```
+
+## Deployment
+
+Create or link a Vercel project, add the required `VITE_SUPABASE_*` environment variables for Production and Preview, then deploy. The canonical entry point is `/property/`; `/` redirects there automatically.

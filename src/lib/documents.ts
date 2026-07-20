@@ -9,10 +9,6 @@ import type { Tables } from './database.types';
 // Database type
 type DbDocument = Tables<'documents'>;
 
-// Untyped alias for Supabase calls referencing columns not in generated types
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const db = supabase as any;
-
 // ============ Types ============
 
 export type DocumentCategory = 'lease' | 'receipt' | 'photo';
@@ -78,8 +74,6 @@ function getDefaultDocumentsData(): DocumentsData {
 // ============ Helper Functions ============
 
 function mapDbToDocument(doc: DbDocument): DocumentFile {
-  // Cast to any to access description/tags columns not in generated types
-  const row = doc as any;
   return {
     id: doc.id,
     name: doc.name,
@@ -87,8 +81,8 @@ function mapDbToDocument(doc: DbDocument): DocumentFile {
     uploadDate: doc.created_at || new Date().toISOString(),
     fileSize: doc.file_size || 0,
     mimeType: doc.mime_type || '',
-    description: row.description || undefined,
-    tags: row.tags || undefined,
+    description: doc.description || undefined,
+    tags: doc.tags || undefined,
     projectId: doc.project_id || undefined,
     propertyId: doc.property_id || undefined,
     storagePath: doc.storage_path || undefined,
@@ -162,7 +156,7 @@ export async function addDocumentAsync(
     uploaded_by: user?.id,
   };
 
-  const { data, error } = await db
+  const { data, error } = await supabase
     .from('documents')
     .insert(insertData)
     .select()
@@ -206,7 +200,7 @@ export async function updateDocumentAsync(
     return;
   }
 
-  await db
+  await supabase
     .from('documents')
     .update({
       description: updates.description,

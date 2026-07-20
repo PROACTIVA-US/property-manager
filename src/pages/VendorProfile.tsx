@@ -128,13 +128,6 @@ function SlideshowCard({
     return () => clearInterval(interval);
   }, [images.length, paused]);
 
-  // Clamp index if images change
-  useEffect(() => {
-    if (slideIndex >= images.length && images.length > 0) {
-      setSlideIndex(0);
-    }
-  }, [images.length, slideIndex]);
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       onUpload(category, e.target.files);
@@ -142,7 +135,8 @@ function SlideshowCard({
     }
   };
 
-  const currentImage = images[slideIndex];
+  const safeSlideIndex = images.length > 0 ? slideIndex % images.length : 0;
+  const currentImage = images[safeSlideIndex];
 
   return (
     <div className="flex-1 min-w-0">
@@ -165,8 +159,7 @@ function SlideshowCard({
               key={img.id}
               src={img.url}
               alt={`${category} ${idx + 1}`}
-              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
-              style={{ opacity: idx === slideIndex ? 1 : 0 }}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${idx === safeSlideIndex ? 'opacity-100' : 'opacity-0'}`}
             />
           ))}
 
@@ -193,7 +186,7 @@ function SlideshowCard({
                   <button
                     key={idx}
                     onClick={() => setSlideIndex(idx)}
-                    className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === slideIndex ? 'bg-white' : 'bg-white/40'}`}
+                    className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === safeSlideIndex ? 'bg-white' : 'bg-white/40'}`}
                   />
                 ))}
               </div>

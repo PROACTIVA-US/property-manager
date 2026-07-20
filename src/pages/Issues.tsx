@@ -4,13 +4,15 @@
  */
 
 import { useState, useCallback } from 'react';
-import { Plus, AlertTriangle, CheckCircle, Clock, TrendingUp } from 'lucide-react';
+import { Plus, AlertTriangle, CheckCircle, Clock, TrendingUp, Link2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { getIssues, getIssuesByReporter, getIssueMetrics, generateSampleIssues, getEscalatedIssues } from '../lib/issues';
 import type { Issue } from '../types/issues.types';
 import IssueList from '../components/issues/IssueList';
 import IssueCreateForm from '../components/issues/IssueCreateForm';
 import IssueDetailModal from '../components/issues/IssueDetailModal';
+import ApprovalRequestForm from '../components/issues/ApprovalRequestForm';
+import ApprovalRequestList from '../components/issues/ApprovalRequestList';
 
 // Helper function to load issues based on user role
 function loadIssuesForUser(user: ReturnType<typeof useAuth>['user']) {
@@ -37,23 +39,26 @@ export default function IssuesPage() {
   const isPM = user?.role === 'pm';
   const isOwner = user?.role === 'owner';
   const isTenant = user?.role === 'tenant';
+  const isStaff = isPM || isOwner || user?.role === 'admin';
 
   // Use lazy initialization
   const [issues, setIssues] = useState<Issue[]>(() => loadIssuesForUser(user));
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showApprovalForm, setShowApprovalForm] = useState(false);
+  const [approvalRefreshKey, setApprovalRefreshKey] = useState(0);
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [metrics, setMetrics] = useState<ReturnType<typeof getIssueMetrics> | null>(() =>
-    (isPM || isOwner) ? getIssueMetrics() : null
+    isStaff ? getIssueMetrics() : null
   );
 
   const loadIssues = useCallback(() => {
     setIssues(loadIssuesForUser(user));
 
-    // Load metrics for PM/Owner
-    if (isPM || isOwner) {
+    // Load metrics for property staff
+    if (isStaff) {
       setMetrics(getIssueMetrics());
     }
-  }, [isPM, isOwner, user]);
+  }, [isStaff, user]);
 
   const handleIssueClick = (issue: Issue) => {
     setSelectedIssue(issue);
@@ -96,17 +101,30 @@ export default function IssuesPage() {
           </p>
         </div>
 
-        <button
-          onClick={() => setShowCreateForm(true)}
-          className="btn-primary flex items-center gap-2"
-        >
-          <Plus size={18} />
-          Report Issue
-        </button>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          {isStaff && (
+            <button
+              onClick={() => setShowApprovalForm(true)}
+              className="btn-secondary flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <Link2 size={18} />
+              Request approval
+            </button>
+          )}
+          {user?.role !== 'admin' && (
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="btn-primary flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <Plus size={18} />
+              Report Issue
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Metrics Dashboard (PM/Owner only) */}
-      {metrics && (isPM || isOwner) && (
+      {/* Metrics Dashboard (property staff only) */}
+      {metrics && isStaff && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {/* Open Issues */}
           <div className="card !p-4">
@@ -182,6 +200,8 @@ export default function IssuesPage() {
         </div>
       )}
 
+      {isStaff && <ApprovalRequestList refreshKey={approvalRefreshKey} />}
+
       {/* Issue List */}
       <IssueList
         issues={issues}
@@ -192,6 +212,13 @@ export default function IssuesPage() {
       {/* Create Issue Modal */}
       {showCreateForm && (
         <IssueCreateForm onClose={handleCreateClose} onCreated={handleCreated} />
+      )}
+
+      {showApprovalForm && (
+        <ApprovalRequestForm
+          onClose={() => setShowApprovalForm(false)}
+          onCreated={() => setApprovalRefreshKey(key => key + 1)}
+        />
       )}
 
       {/* Issue Detail Modal */}

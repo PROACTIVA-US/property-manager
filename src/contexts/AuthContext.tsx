@@ -20,7 +20,7 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   signInWithEmail: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUpWithEmail: (email: string, password: string, displayName: string, role: UserRole) => Promise<{ error: Error | null }>;
+  signUpWithEmail: (email: string, password: string, displayName: string) => Promise<{ error: Error | null }>;
   logout: () => Promise<void>;
   showLoginModal: boolean;
   setShowLoginModal: (show: boolean) => void;
@@ -73,37 +73,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return data;
   };
 
-  // Create profile for new user
-  const createProfile = async (
-    userId: string,
-    email: string,
-    displayName: string,
-    role: UserRole,
-    avatarUrl?: string
-  ): Promise<Profile | null> => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .insert({
-        id: userId,
-        email,
-        display_name: displayName,
-        role: role || 'tenant',
-        avatar_url: avatarUrl,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error creating profile:', error);
-      return null;
-    }
-    return data;
-  };
-
   // Handle auth state changes
   useEffect(() => {
     // Set up Supabase auth listener
-    const { data: { subscription } } = onAuthStateChange(async (event: string, session: Session | null) => {
+    const { data: { subscription } } = onAuthStateChange(async (_event, session: Session | null) => {
       if (session?.user) {
         // Enforce email allowlist
         const email = session.user.email || '';
@@ -116,18 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        let userProfile = await fetchProfile(session.user.id);
-
-        // If no profile exists (new user), create one
-        if (!userProfile && event === 'SIGNED_IN') {
-          userProfile = await createProfile(
-            session.user.id,
-            session.user.email || '',
-            session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
-            'tenant',
-            session.user.user_metadata?.avatar_url
-          );
-        }
+        const userProfile = await fetchProfile(session.user.id);
 
         setProfile(userProfile);
         setUser(mapSupabaseUser(session.user, userProfile));
@@ -171,14 +133,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // Sign up with email/password
-  const signUpWithEmail = async (email: string, password: string, displayName: string, role: UserRole) => {
+  const signUpWithEmail = async (email: string, password: string, displayName: string) => {
     setLoading(true);
-    const { data, error } = await signUp(email, password, { displayName, role: role || 'tenant' });
-
-    if (!error && data.user) {
-      // Create profile for new user
-      await createProfile(data.user.id, email, displayName, role);
-    }
+    const { error } = await signUp(email, password, { displayName });
 
     setLoading(false);
     return { error: error ? new Error(error.message) : null };
@@ -191,24 +148,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setProfile(null);
     setLoading(false);
-  };
-
-  // Update user role
-  const setUserRole = async (role: UserRole) => {
-    if (!user) return;
-
-    // Update in Supabase
-    const { error } = await supabase
-      .from('profiles')
-      .update({ role: role || 'tenant' })
-      .eq('id', user.uid);
-
-    if (!error) {
-      setUser({ ...user, role });
-      if (profile) {
-        setProfile({ ...profile, role: role || 'tenant' });
-      }
-    }
   };
 
   return (

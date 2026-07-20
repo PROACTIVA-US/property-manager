@@ -54,11 +54,13 @@ export const TENANT_NAV = [
 ];
 
 /**
- * Admin Navigation (2 items)
+ * Admin Navigation (4 items)
  * Focus: System administration, user management
  */
 export const ADMIN_NAV = [
   { path: '/home', label: 'Dashboard' },
+  { path: '/issues', label: 'Issues & Approvals' },
+  { path: '/projects', label: 'Projects' },
   { path: '/admin', label: 'Users' },
 ];
 
@@ -84,7 +86,8 @@ export const ROUTE_PERMISSIONS: Record<string, Array<'owner' | 'pm' | 'tenant' |
   '/accounts': ['owner', 'pm'],
 
   // PM-only routes
-  '/issues': ['owner', 'pm'],
+  '/issues': ['owner', 'pm', 'admin'],
+  '/projects': ['owner', 'pm', 'admin'],
   '/tenants': ['pm'],
   '/vendors': ['pm'],
   '/inspections': ['pm'],
@@ -143,7 +146,6 @@ export const RESTRICTED_ROUTES: Record<string, string[]> = {
     '/expenses',
     '/payments',
     '/lease',
-    '/issues',
     '/documents',
     '/accounts',
     '/maintenance',
