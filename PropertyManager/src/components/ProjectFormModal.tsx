@@ -1,0 +1,389 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { X, Sparkles, ExternalLink } from 'lucide-react';
+import type { Project, ProjectCategory, ProjectPriority, ProjectStatus } from '../lib/projects';
+import { createProject, updateProject, CATEGORY_LABELS, PRIORITY_LABELS } from '../lib/projects';
+import { getVendors } from '../lib/vendors';
+import { useAuth } from '../contexts/AuthContext';
+
+interface ProjectFormModalProps {
+  project: Project | null; // null for new project
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: () => void;
+}
+
+// Helper function to get initial form data based on project
+function getInitialFormData(project: Project | null) {
+  if (project) {
+    return {
+      title: project.title,
+      description: project.description,
+      category: project.category,
+      status: project.status,
+      priority: project.priority,
+      primaryVendorId: project.primaryVendorId || '',
+      estimatedCost: project.estimatedCost?.toString() || '',
+      estimatedStartDate: project.estimatedStartDate || '',
+      estimatedEndDate: project.estimatedEndDate || '',
+      notes: project.notes || '',
+      tags: project.tags.join(', '),
+    };
+  }
+  return {
+    title: '',
+    description: '',
+    category: 'maintenance' as ProjectCategory,
+    status: 'draft' as ProjectStatus,
+    priority: 'medium' as ProjectPriority,
+    primaryVendorId: '',
+    estimatedCost: '',
+    estimatedStartDate: '',
+    estimatedEndDate: '',
+    notes: '',
+    tags: '',
+  };
+}
+
+export default function ProjectFormModal({ project, isOpen, onClose, onSave }: ProjectFormModalProps) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Track the project ID and isOpen state to detect changes
+  const [syncKey, setSyncKey] = useState({ projectId: project?.id, isOpen });
+
+  // Initialize form data from project
+  const [formData, setFormData] = useState(() => getInitialFormData(project));
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const vendors = getVendors();
+
+  // Reset form when modal opens with a different project (derived state pattern)
+  const currentKey = { projectId: project?.id, isOpen };
+  if (syncKey.projectId !== currentKey.projectId || (currentKey.isOpen && !syncKey.isOpen)) {
+    setSyncKey(currentKey);
+    if (isOpen) {
+      setFormData(getInitialFormData(project));
+      setErrors({});
+    }
+  }
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    // Required fields
+    if (!formData.title.trim()) {
+      newErrors.title = 'Project title is required';
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = 'Description is required';
+    }
+
+    // Cost validation
+    if (formData.estimatedCost) {
+      const cost = parseFloat(formData.estimatedCost);
+      if (isNaN(cost) || cost < 0) {
+        newErrors.estimatedCost = 'Cost must be a positive number';
+      }
+    }
+
+    // Date validation
+    if (formData.estimatedStartDate && formData.estimatedEndDate) {
+      const startDate = new Date(formData.estimatedStartDate);
+      const endDate = new Date(formData.estimatedEndDate);
+      if (endDate < startDate) {
+        newErrors.estimatedEndDate = 'End date must be after start date';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    if (!user) {
+      setErrors({ general: 'Property manager not authenticated' });
+      return;
+    }
+
+    const projectData = {
+      title: formData.title.trim(),
+      description: formData.description.trim(),
+      category: formData.category,
+      status: formData.status,
+      priority: formData.priority,
+      primaryVendorId: formData.primaryVendorId || undefined,
+      estimatedCost: formData.estimatedCost ? parseFloat(formData.estimatedCost) : undefined,
+      estimatedStartDate: formData.estimatedStartDate || undefined,
+      estimatedEndDate: formData.estimatedEndDate || undefined,
+      notes: formData.notes || undefined,
+      tags: formData.tags
+        .split(',')
+        .map(t => t.trim())
+        .filter(Boolean),
+    };
+
+    if (project) {
+      // Update existing project
+      updateProject(project.id, projectData);
+    } else {
+      // Create new project
+      createProject({
+        ...projectData,
+        additionalVendorIds: [],
+        projectOwnerId: user.email,
+        projectOwnerName: user.displayName || user.email,
+        stakeholders: [],
+        emergencyContacts: [],
+        phases: [],
+        messages: [],
+        createdBy: user.email,
+      });
+    }
+
+    onSave();
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-cc-surface rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col border border-cc-border">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-cc-border">
+          <h2 className="text-2xl font-bold text-cc-text">
+            {project ? 'Edit Project' : 'New Project'}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors text-cc-muted hover:text-cc-text"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6">
+          <div className="space-y-4">
+            {/* General Error */}
+            {errors.general && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-sm text-red-400">
+                {errors.general}
+              </div>
+            )}
+
+            {/* Title */}
+            <div>
+              <label className="block text-sm font-semibold text-cc-text mb-1">
+                Project Title <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={e => {
+                  setFormData({ ...formData, title: e.target.value });
+                  if (errors.title) setErrors({ ...errors, title: '' });
+                }}
+                className={`input-field w-full ${errors.title ? 'border-red-500' : ''}`}
+                placeholder="e.g., HVAC System Upgrade"
+              />
+              {errors.title && (
+                <p className="text-xs text-red-400 mt-1">{errors.title}</p>
+              )}
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-sm font-semibold text-cc-text mb-1">
+                Description <span className="text-red-400">*</span>
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={e => {
+                  setFormData({ ...formData, description: e.target.value });
+                  if (errors.description) setErrors({ ...errors, description: '' });
+                }}
+                className={`input-field w-full ${errors.description ? 'border-red-500' : ''}`}
+                rows={4}
+                placeholder="Describe the project scope, objectives, and key details..."
+              />
+              {errors.description && (
+                <p className="text-xs text-red-400 mt-1">{errors.description}</p>
+              )}
+            </div>
+
+            {/* Category & Priority */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-cc-text mb-1">Category</label>
+                <select
+                  value={formData.category}
+                  onChange={e => setFormData({ ...formData, category: e.target.value as ProjectCategory })}
+                  className="input-field w-full"
+                >
+                  {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
+                    <option key={key} value={key}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-cc-text mb-1">Priority</label>
+                <select
+                  value={formData.priority}
+                  onChange={e => setFormData({ ...formData, priority: e.target.value as ProjectPriority })}
+                  className="input-field w-full"
+                >
+                  {Object.entries(PRIORITY_LABELS).map(([key, label]) => (
+                    <option key={key} value={key}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Vendor */}
+            <div>
+              <label className="block text-sm font-semibold text-cc-text mb-1">Primary Vendor</label>
+              <div className="flex items-center gap-2">
+                <select
+                  value={formData.primaryVendorId}
+                  onChange={e => setFormData({ ...formData, primaryVendorId: e.target.value })}
+                  className="input-field w-full"
+                >
+                  <option value="">None</option>
+                  {vendors.map(vendor => (
+                    <option key={vendor.id} value={vendor.id}>
+                      {vendor.name} - {vendor.specialty}
+                    </option>
+                  ))}
+                </select>
+                {formData.primaryVendorId && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      navigate(`/vendors/${formData.primaryVendorId}`);
+                    }}
+                    className="flex items-center gap-1 px-3 py-2 text-sm text-cc-accent hover:text-indigo-300 bg-cc-accent/10 hover:bg-cc-accent/20 rounded-lg transition-colors whitespace-nowrap"
+                    title="View vendor profile"
+                  >
+                    <ExternalLink size={14} />
+                    Profile
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Cost & Timeline */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-cc-text mb-1">Estimated Cost</label>
+                <input
+                  type="number"
+                  value={formData.estimatedCost}
+                  onChange={e => {
+                    setFormData({ ...formData, estimatedCost: e.target.value });
+                    if (errors.estimatedCost) setErrors({ ...errors, estimatedCost: '' });
+                  }}
+                  className={`input-field w-full ${errors.estimatedCost ? 'border-red-500' : ''}`}
+                  placeholder="0"
+                  min="0"
+                  step="0.01"
+                />
+                {errors.estimatedCost && (
+                  <p className="text-xs text-red-400 mt-1">{errors.estimatedCost}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-cc-text mb-1">Start Date</label>
+                <input
+                  type="date"
+                  value={formData.estimatedStartDate}
+                  onChange={e => {
+                    setFormData({ ...formData, estimatedStartDate: e.target.value });
+                    if (errors.estimatedEndDate) setErrors({ ...errors, estimatedEndDate: '' });
+                  }}
+                  className="input-field w-full"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-cc-text mb-1">End Date</label>
+                <input
+                  type="date"
+                  value={formData.estimatedEndDate}
+                  onChange={e => {
+                    setFormData({ ...formData, estimatedEndDate: e.target.value });
+                    if (errors.estimatedEndDate) setErrors({ ...errors, estimatedEndDate: '' });
+                  }}
+                  className={`input-field w-full ${errors.estimatedEndDate ? 'border-red-500' : ''}`}
+                />
+                {errors.estimatedEndDate && (
+                  <p className="text-xs text-red-400 mt-1">{errors.estimatedEndDate}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Notes */}
+            <div>
+              <label className="block text-sm font-semibold text-cc-text mb-1">Additional Notes</label>
+              <textarea
+                value={formData.notes}
+                onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                className="input-field w-full"
+                rows={3}
+                placeholder="Any additional information, special considerations, or requirements..."
+              />
+            </div>
+
+            {/* AI Analysis Notice */}
+            {!project && (
+              <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <Sparkles className="text-purple-400 flex-shrink-0 mt-0.5" size={18} />
+                  <div>
+                    <h4 className="text-purple-400 font-semibold mb-1">AI Impact Analysis</h4>
+                    <p className="text-sm text-purple-300">
+                      After creating this project, you can generate an AI-powered impact analysis to understand effects on tenants and owners.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </form>
+
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 p-6 border-t border-cc-border">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 bg-cc-border hover:bg-slate-500 text-white rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            className="px-4 py-2 bg-cc-accent hover:bg-indigo-500 text-white rounded-lg transition-colors font-semibold"
+          >
+            {project ? 'Save Changes' : 'Create Project'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
