@@ -284,8 +284,7 @@ Acceptance criteria:
 
 ## Open product decisions
 
-1. Select one visual direction in `UI-STANDARD.md` before implementation.
-2. Confirm whether Google OAuth is desired in addition to magic link/password.
-3. Confirm whether version 1 records payments manually or imports from an existing processor.
-4. Confirm who besides the owner may see mortgage/tax scenario inputs.
-5. Confirm whether the historical app should remain in-repo under `legacy/` after the archive PR is merged or exist only in Git history.
+1. Confirm whether Google OAuth is desired in addition to magic link/password.
+2. Confirm whether version 1 records payments manually or imports from an existing processor.
+3. Confirm who besides the owner may see mortgage/tax scenario inputs.
+4. Confirm whether the historical app should remain in-repo under `legacy/` after the archive PR is merged or exist only in Git history.

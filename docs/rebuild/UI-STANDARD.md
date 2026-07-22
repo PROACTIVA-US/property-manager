@@ -1,6 +1,6 @@
 # House UI Standard
 
-Status: foundation approved by audit; aesthetic direction pending operator selection
+Status: approved; Direction A (Quiet Ledger) selected 2026-07-21
 
 ## Design objective
 
@@ -8,7 +8,7 @@ House should feel like a calm, trustworthy home record—not a generic SaaS dash
 
 ## Candidate directions
 
-### A. Quiet Ledger — recommended
+### A. Quiet Ledger — selected
 
 A warm, editorial workspace: parchment/off-white surfaces, deep ink typography, muted evergreen for healthy state, and restrained terracotta for attention. Property photography and a clear chronological activity ledger give it identity.
 
@@ -158,4 +158,4 @@ The implementation must include:
 - a route crawl that fails on console errors, horizontal overflow, unlabeled icon buttons, or missing state fixtures;
 - PR checklist requiring desktop/mobile screenshots and role/data provenance notes.
 
-No visual implementation begins until A, B, or C is selected.
+Implementation follows Direction A. Directions B and C remain recorded only as decision history.

@@ -1,6 +1,6 @@
 # Rebuild Implementation Plan
 
-Status: proposed; execution begins after visual direction approval
+Status: active; Direction A (Quiet Ledger) approved 2026-07-21
 
 ## Delivery principle
 

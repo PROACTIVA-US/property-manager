@@ -27,6 +27,8 @@ import Rent from './pages/Rent';
 import Leases from './pages/Leases';
 import AdminDashboard from './pages/AdminDashboard';
 import ClientApproval from './pages/ClientApproval';
+import DesignComparison from './pages/DesignComparison';
+import DesignConcept from './pages/DesignConcept';
 import HelpCenter from './components/help/HelpCenter';
 import AIAssistant from './components/ai-assistant/AIAssistant';
 import { useHelpStore } from './stores/helpStore';
@@ -115,6 +117,11 @@ export default function App() {
 
           {/* Public tokenized portal — intentionally outside authentication */}
           <Route path="/client-approval" element={<ClientApproval />} />
+
+          {/* Temporary blind UI comparison — public and synthetic data only */}
+          <Route path="/design-lab" element={<DesignComparison />} />
+          <Route path="/design-lab/a" element={<DesignConcept variant="a" />} />
+          <Route path="/design-lab/b" element={<DesignConcept variant="b" />} />
 
           {/* PM dashboard */}
           <Route path="/home" element={
