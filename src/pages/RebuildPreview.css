@@ -1,0 +1,66 @@
+.rb-preview {
+  min-height: 100vh;
+  background: #f3efe5;
+}
+
+.rb-preview-status {
+  min-height: 48px;
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  color: #f7f2e8;
+  background: #172a22;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  font-family: 'DM Sans', sans-serif;
+}
+
+.rb-preview-status > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.rb-preview-status svg {
+  width: 17px;
+  color: #a8cbb0;
+}
+
+.rb-preview-status span {
+  color: #aebfb6;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.rb-preview-status strong {
+  font-size: 12px;
+}
+
+.rb-preview-status p {
+  margin: 0;
+  color: #bac7c0;
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: right;
+}
+
+@media (max-width: 760px) {
+  .rb-preview-status {
+    min-height: 66px;
+    padding: 9px 14px;
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+  }
+
+  .rb-preview-status p {
+    padding-left: 25px;
+    font-size: 10px;
+    text-align: left;
+  }
+}

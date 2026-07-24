@@ -44,3 +44,9 @@ Rate each concept from 1–5 without revealing authors:
 5. Mobile usefulness: no desktop sidebar, readable copy, and reachable actions.
 6. Accessibility: legible contrast, semantic structure, labels, focus, and touch targets.
 7. Distinctiveness: memorable enough to become the product's visual foundation.
+
+## Outcome
+
+On 2026-07-24, the operator selected Concept A. It is now the approved Quiet
+Ledger foundation recorded in `../DESIGN-DECISION.md`; Concept B remains preserved
+only as comparison provenance.

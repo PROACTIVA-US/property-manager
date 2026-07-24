@@ -1,6 +1,6 @@
 # House UI Standard
 
-Status: approved; Direction A (Quiet Ledger) selected 2026-07-21
+Status: approved; Direction A (Quiet Ledger) selected 2026-07-24
 
 ## Design objective
 

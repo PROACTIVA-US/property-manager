@@ -53,7 +53,9 @@ export default function DesignComparison() {
       </header>
 
       <p className="dc-instructions">
-        Both concepts received the same frozen brief and synthetic data. Compare hierarchy, clarity, warmth, and mobile usefulness before revealing the authors.
+        <strong>Decision recorded: Concept A selected.</strong>{' '}
+        Both concepts remain here as experiment provenance. Continue with the{' '}
+        <a href={`${baseUrl}rebuild`}>Quiet Ledger rebuild preview</a>.
       </p>
 
       <div className={`dc-stage dc-stage-${viewport} dc-focus-${focus}`}>

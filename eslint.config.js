@@ -6,7 +6,9 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  // The recovered historical application is preserved for reference only.
+  // It has its own configuration and must not be treated as active root source.
+  globalIgnores(['dist', 'PropertyManager/**']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

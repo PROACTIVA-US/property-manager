@@ -29,6 +29,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import ClientApproval from './pages/ClientApproval';
 import DesignComparison from './pages/DesignComparison';
 import DesignConcept from './pages/DesignConcept';
+import RebuildPreview from './pages/RebuildPreview';
 import HelpCenter from './components/help/HelpCenter';
 import AIAssistant from './components/ai-assistant/AIAssistant';
 import { useHelpStore } from './stores/helpStore';
@@ -122,6 +123,9 @@ export default function App() {
           <Route path="/design-lab" element={<DesignComparison />} />
           <Route path="/design-lab/a" element={<DesignConcept variant="a" />} />
           <Route path="/design-lab/b" element={<DesignConcept variant="b" />} />
+
+          {/* Approved Quiet Ledger foundation — public until replacement auth is ready */}
+          <Route path="/rebuild" element={<RebuildPreview />} />
 
           {/* PM dashboard */}
           <Route path="/home" element={

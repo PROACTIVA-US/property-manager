@@ -19,6 +19,10 @@
 .dc-reveal { border: 1px solid #3a403a; }
 .dc-shell button:focus-visible { outline: 3px solid #d19872; outline-offset: 2px; }
 .dc-instructions { max-width: 780px; margin: 6px 0 18px; color: #8f9890; font-size: 12px; line-height: 1.5; }
+.dc-instructions strong { color: #e5dfd1; }
+.dc-instructions a { color: #d6ae87; font-weight: 700; text-underline-offset: 3px; }
+.dc-instructions a:hover { color: #f0cba7; }
+.dc-instructions a:focus-visible { outline: 3px solid #d19872; outline-offset: 3px; }
 .dc-stage { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
 .dc-stage.dc-focus-a, .dc-stage.dc-focus-b { grid-template-columns: minmax(0, 1fr); }
 .dc-concept { min-width: 0; overflow: hidden; background: #222622; border: 1px solid #393e39; border-radius: 10px; box-shadow: 0 18px 45px rgba(0,0,0,.28); }

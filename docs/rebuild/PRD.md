@@ -1,6 +1,6 @@
 # Product Requirements Document: House
 
-Status: proposed for approval
+Status: approved for implementation; Quiet Ledger selected 2026-07-24
 Product: private property workspace
 Primary deployment: `house.wildvine.net`
 
