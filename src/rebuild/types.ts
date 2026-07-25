@@ -5,10 +5,62 @@ export type HouseSection =
   | 'money'
   | 'property'
   | 'inbox'
-  | 'manage'
-  | 'admin';
+  | 'admin'
+  | `page:${string}`;
 
 export type HouseRole = 'admin' | 'manager' | 'owner' | 'tenant';
+
+export type HouseSystemPage =
+  | 'today'
+  | 'work'
+  | 'people'
+  | 'money'
+  | 'property'
+  | 'inbox';
+
+export type HousePageIcon =
+  | 'home'
+  | 'clipboard-list'
+  | 'users'
+  | 'circle-dollar-sign'
+  | 'building-2'
+  | 'inbox'
+  | 'file-text'
+  | 'notebook-tabs'
+  | 'calendar-days'
+  | 'wrench';
+
+export type HouseFieldType =
+  | 'text'
+  | 'long_text'
+  | 'number'
+  | 'currency'
+  | 'date'
+  | 'link'
+  | 'checkbox';
+
+export interface HouseWorkspacePage {
+  id: string;
+  systemKey: HouseSystemPage | null;
+  slug: string;
+  label: string;
+  icon: HousePageIcon;
+  sortOrder: number;
+  visibleRoles: HouseRole[];
+  isVisible: boolean;
+  hiddenCoreFields: string[];
+}
+
+export interface HouseCustomField {
+  id: string;
+  pageId: string;
+  label: string;
+  fieldType: HouseFieldType;
+  value: string;
+  sortOrder: number;
+  visibleRoles: HouseRole[];
+  isVisible: boolean;
+}
 
 export interface HousePerson {
   id: string;
@@ -131,6 +183,8 @@ export interface HouseWorkspaceData {
   workOrders: HouseWorkOrder[];
   ledgerEntries: HouseLedgerEntry[];
   accessMembers: HouseAccessMember[];
+  workspacePages: HouseWorkspacePage[];
+  customFields: HouseCustomField[];
   ownerFinancials: {
     mortgagePrincipal: number | null;
     mortgageInterestRate: number | null;

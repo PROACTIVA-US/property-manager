@@ -2,13 +2,18 @@ import { supabase } from '../lib/supabase';
 import type { Database } from '../lib/database.types';
 import type {
   HouseAccessMember,
+  HouseCustomField,
   HouseDocument,
+  HouseFieldType,
   HouseFileVisibility,
   HouseLedgerEntry,
+  HousePageIcon,
   HousePerson,
   HousePhoto,
   HouseRole,
+  HouseSystemPage,
   HouseWorkspaceData,
+  HouseWorkspacePage,
   HouseWorkOrder,
 } from './types';
 
@@ -59,6 +64,8 @@ export async function loadHouseWorkspace(
     recoveryResult,
     ownerFinancialsResult,
     accessResult,
+    workspacePagesResult,
+    customFieldsResult,
   ] = await Promise.all([
     supabase
       .from('profiles')
@@ -147,6 +154,22 @@ export async function loadHouseWorkspace(
           .eq('property_id', propertyId)
           .order('created_at')
       : Promise.resolve({ data: [], error: null }),
+    supabase
+      .from('property_workspace_pages')
+      .select(
+        'id, system_key, slug, label, icon, sort_order, visible_roles, is_visible, hidden_core_fields',
+      )
+      .eq('property_id', propertyId)
+      .is('archived_at', null)
+      .order('sort_order'),
+    supabase
+      .from('property_workspace_fields')
+      .select(
+        'id, page_id, label, field_type, value, sort_order, visible_roles, is_visible',
+      )
+      .eq('property_id', propertyId)
+      .is('archived_at', null)
+      .order('sort_order'),
   ]);
 
   const results = [
@@ -162,6 +185,8 @@ export async function loadHouseWorkspace(
     recoveryResult,
     ownerFinancialsResult,
     accessResult,
+    workspacePagesResult,
+    customFieldsResult,
   ];
   const firstError = results.find((result) => result.error)?.error;
   if (firstError) throw firstError;
@@ -319,6 +344,33 @@ export async function loadHouseWorkspace(
       ? recoveryResult.data.imported_counts
       : {};
 
+  const workspacePages: HouseWorkspacePage[] = (
+    workspacePagesResult.data ?? []
+  ).map((page) => ({
+    id: page.id,
+    systemKey: page.system_key as HouseSystemPage | null,
+    slug: page.slug,
+    label: page.label,
+    icon: page.icon as HousePageIcon,
+    sortOrder: page.sort_order,
+    visibleRoles: page.visible_roles as HouseRole[],
+    isVisible: page.is_visible,
+    hiddenCoreFields: page.hidden_core_fields,
+  }));
+
+  const customFields: HouseCustomField[] = (
+    customFieldsResult.data ?? []
+  ).map((field) => ({
+    id: field.id,
+    pageId: field.page_id,
+    label: field.label,
+    fieldType: field.field_type as HouseFieldType,
+    value: field.value,
+    sortOrder: field.sort_order,
+    visibleRoles: field.visible_roles as HouseRole[],
+    isVisible: field.is_visible,
+  }));
+
   return {
     membership: {
       id: membership.id,
@@ -363,6 +415,8 @@ export async function loadHouseWorkspace(
     workOrders,
     ledgerEntries,
     accessMembers,
+    workspacePages,
+    customFields,
     ownerFinancials: ownerFinancialsResult.data
       ? {
           mortgagePrincipal: numeric(
@@ -445,6 +499,162 @@ export async function createHouseWorkOrder(input: {
 
   if (error) throw error;
   return data;
+}
+
+function workspaceSlug(label: string) {
+  const normalized = label
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 42);
+  return normalized || 'page';
+}
+
+export async function createWorkspacePage(input: {
+  propertyId: string;
+  userId: string;
+  label: string;
+  icon: HousePageIcon;
+  visibleRoles: HouseRole[];
+  sortOrder: number;
+}) {
+  const { data, error } = await supabase
+    .from('property_workspace_pages')
+    .insert({
+      property_id: input.propertyId,
+      created_by: input.userId,
+      label: input.label.trim(),
+      slug: `${workspaceSlug(input.label)}-${crypto.randomUUID().slice(0, 6)}`,
+      icon: input.icon,
+      visible_roles: input.visibleRoles,
+      sort_order: input.sortOrder,
+    })
+    .select('id')
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function updateWorkspacePage(input: {
+  id: string;
+  label?: string;
+  icon?: HousePageIcon;
+  visibleRoles?: HouseRole[];
+  isVisible?: boolean;
+  hiddenCoreFields?: string[];
+  sortOrder?: number;
+}) {
+  const values: Database['public']['Tables']['property_workspace_pages']['Update'] = {};
+  if (input.label !== undefined) values.label = input.label.trim();
+  if (input.icon !== undefined) values.icon = input.icon;
+  if (input.visibleRoles !== undefined) values.visible_roles = input.visibleRoles;
+  if (input.isVisible !== undefined) values.is_visible = input.isVisible;
+  if (input.hiddenCoreFields !== undefined) {
+    values.hidden_core_fields = input.hiddenCoreFields;
+  }
+  if (input.sortOrder !== undefined) values.sort_order = input.sortOrder;
+
+  const { error } = await supabase
+    .from('property_workspace_pages')
+    .update(values)
+    .eq('id', input.id);
+  if (error) throw error;
+}
+
+export async function reorderWorkspacePages(pageIds: string[]) {
+  const results = await Promise.all(
+    pageIds.map((id, sortOrder) =>
+      supabase
+        .from('property_workspace_pages')
+        .update({ sort_order: sortOrder })
+        .eq('id', id),
+    ),
+  );
+  const firstError = results.find((result) => result.error)?.error;
+  if (firstError) throw firstError;
+}
+
+export async function archiveWorkspacePage(id: string) {
+  const { error } = await supabase
+    .from('property_workspace_pages')
+    .update({
+      archived_at: new Date().toISOString(),
+      is_visible: false,
+    })
+    .eq('id', id)
+    .is('system_key', null);
+  if (error) throw error;
+}
+
+export async function createWorkspaceField(input: {
+  propertyId: string;
+  pageId: string;
+  userId: string;
+  label: string;
+  fieldType: HouseFieldType;
+  value: string;
+  visibleRoles: HouseRole[];
+  sortOrder: number;
+}) {
+  const { error } = await supabase
+    .from('property_workspace_fields')
+    .insert({
+      property_id: input.propertyId,
+      page_id: input.pageId,
+      created_by: input.userId,
+      label: input.label.trim(),
+      field_type: input.fieldType,
+      value: input.value,
+      visible_roles: input.visibleRoles,
+      sort_order: input.sortOrder,
+    });
+  if (error) throw error;
+}
+
+export async function updateWorkspaceField(input: {
+  id: string;
+  label: string;
+  fieldType: HouseFieldType;
+  value: string;
+  visibleRoles: HouseRole[];
+  isVisible: boolean;
+}) {
+  const { error } = await supabase
+    .from('property_workspace_fields')
+    .update({
+      label: input.label.trim(),
+      field_type: input.fieldType,
+      value: input.value,
+      visible_roles: input.visibleRoles,
+      is_visible: input.isVisible,
+    })
+    .eq('id', input.id);
+  if (error) throw error;
+}
+
+export async function reorderWorkspaceFields(fieldIds: string[]) {
+  const results = await Promise.all(
+    fieldIds.map((id, sortOrder) =>
+      supabase
+        .from('property_workspace_fields')
+        .update({ sort_order: sortOrder })
+        .eq('id', id),
+    ),
+  );
+  const firstError = results.find((result) => result.error)?.error;
+  if (firstError) throw firstError;
+}
+
+export async function archiveWorkspaceField(id: string) {
+  const { error } = await supabase
+    .from('property_workspace_fields')
+    .update({
+      archived_at: new Date().toISOString(),
+      is_visible: false,
+    })
+    .eq('id', id);
+  if (error) throw error;
 }
 
 function verifiedTimestamp(verified: boolean) {

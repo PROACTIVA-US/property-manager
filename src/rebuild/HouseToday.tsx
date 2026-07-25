@@ -1,36 +1,41 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import {
   Bell,
-  Building2,
   CalendarDays,
   Check,
   ChevronRight,
   CircleDollarSign,
-  ClipboardList,
   FileText,
   Home,
-  Inbox,
   KeyRound,
   Loader2,
   LogOut,
   Menu,
   MessageSquareText,
   MoreHorizontal,
+  Pencil,
   Plus,
   ReceiptText,
   Settings,
   ShieldCheck,
   SlidersHorizontal,
   UserRound,
-  Users,
   Wrench,
   X,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { createHouseWorkOrder, updateHouseProfile } from './data';
 import HouseAdmin, { type HouseAdminPanel } from './HouseAdmin';
+import {
+  WorkspaceCustomFields,
+  WorkspaceNavigation,
+  WorkspacePageControls,
+} from './HouseWorkspaceEditor';
+import { workspaceIcon, workspacePageRoute } from './workspace-pages';
 import type {
+  HouseRole,
   HouseSection,
+  HouseSystemPage,
   HouseWorkspaceData,
   HouseWorkOrder,
 } from './types';
@@ -69,8 +74,49 @@ function ProvenanceBadge({ verified }: { verified: boolean }) {
   );
 }
 
+const coreFieldOptions: Partial<
+  Record<HouseSystemPage, Array<{ key: string; label: string }>>
+> = {
+  today: [
+    { key: 'property_cover', label: 'Property cover' },
+    { key: 'attention_queue', label: 'Needs attention' },
+    { key: 'recent_activity', label: 'Recent activity' },
+    { key: 'money_summary', label: 'Money at a glance' },
+    { key: 'data_confidence', label: 'Data confidence note' },
+  ],
+  work: [
+    { key: 'description', label: 'Descriptions' },
+    { key: 'status', label: 'Status' },
+    { key: 'priority', label: 'Priority' },
+    { key: 'provenance', label: 'Verification labels' },
+  ],
+  people: [
+    { key: 'email', label: 'Email addresses' },
+    { key: 'phone', label: 'Phone numbers' },
+    { key: 'provenance', label: 'Verification labels' },
+  ],
+  money: [
+    { key: 'lease', label: 'Lease summary' },
+    { key: 'utilities', label: 'Utilities' },
+    { key: 'ledger_count', label: 'Ledger count' },
+    { key: 'mortgage', label: 'Mortgage summary' },
+    { key: 'provenance', label: 'Verification labels' },
+  ],
+  property: [
+    { key: 'type', label: 'Property type' },
+    { key: 'year_built', label: 'Year built' },
+    { key: 'bedrooms', label: 'Bedrooms' },
+    { key: 'bathrooms', label: 'Bathrooms' },
+    { key: 'square_footage', label: 'Interior size' },
+    { key: 'photos', label: 'Property photos' },
+    { key: 'documents', label: 'Documents' },
+  ],
+};
+
 export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
   const [section, setSection] = useState<HouseSection>('today');
+  const [editMode, setEditMode] = useState(false);
+  const [previewRole, setPreviewRole] = useState<HouseRole>(data.membership.role);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [workOrderOpen, setWorkOrderOpen] = useState(false);
   const [workOrderBusy, setWorkOrderBusy] = useState(false);
@@ -81,7 +127,10 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
   const [passwordMessage, setPasswordMessage] = useState('');
   const [profileBusy, setProfileBusy] = useState(false);
   const [profileMessage, setProfileMessage] = useState('');
-  const [managePanel, setManagePanel] = useState<HouseAdminPanel>('property');
+  const [recordEditorPanel, setRecordEditorPanel] =
+    useState<HouseAdminPanel | null>(null);
+  const [recordPeopleMode, setRecordPeopleMode] =
+    useState<'contacts' | 'access'>('contacts');
 
   const role = data.membership.role;
   const canManage = role === 'admin' || role === 'manager';
@@ -96,18 +145,18 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
     data.photos[0] ??
     null;
 
-  const allNavItems = [
-    { key: 'today' as const, label: 'Today', icon: Home },
-    { key: 'work' as const, label: role === 'owner' ? 'Work & approvals' : 'Work', icon: ClipboardList },
-    { key: 'people' as const, label: 'People', icon: Users, roles: ['admin', 'manager', 'owner'] },
-    { key: 'money' as const, label: role === 'tenant' ? 'Payments' : 'Money', icon: CircleDollarSign },
-    { key: 'property' as const, label: role === 'tenant' ? 'Lease' : 'Property', icon: Building2 },
-    { key: 'inbox' as const, label: 'Inbox', icon: Inbox },
-    { key: 'manage' as const, label: 'Manage House', icon: SlidersHorizontal, roles: ['admin'] },
-  ];
-  const navItems = allNavItems.filter(
-    (item) => !item.roles || item.roles.includes(role),
+  const navPages = data.workspacePages
+    .filter(
+      (page) =>
+        editMode ||
+        (page.isVisible && page.visibleRoles.includes(previewRole)),
+    )
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+  const currentPage = data.workspacePages.find(
+    (page) => workspacePageRoute(page) === section,
   );
+  const hiddenCoreFields = currentPage?.hiddenCoreFields ?? [];
+  const showCore = (key: string) => !hiddenCoreFields.includes(key);
 
   const selectSection = (nextSection: HouseSection) => {
     setSection(nextSection);
@@ -115,9 +164,12 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const openManage = (nextPanel: HouseAdminPanel) => {
-    setManagePanel(nextPanel);
-    selectSection('manage');
+  const openRecordEditor = (
+    nextPanel: HouseAdminPanel,
+    peopleMode: 'contacts' | 'access' = 'contacts',
+  ) => {
+    setRecordPeopleMode(peopleMode);
+    setRecordEditorPanel(nextPanel);
   };
 
   const handleWorkOrder = async (event: FormEvent<HTMLFormElement>) => {
@@ -219,22 +271,16 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
 
           <nav className="cx-nav">
             <p className="cx-nav-label">Workspace</p>
-            {navItems.map(({ key, label, icon: Icon }) => (
-              <button
-                key={key}
-                className={`cx-nav-item house-nav-button${section === key ? ' cx-nav-item-active' : ''}`}
-                type="button"
-                onClick={() => selectSection(key)}
-              >
-                <Icon aria-hidden="true" />
-                <span>{label}</span>
-                {key === 'work' && activeWork.length > 0 && (
-                  <span className="cx-nav-count" aria-label={`${activeWork.length} open work items`}>
-                    {activeWork.length}
-                  </span>
-                )}
-              </button>
-            ))}
+            <WorkspaceNavigation
+              activeWorkCount={activeWork.length}
+              data={data}
+              editMode={editMode}
+              onRefresh={onRefresh}
+              onSelect={selectSection}
+              pages={navPages}
+              previewRole={previewRole}
+              section={section}
+            />
           </nav>
 
           <div className="cx-rail-bottom">
@@ -276,16 +322,18 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
             </button>
             <div>
               <p className="cx-date">
-                {new Intl.DateTimeFormat('en-US', {
-                  weekday: 'long',
-                  month: 'long',
-                  day: 'numeric',
-                }).format(new Date())}
+                {editMode
+                  ? `Editing · previewing ${previewRole}`
+                  : new Intl.DateTimeFormat('en-US', {
+                      weekday: 'long',
+                      month: 'long',
+                      day: 'numeric',
+                    }).format(new Date())}
               </p>
               <h1>
                 {section === 'today'
                   ? `Good ${new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, ${firstName}.`
-                  : navItems.find((item) => item.key === section)?.label ??
+                  : currentPage?.label ??
                     'Account & settings'}
               </h1>
             </div>
@@ -302,14 +350,13 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                 <button
                   className="house-secondary-button"
                   type="button"
-                  onClick={() =>
-                    section === 'manage'
-                      ? selectSection('today')
-                      : openManage('property')
-                  }
+                  onClick={() => {
+                    setEditMode((current) => !current);
+                    setPreviewRole(role);
+                  }}
                 >
-                  <SlidersHorizontal aria-hidden="true" />
-                  <span>{section === 'manage' ? 'View site' : 'Edit site'}</span>
+                  {editMode ? <Check aria-hidden="true" /> : <Pencil aria-hidden="true" />}
+                  <span>{editMode ? 'Done editing' : 'Edit site'}</span>
                 </button>
               )}
               {canReportWork && (
@@ -325,9 +372,44 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
             </div>
           </header>
 
+          {editMode && role === 'admin' && section !== 'admin' && (
+            <div className="house-edit-mode-bar">
+              <div>
+                <Pencil aria-hidden="true" />
+                <span>
+                  <strong>Site editing is on</strong>
+                  <small>Drag the sidebar to reorder it. Changes save to House.</small>
+                </span>
+              </div>
+              <label>
+                Preview as
+                <select
+                  value={previewRole}
+                  onChange={(event) => setPreviewRole(event.target.value as HouseRole)}
+                >
+                  <option value="admin">Administrator</option>
+                  <option value="manager">Property manager</option>
+                  <option value="owner">Homeowner</option>
+                  <option value="tenant">Tenant</option>
+                </select>
+              </label>
+            </div>
+          )}
+
+          {editMode && currentPage && (
+            <WorkspacePageControls
+              coreFields={currentPage.systemKey ? coreFieldOptions[currentPage.systemKey] : undefined}
+              key={currentPage.id}
+              onRefresh={onRefresh}
+              onRemoved={() => selectSection('today')}
+              page={currentPage}
+            />
+          )}
+
           {section === 'today' && (
             <>
-              <section className="cx-house-record" aria-labelledby="house-property-name">
+              {showCore('property_cover') && (
+                <section className="cx-house-record" aria-labelledby="house-property-name">
                 {heroPhoto ? (
                   <img src={heroPhoto.signedUrl} alt={heroPhoto.caption ?? 'Property photograph'} />
                 ) : (
@@ -362,11 +444,15 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                 >
                   Open property <ChevronRight aria-hidden="true" />
                 </button>
-              </section>
+                </section>
+              )}
 
               <div className="cx-content-grid">
-                <section className="cx-ledger-section" aria-labelledby="house-attention-title">
-                  <div className="cx-section-heading">
+                {(showCore('attention_queue') || showCore('recent_activity')) && (
+                  <section className="cx-ledger-section" aria-labelledby="house-attention-title">
+                  {showCore('attention_queue') && (
+                    <>
+                      <div className="cx-section-heading">
                     <div>
                       <p className="cx-kicker">Your queue</p>
                       <h2 id="house-attention-title">Needs attention</h2>
@@ -376,7 +462,7 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                     </span>
                   </div>
 
-                  {activeWork.length === 0 ? (
+                      {activeWork.length === 0 ? (
                     <div className="house-empty-ledger">
                       <span><Check aria-hidden="true" /></span>
                       <div>
@@ -416,9 +502,13 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                         </button>
                       ))}
                     </div>
+                      )}
+                    </>
                   )}
 
-                  <div className="cx-section-heading cx-activity-heading">
+                  {showCore('recent_activity') && (
+                    <>
+                      <div className="cx-section-heading cx-activity-heading">
                     <div>
                       <p className="cx-kicker">House ledger</p>
                       <h2>Recent activity</h2>
@@ -432,7 +522,7 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                     </button>
                   </div>
 
-                  <ol className="cx-activity-list">
+                      <ol className="cx-activity-list">
                     {data.recovery && (
                       <li>
                         <span className="cx-activity-icon"><ReceiptText aria-hidden="true" /></span>
@@ -468,11 +558,16 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                         <time>Drive</time>
                       </li>
                     )}
-                  </ol>
-                </section>
+                      </ol>
+                    </>
+                  )}
+                  </section>
+                )}
 
-                <aside className="cx-side-stack" aria-label="Property summary">
-                  <section className="cx-summary-panel">
+                {(showCore('money_summary') || showCore('data_confidence')) && (
+                  <aside className="cx-side-stack" aria-label="Property summary">
+                  {showCore('money_summary') && (
+                    <section className="cx-summary-panel">
                     <div className="cx-panel-heading">
                       <div>
                         <p className="cx-kicker">Current record</p>
@@ -489,7 +584,7 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                         <dt>Monthly utilities</dt>
                         <dd>{formatCurrency(data.lease?.monthlyUtilities ?? null)}</dd>
                       </div>
-                      {role !== 'tenant' && (
+                      {previewRole !== 'tenant' && (
                         <div>
                           <dt>Recovered property value</dt>
                           <dd>{formatCurrency(data.property.currentMarketValue)}</dd>
@@ -503,9 +598,11 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                     >
                       Open ledger <ChevronRight aria-hidden="true" />
                     </button>
-                  </section>
+                    </section>
+                  )}
 
-                  <section className="house-record-note">
+                  {showCore('data_confidence') && (
+                    <section className="house-record-note">
                     <ShieldCheck aria-hidden="true" />
                     <div>
                       <p className="cx-kicker">Data confidence</p>
@@ -515,8 +612,10 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                         projects, and credentials were not imported.
                       </p>
                     </div>
-                  </section>
-                </aside>
+                    </section>
+                  )}
+                  </aside>
+                )}
               </div>
             </>
           )}
@@ -530,13 +629,13 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                   <p>Only real work created in House appears here.</p>
                 </div>
                 <div className="flex flex-wrap items-center justify-end gap-2">
-                  {role === 'admin' && (
+                  {editMode && role === 'admin' && (
                     <button
                       className="house-secondary-button"
                       type="button"
-                      onClick={() => openManage('work')}
+                      onClick={() => openRecordEditor('work')}
                     >
-                      <SlidersHorizontal aria-hidden="true" /> Edit work
+                      <SlidersHorizontal aria-hidden="true" /> Edit records
                     </button>
                   )}
                   {canReportWork && (
@@ -560,12 +659,18 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                       <div>
                         <p className="cx-kicker">{humanStatus(workOrder.category)}</p>
                         <h3>{workOrder.title}</h3>
-                        <p>{workOrder.description || 'No description recorded.'}</p>
+                        {showCore('description') && (
+                          <p>{workOrder.description || 'No description recorded.'}</p>
+                        )}
                       </div>
                       <div className="house-record-meta">
-                        <strong>{humanStatus(workOrder.status)}</strong>
-                        <small>{humanStatus(workOrder.priority)} priority</small>
-                        <ProvenanceBadge verified={workOrder.verified} />
+                        {showCore('status') && <strong>{humanStatus(workOrder.status)}</strong>}
+                        {showCore('priority') && (
+                          <small>{humanStatus(workOrder.priority)} priority</small>
+                        )}
+                        {showCore('provenance') && (
+                          <ProvenanceBadge verified={workOrder.verified} />
+                        )}
                       </div>
                     </article>
                   ))}
@@ -582,13 +687,13 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                   <h2 id="house-people-title">People</h2>
                   <p>Owner, manager, and current tenant household.</p>
                 </div>
-                {role === 'admin' && (
+                {editMode && role === 'admin' && (
                   <button
                     className="house-secondary-button"
                     type="button"
-                    onClick={() => openManage('people')}
+                    onClick={() => openRecordEditor('people')}
                   >
-                    <SlidersHorizontal aria-hidden="true" /> Edit people
+                    <SlidersHorizontal aria-hidden="true" /> Edit records
                   </button>
                 )}
               </div>
@@ -603,9 +708,15 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                         .slice(0, 2)}
                     </span>
                     <h3>{person.displayName}</h3>
-                    <p>{person.email || 'No verified email recorded'}</p>
-                    <p>{person.phone || 'No verified phone recorded'}</p>
-                    <ProvenanceBadge verified={person.verified} />
+                    {showCore('email') && (
+                      <p>{person.email || 'No verified email recorded'}</p>
+                    )}
+                    {showCore('phone') && (
+                      <p>{person.phone || 'No verified phone recorded'}</p>
+                    )}
+                    {showCore('provenance') && (
+                      <ProvenanceBadge verified={person.verified} />
+                    )}
                   </article>
                 ))}
               </div>
@@ -617,33 +728,43 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
               <div className="house-section-header">
                 <div>
                   <p className="cx-kicker">Recorded values</p>
-                  <h2 id="house-money-title">{role === 'tenant' ? 'Payments' : 'Money'}</h2>
+                  <h2 id="house-money-title">{previewRole === 'tenant' ? 'Payments' : 'Money'}</h2>
                   <p>
                     Recovered financial inputs stay visibly unverified until
                     checked against statements.
                   </p>
                 </div>
-                {role === 'admin' && (
+                {editMode && role === 'admin' && (
                   <button
                     className="house-secondary-button"
                     type="button"
-                    onClick={() => openManage('money')}
+                    onClick={() => openRecordEditor('money')}
                   >
-                    <SlidersHorizontal aria-hidden="true" /> Edit money
+                    <SlidersHorizontal aria-hidden="true" /> Edit records
                   </button>
                 )}
               </div>
               <div className="house-financial-grid">
-                <article>
+                {showCore('lease') && (
+                  <article>
                   <p className="cx-kicker">Lease</p>
                   <h3>{formatCurrency(data.lease?.monthlyRent ?? null)} / month</h3>
                   <dl>
-                    <div><dt>Utilities</dt><dd>{formatCurrency(data.lease?.monthlyUtilities ?? null)}</dd></div>
-                    <div><dt>Ledger entries</dt><dd>{data.ledgerEntries.length}</dd></div>
+                    {showCore('utilities') && (
+                      <div><dt>Utilities</dt><dd>{formatCurrency(data.lease?.monthlyUtilities ?? null)}</dd></div>
+                    )}
+                    {showCore('ledger_count') && (
+                      <div><dt>Ledger entries</dt><dd>{data.ledgerEntries.length}</dd></div>
+                    )}
                   </dl>
-                  <ProvenanceBadge verified={data.lease?.verified ?? false} />
-                </article>
-                {data.ownerFinancials && (
+                  {showCore('provenance') && (
+                    <ProvenanceBadge verified={data.lease?.verified ?? false} />
+                  )}
+                  </article>
+                )}
+                {showCore('mortgage') &&
+                  data.ownerFinancials &&
+                  (previewRole === 'admin' || previewRole === 'owner') && (
                   <article>
                     <p className="cx-kicker">Owner-private mortgage inputs</p>
                     <h3>{formatCurrency(data.ownerFinancials.mortgagePrincipal)}</h3>
@@ -652,7 +773,9 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                       <div><dt>Interest rate</dt><dd>{data.ownerFinancials.mortgageInterestRate ?? '—'}%</dd></div>
                       <div><dt>Lender</dt><dd>{data.ownerFinancials.lenderLabel || '—'}</dd></div>
                     </dl>
-                    <ProvenanceBadge verified={data.ownerFinancials.verified} />
+                    {showCore('provenance') && (
+                      <ProvenanceBadge verified={data.ownerFinancials.verified} />
+                    )}
                   </article>
                 )}
               </div>
@@ -676,34 +799,46 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                 </div>
                 <div className="flex flex-wrap items-center justify-end gap-2">
                   <ProvenanceBadge verified={data.property.verified} />
-                  {role === 'admin' && (
+                  {editMode && role === 'admin' && (
                     <button
                       className="house-secondary-button"
                       type="button"
-                      onClick={() => openManage('property')}
+                      onClick={() => openRecordEditor('property')}
                     >
-                      <SlidersHorizontal aria-hidden="true" /> Edit property
+                      <SlidersHorizontal aria-hidden="true" /> Edit records
                     </button>
                   )}
                 </div>
               </div>
 
               <dl className="house-property-facts">
-                <div><dt>Type</dt><dd>{humanStatus(data.property.propertyType ?? 'not recorded')}</dd></div>
-                <div><dt>Built</dt><dd>{data.property.yearBuilt ?? '—'}</dd></div>
-                <div><dt>Bedrooms</dt><dd>{data.property.bedrooms ?? '—'}</dd></div>
-                <div><dt>Bathrooms</dt><dd>{data.property.bathrooms ?? '—'}</dd></div>
-                <div><dt>Interior</dt><dd>{data.property.squareFootage ? `${data.property.squareFootage.toLocaleString()} sq ft` : '—'}</dd></div>
+                {showCore('type') && (
+                  <div><dt>Type</dt><dd>{humanStatus(data.property.propertyType ?? 'not recorded')}</dd></div>
+                )}
+                {showCore('year_built') && (
+                  <div><dt>Built</dt><dd>{data.property.yearBuilt ?? '—'}</dd></div>
+                )}
+                {showCore('bedrooms') && (
+                  <div><dt>Bedrooms</dt><dd>{data.property.bedrooms ?? '—'}</dd></div>
+                )}
+                {showCore('bathrooms') && (
+                  <div><dt>Bathrooms</dt><dd>{data.property.bathrooms ?? '—'}</dd></div>
+                )}
+                {showCore('square_footage') && (
+                  <div><dt>Interior</dt><dd>{data.property.squareFootage ? `${data.property.squareFootage.toLocaleString()} sq ft` : '—'}</dd></div>
+                )}
               </dl>
 
-              <div className="house-section-subhead">
+              {showCore('photos') && (
+                <>
+                  <div className="house-section-subhead">
                 <div>
                   <p className="cx-kicker">Recovered evidence</p>
                   <h3>Property photos</h3>
                 </div>
                 <span>{data.photos.length} private files</span>
               </div>
-              <div className="house-photo-grid">
+                  <div className="house-photo-grid">
                 {data.photos.map((photo) => (
                   <figure key={photo.id}>
                     <img src={photo.signedUrl} alt={photo.caption ?? 'Recovered property photograph'} />
@@ -713,15 +848,19 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                     </figcaption>
                   </figure>
                 ))}
-              </div>
+                  </div>
+                </>
+              )}
 
-              <div className="house-section-subhead">
+              {showCore('documents') && (
+                <>
+                  <div className="house-section-subhead">
                 <div>
                   <p className="cx-kicker">Lease and files</p>
                   <h3>Documents</h3>
                 </div>
               </div>
-              <div className="house-document-list">
+                  <div className="house-document-list">
                 {data.documents.map((document) => (
                   <article key={document.id}>
                     <FileText aria-hidden="true" />
@@ -739,7 +878,9 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                     )}
                   </article>
                 ))}
-              </div>
+                  </div>
+                </>
+              )}
             </section>
           )}
 
@@ -760,11 +901,33 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
             </section>
           )}
 
-          {section === 'manage' && role === 'admin' && (
-            <HouseAdmin
+          {section.startsWith('page:') && currentPage && (
+            <section className="house-section" aria-labelledby={`custom-page-${currentPage.id}`}>
+              <div className="house-section-header">
+                <div>
+                  <p className="cx-kicker">Private workspace page</p>
+                  <h2 id={`custom-page-${currentPage.id}`}>{currentPage.label}</h2>
+                  <p>
+                    {editMode
+                      ? 'Add the details you want this audience to see.'
+                      : 'Shared information for this property.'}
+                  </p>
+                </div>
+                {(() => {
+                  const Icon = workspaceIcon(currentPage.icon);
+                  return <Icon className="house-custom-page-icon" aria-hidden="true" />;
+                })()}
+              </div>
+            </section>
+          )}
+
+          {currentPage && (
+            <WorkspaceCustomFields
               data={data}
-              initialPanel={managePanel}
+              editMode={editMode}
               onRefresh={onRefresh}
+              page={currentPage}
+              previewRole={previewRole}
             />
           )}
 
@@ -850,13 +1013,35 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                     {passwordMessage && <p role="status">{passwordMessage}</p>}
                   </div>
                 </form>
+                {role === 'admin' && (
+                  <section className="house-password-card">
+                    <ShieldCheck aria-hidden="true" />
+                    <div>
+                      <h3>Access & security</h3>
+                      <p>
+                        Create logins, change roles, suspend access, or issue a
+                        temporary password.
+                      </p>
+                      <button
+                        className="house-secondary-button"
+                        type="button"
+                        onClick={() => openRecordEditor('people', 'access')}
+                      >
+                        <KeyRound aria-hidden="true" /> Manage access
+                      </button>
+                    </div>
+                  </section>
+                )}
               </div>
             </section>
           )}
         </main>
 
         <nav className="cx-mobile-nav" aria-label="Mobile navigation">
-          {navItems.slice(0, 5).map(({ key, label, icon: Icon }) => (
+          {navPages.slice(0, 5).map((page) => {
+            const key = workspacePageRoute(page);
+            const Icon = workspaceIcon(page.icon);
+            return (
             <button
               key={key}
               className={section === key ? 'cx-mobile-active' : ''}
@@ -864,9 +1049,10 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
               onClick={() => selectSection(key)}
             >
               <Icon aria-hidden="true" />
-              <span>{label.replace(' & approvals', '')}</span>
+              <span>{page.label}</span>
             </button>
-          ))}
+            );
+          })}
         </nav>
       </div>
 
@@ -877,15 +1063,56 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
           </button>
           <div className="house-mobile-menu-brand"><Home aria-hidden="true" /> House</div>
           <nav>
-            {navItems.map(({ key, label, icon: Icon }) => (
-              <button key={key} type="button" onClick={() => selectSection(key)}>
-                <Icon aria-hidden="true" /> {label}
-              </button>
-            ))}
+            {navPages.map((page) => {
+              const key = workspacePageRoute(page);
+              const Icon = workspaceIcon(page.icon);
+              return (
+                <button key={key} type="button" onClick={() => selectSection(key)}>
+                  <Icon aria-hidden="true" /> {page.label}
+                </button>
+              );
+            })}
             <button type="button" onClick={() => selectSection('admin')}>
               <Settings aria-hidden="true" /> Account & settings
             </button>
           </nav>
+        </div>
+      )}
+
+      {recordEditorPanel && role === 'admin' && (
+        <div className="house-record-editor-backdrop" role="presentation">
+          <aside
+            className="house-record-editor"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="record-editor-title"
+          >
+            <header className="house-record-editor-header">
+              <div>
+                <p className="cx-kicker">Structured property data</p>
+                <h2 id="record-editor-title">Edit records</h2>
+                <p>
+                  These values power the live cards and summaries on this page.
+                </p>
+              </div>
+              <button
+                type="button"
+                aria-label="Close record editor"
+                onClick={() => setRecordEditorPanel(null)}
+              >
+                <X aria-hidden="true" />
+              </button>
+            </header>
+            <HouseAdmin
+              data={data}
+              embedded
+              initialPanel={recordEditorPanel}
+              onRefresh={onRefresh}
+              peopleMode={
+                recordEditorPanel === 'people' ? recordPeopleMode : 'all'
+              }
+            />
+          </aside>
         </div>
       )}
 

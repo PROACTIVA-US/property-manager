@@ -96,6 +96,20 @@ const data: HouseWorkspaceData = {
       status: 'active',
     },
   ],
+  workspacePages: [
+    {
+      id: 'page-today',
+      systemKey: 'today',
+      slug: 'today',
+      label: 'Today',
+      icon: 'home',
+      sortOrder: 0,
+      visibleRoles: ['admin', 'manager', 'owner', 'tenant'],
+      isVisible: true,
+      hiddenCoreFields: [],
+    },
+  ],
+  customFields: [],
   ownerFinancials: null,
   recovery: null,
 };
@@ -138,6 +152,41 @@ describe('HouseAdmin', () => {
       screen.getByRole('heading', { name: 'Work orders' }),
     ).toBeInTheDocument();
     expect(screen.getByText('Repair deck')).toBeInTheDocument();
+  });
+
+  it('keeps contact editing separate from account access controls when embedded', () => {
+    const view = render(
+      <HouseAdmin
+        data={data}
+        embedded
+        initialPanel="people"
+        onRefresh={vi.fn()}
+        peopleMode="contacts"
+      />,
+    );
+
+    expect(
+      screen.getByRole('heading', { name: 'People', level: 3 }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Logins and roles' }),
+    ).not.toBeInTheDocument();
+
+    view.rerender(
+      <HouseAdmin
+        data={data}
+        embedded
+        initialPanel="people"
+        onRefresh={vi.fn()}
+        peopleMode="access"
+      />,
+    );
+    expect(
+      screen.getByRole('heading', { name: 'Logins and roles' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'People', level: 3 }),
+    ).not.toBeInTheDocument();
   });
 
   it('saves property edits and refreshes the live workspace', async () => {

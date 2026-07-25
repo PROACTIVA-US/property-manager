@@ -1282,6 +1282,142 @@ export type Database = {
           },
         ]
       }
+      property_workspace_fields: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          created_by: string | null
+          field_type: string
+          id: string
+          is_visible: boolean
+          label: string
+          page_id: string
+          property_id: string
+          sort_order: number
+          updated_at: string
+          value: string
+          visible_roles: Database["public"]["Enums"]["property_membership_role"][]
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          field_type?: string
+          id?: string
+          is_visible?: boolean
+          label: string
+          page_id: string
+          property_id: string
+          sort_order?: number
+          updated_at?: string
+          value?: string
+          visible_roles?: Database["public"]["Enums"]["property_membership_role"][]
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          field_type?: string
+          id?: string
+          is_visible?: boolean
+          label?: string
+          page_id?: string
+          property_id?: string
+          sort_order?: number
+          updated_at?: string
+          value?: string
+          visible_roles?: Database["public"]["Enums"]["property_membership_role"][]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_workspace_fields_page_fkey"
+            columns: ["page_id", "property_id"]
+            isOneToOne: false
+            referencedRelation: "property_workspace_pages"
+            referencedColumns: ["id", "property_id"]
+          },
+          {
+            foreignKeyName: "property_workspace_fields_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_workspace_fields_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_workspace_pages: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          created_by: string | null
+          hidden_core_fields: string[]
+          icon: string
+          id: string
+          is_visible: boolean
+          label: string
+          property_id: string
+          slug: string
+          sort_order: number
+          system_key: string | null
+          updated_at: string
+          visible_roles: Database["public"]["Enums"]["property_membership_role"][]
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          hidden_core_fields?: string[]
+          icon?: string
+          id?: string
+          is_visible?: boolean
+          label: string
+          property_id: string
+          slug: string
+          sort_order?: number
+          system_key?: string | null
+          updated_at?: string
+          visible_roles?: Database["public"]["Enums"]["property_membership_role"][]
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          hidden_core_fields?: string[]
+          icon?: string
+          id?: string
+          is_visible?: boolean
+          label?: string
+          property_id?: string
+          slug?: string
+          sort_order?: number
+          system_key?: string | null
+          updated_at?: string
+          visible_roles?: Database["public"]["Enums"]["property_membership_role"][]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_workspace_pages_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_workspace_pages_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       property_memberships: {
         Row: {
           activated_at: string | null

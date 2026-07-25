@@ -54,8 +54,10 @@ export type HouseAdminPanel =
 
 interface HouseAdminProps {
   data: HouseWorkspaceData;
+  embedded?: boolean;
   initialPanel?: HouseAdminPanel;
   onRefresh: () => Promise<void>;
+  peopleMode?: 'all' | 'contacts' | 'access';
 }
 
 const panelItems = [
@@ -227,8 +229,10 @@ function VisibilitySelect({
 
 export default function HouseAdmin({
   data,
+  embedded = false,
   initialPanel = 'property',
   onRefresh,
+  peopleMode = 'all',
 }: HouseAdminProps) {
   const [panel, setPanel] = useState<HouseAdminPanel>(initialPanel);
   const [busyKey, setBusyKey] = useState('');
@@ -619,10 +623,12 @@ export default function HouseAdmin({
 
   return (
     <section
-      className="mx-auto w-full max-w-[1120px] [color-scheme:light]"
-      aria-labelledby="house-manage-title"
+      className={`mx-auto w-full [color-scheme:light]${embedded ? '' : ' max-w-[1120px]'}`}
+      aria-label={embedded ? 'Edit House records' : undefined}
+      aria-labelledby={embedded ? undefined : 'house-manage-title'}
     >
-      <div className="mb-5 flex flex-col gap-4 rounded-2xl border border-[#d7d0c3] bg-[#fffdf7] p-5 shadow-sm md:flex-row md:items-center md:justify-between md:p-6">
+      {!embedded && (
+        <div className="mb-5 flex flex-col gap-4 rounded-2xl border border-[#d7d0c3] bg-[#fffdf7] p-5 shadow-sm md:flex-row md:items-center md:justify-between md:p-6">
         <div>
           <p className="cx-kicker">Administrator editing</p>
           <h2
@@ -640,7 +646,8 @@ export default function HouseAdmin({
           <ShieldCheck className="size-4" aria-hidden="true" />
           Only administrators see this
         </span>
-      </div>
+        </div>
+      )}
 
       {notice && (
         <div
@@ -660,10 +667,11 @@ export default function HouseAdmin({
         </div>
       )}
 
-      <nav
-        className="mb-5 grid grid-cols-2 gap-2 lg:grid-cols-5"
-        aria-label="Manage House sections"
-      >
+      {!embedded && (
+        <nav
+          className="mb-5 grid grid-cols-2 gap-2 lg:grid-cols-5"
+          aria-label="Manage House sections"
+        >
         {panelItems.map(({ key, label, description, icon: Icon }) => (
           <button
             className={`group min-h-24 rounded-2xl border p-3.5 text-left transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-[#2f5c49]/15 ${
@@ -691,7 +699,8 @@ export default function HouseAdmin({
             </small>
           </button>
         ))}
-      </nav>
+        </nav>
+      )}
 
       <div className="grid gap-5">
         {panel === 'property' && (
@@ -883,7 +892,8 @@ export default function HouseAdmin({
 
         {panel === 'people' && (
           <>
-            <EditorCard
+            {peopleMode !== 'access' && (
+              <EditorCard
               icon={<Users aria-hidden="true" />}
               title="People"
               description="Edit the names and contact details shown throughout House."
@@ -965,9 +975,12 @@ export default function HouseAdmin({
                   </details>
                 ))}
               </div>
-            </EditorCard>
+              </EditorCard>
+            )}
 
-            <EditorCard
+            {peopleMode !== 'contacts' && (
+              <>
+                <EditorCard
               icon={<KeyRound aria-hidden="true" />}
               title="Logins and roles"
               description="Control who can sign in, what they can see, and issue a temporary password."
@@ -1083,9 +1096,9 @@ export default function HouseAdmin({
                   </details>
                 ))}
               </div>
-            </EditorCard>
+                </EditorCard>
 
-            <EditorCard
+                <EditorCard
               icon={<UserPlus aria-hidden="true" />}
               title="Add a login"
               description="Create a new account, assign its property role, and connect tenants to the active household."
@@ -1150,7 +1163,9 @@ export default function HouseAdmin({
                   </button>
                 </div>
               </form>
-            </EditorCard>
+                </EditorCard>
+              </>
+            )}
           </>
         )}
 
