@@ -1,7 +1,7 @@
 // PropertyManager Service Worker
-const CACHE_NAME = 'propertymanager-v1';
-const STATIC_CACHE = 'propertymanager-static-v1';
-const DYNAMIC_CACHE = 'propertymanager-dynamic-v1';
+const CACHE_NAME = 'house-v2';
+const STATIC_CACHE = 'house-static-v2';
+const DYNAMIC_CACHE = 'house-dynamic-v2';
 
 // Static assets to cache on install
 const STATIC_ASSETS = [

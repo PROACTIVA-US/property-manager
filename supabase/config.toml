@@ -138,9 +138,26 @@ file_size_limit = "50MiB"
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "http://localhost:5180"
+site_url = "https://house.wildvine.net"
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["http://localhost:5180/property/"]
+additional_redirect_urls = [
+  "https://house.wildvine.net/auth/callback",
+  "https://wildvine.net/Shanie/auth/callback",
+  "https://house.wildvine.net/property/",
+  "https://house.wildvine.net/property/rebuild",
+  "https://house.wildvine.net/property/rebuild?mode=reset",
+  "https://property-manager-beige.vercel.app/property/",
+  "https://property-manager-beige.vercel.app/property/rebuild",
+  "https://property-manager-beige.vercel.app/property/rebuild?mode=reset",
+  "http://localhost:5180/property/",
+  "http://localhost:5180/property/rebuild",
+  "http://localhost:5180/property/rebuild?mode=reset",
+  "http://localhost:5180/auth/callback",
+  "http://localhost:5180/Shanie/auth/callback",
+  "http://127.0.0.1:5180/property/",
+  "http://127.0.0.1:5180/property/rebuild",
+  "http://127.0.0.1:5180/property/rebuild?mode=reset",
+]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # Path to JWT signing key. DO NOT commit your signing keys file to git.
@@ -215,6 +232,10 @@ otp_expiry = 3600
 # [auth.email.template.invite]
 # subject = "You have been invited"
 # content_path = "./supabase/templates/invite.html"
+
+[auth.email.template.recovery]
+subject = "Reset your House password"
+content_path = "./supabase/templates/recovery.html"
 
 [auth.sms]
 # Allow/disallow new user signups via SMS to your project.
@@ -298,7 +319,7 @@ email_optional = false
 
 [auth.external.google]
 enabled = true
-client_id = "env(GOOGLE_OAUTH_CLIENT_ID)"
+client_id = "190356591245-0p8fckulg96lppjgtdk6gccfd6a9i3aa.apps.googleusercontent.com"
 # DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
 secret = "env(GOOGLE_OAUTH_CLIENT_SECRET)"
 # Overrides the default auth redirectUrl.
