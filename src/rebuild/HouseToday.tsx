@@ -20,12 +20,15 @@ import {
   ReceiptText,
   Settings,
   ShieldCheck,
+  SlidersHorizontal,
+  UserRound,
   Users,
   Wrench,
   X,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { createHouseWorkOrder } from './data';
+import { createHouseWorkOrder, updateHouseProfile } from './data';
+import HouseAdmin, { type HouseAdminPanel } from './HouseAdmin';
 import type {
   HouseSection,
   HouseWorkspaceData,
@@ -76,6 +79,9 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordBusy, setPasswordBusy] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState('');
+  const [profileBusy, setProfileBusy] = useState(false);
+  const [profileMessage, setProfileMessage] = useState('');
+  const [managePanel, setManagePanel] = useState<HouseAdminPanel>('property');
 
   const role = data.membership.role;
   const canManage = role === 'admin' || role === 'manager';
@@ -97,6 +103,7 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
     { key: 'money' as const, label: role === 'tenant' ? 'Payments' : 'Money', icon: CircleDollarSign },
     { key: 'property' as const, label: role === 'tenant' ? 'Lease' : 'Property', icon: Building2 },
     { key: 'inbox' as const, label: 'Inbox', icon: Inbox },
+    { key: 'manage' as const, label: 'Manage House', icon: SlidersHorizontal, roles: ['admin'] },
   ];
   const navItems = allNavItems.filter(
     (item) => !item.roles || item.roles.includes(role),
@@ -106,6 +113,11 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
     setSection(nextSection);
     setMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const openManage = (nextPanel: HouseAdminPanel) => {
+    setManagePanel(nextPanel);
+    selectSection('manage');
   };
 
   const handleWorkOrder = async (event: FormEvent<HTMLFormElement>) => {
@@ -159,6 +171,28 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
     setPassword('');
     setConfirmPassword('');
     setPasswordMessage('Password updated.');
+  };
+
+  const handleProfileUpdate = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setProfileBusy(true);
+    setProfileMessage('');
+    const form = new FormData(event.currentTarget);
+    try {
+      await updateHouseProfile({
+        id: data.profile.id,
+        displayName: String(form.get('displayName') ?? '').trim(),
+        phone: String(form.get('phone') ?? '').trim(),
+      });
+      await onRefresh();
+      setProfileMessage('Account details updated.');
+    } catch (error) {
+      setProfileMessage(
+        error instanceof Error ? error.message : 'Account details could not be saved.',
+      );
+    } finally {
+      setProfileBusy(false);
+    }
   };
 
   return (
@@ -264,6 +298,20 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
               >
                 <Bell aria-hidden="true" />
               </button>
+              {role === 'admin' && (
+                <button
+                  className="house-secondary-button"
+                  type="button"
+                  onClick={() =>
+                    section === 'manage'
+                      ? selectSection('today')
+                      : openManage('property')
+                  }
+                >
+                  <SlidersHorizontal aria-hidden="true" />
+                  <span>{section === 'manage' ? 'View site' : 'Edit site'}</span>
+                </button>
+              )}
               {canReportWork && (
                 <button
                   className="cx-primary-button"
@@ -481,11 +529,22 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                   <h2 id="house-work-title">Work orders</h2>
                   <p>Only real work created in House appears here.</p>
                 </div>
-                {canReportWork && (
-                  <button className="cx-primary-button" type="button" onClick={() => setWorkOrderOpen(true)}>
-                    <Plus aria-hidden="true" /> <span>{canManage ? 'New work order' : 'Report an issue'}</span>
-                  </button>
-                )}
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  {role === 'admin' && (
+                    <button
+                      className="house-secondary-button"
+                      type="button"
+                      onClick={() => openManage('work')}
+                    >
+                      <SlidersHorizontal aria-hidden="true" /> Edit work
+                    </button>
+                  )}
+                  {canReportWork && (
+                    <button className="cx-primary-button" type="button" onClick={() => setWorkOrderOpen(true)}>
+                      <Plus aria-hidden="true" /> <span>{canManage ? 'New work order' : 'Report an issue'}</span>
+                    </button>
+                  )}
+                </div>
               </div>
               {data.workOrders.length === 0 ? (
                 <div className="house-empty-state">
@@ -523,6 +582,15 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                   <h2 id="house-people-title">People</h2>
                   <p>Owner, manager, and current tenant household.</p>
                 </div>
+                {role === 'admin' && (
+                  <button
+                    className="house-secondary-button"
+                    type="button"
+                    onClick={() => openManage('people')}
+                  >
+                    <SlidersHorizontal aria-hidden="true" /> Edit people
+                  </button>
+                )}
               </div>
               <div className="house-people-grid">
                 {data.people.map((person) => (
@@ -555,6 +623,15 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                     checked against statements.
                   </p>
                 </div>
+                {role === 'admin' && (
+                  <button
+                    className="house-secondary-button"
+                    type="button"
+                    onClick={() => openManage('money')}
+                  >
+                    <SlidersHorizontal aria-hidden="true" /> Edit money
+                  </button>
+                )}
               </div>
               <div className="house-financial-grid">
                 <article>
@@ -597,7 +674,18 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                   <h2 id="house-property-title">{data.property.nickname}</h2>
                   <p>{data.property.address}</p>
                 </div>
-                <ProvenanceBadge verified={data.property.verified} />
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <ProvenanceBadge verified={data.property.verified} />
+                  {role === 'admin' && (
+                    <button
+                      className="house-secondary-button"
+                      type="button"
+                      onClick={() => openManage('property')}
+                    >
+                      <SlidersHorizontal aria-hidden="true" /> Edit property
+                    </button>
+                  )}
+                </div>
               </div>
 
               <dl className="house-property-facts">
@@ -642,9 +730,9 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                       <p>{humanStatus(document.category)}</p>
                     </div>
                     <ProvenanceBadge verified={document.verified} />
-                    {document.externalUrl ? (
-                      <a href={document.externalUrl} target="_blank" rel="noreferrer">
-                        Open in Drive <ChevronRight aria-hidden="true" />
+                    {document.externalUrl || document.signedUrl ? (
+                      <a href={document.externalUrl ?? document.signedUrl ?? '#'} target="_blank" rel="noreferrer">
+                        Open document <ChevronRight aria-hidden="true" />
                       </a>
                     ) : (
                       <span>File unavailable</span>
@@ -672,6 +760,14 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
             </section>
           )}
 
+          {section === 'manage' && role === 'admin' && (
+            <HouseAdmin
+              data={data}
+              initialPanel={managePanel}
+              onRefresh={onRefresh}
+            />
+          )}
+
           {section === 'admin' && (
             <section className="house-section" aria-labelledby="house-account-title">
               <div className="house-section-header">
@@ -684,38 +780,77 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                   <LogOut aria-hidden="true" /> Sign out
                 </button>
               </div>
-              <form className="house-password-card" onSubmit={handlePasswordUpdate}>
-                <KeyRound aria-hidden="true" />
-                <div>
-                  <h3>Change password</h3>
-                  <p>Use at least 6 characters. Property staff cannot view it.</p>
-                  <label>
-                    New password
-                    <input
-                      autoComplete="new-password"
-                      type="password"
-                      minLength={6}
-                      value={password}
-                      onChange={(event) => setPassword(event.target.value)}
-                    />
-                  </label>
-                  <label>
-                    Confirm password
-                    <input
-                      autoComplete="new-password"
-                      type="password"
-                      minLength={6}
-                      value={confirmPassword}
-                      onChange={(event) => setConfirmPassword(event.target.value)}
-                    />
-                  </label>
-                  <button className="cx-primary-button" disabled={passwordBusy} type="submit">
-                    {passwordBusy && <Loader2 className="house-spin" aria-hidden="true" />}
-                    <span>Update password</span>
-                  </button>
-                  {passwordMessage && <p role="status">{passwordMessage}</p>}
-                </div>
-              </form>
+              <div className="grid gap-4">
+                <form className="house-password-card" onSubmit={handleProfileUpdate}>
+                  <UserRound aria-hidden="true" />
+                  <div>
+                    <h3>Your profile</h3>
+                    <p>Your name appears in the workspace. The login email is shown for reference.</p>
+                    <label>
+                      Display name
+                      <input
+                        defaultValue={data.profile.displayName}
+                        name="displayName"
+                        required
+                      />
+                    </label>
+                    <label>
+                      Login email
+                      <input
+                        disabled
+                        type="email"
+                        value={data.profile.email}
+                      />
+                    </label>
+                    <label>
+                      Phone
+                      <input
+                        defaultValue={data.profile.phone ?? ''}
+                        name="phone"
+                        type="tel"
+                      />
+                    </label>
+                    <button className="cx-primary-button" disabled={profileBusy} type="submit">
+                      {profileBusy && <Loader2 className="house-spin" aria-hidden="true" />}
+                      <span>Save profile</span>
+                    </button>
+                    {profileMessage && <p role="status">{profileMessage}</p>}
+                  </div>
+                </form>
+
+                <form className="house-password-card" onSubmit={handlePasswordUpdate}>
+                  <KeyRound aria-hidden="true" />
+                  <div>
+                    <h3>Change password</h3>
+                    <p>Use at least 6 characters. Property staff cannot view it.</p>
+                    <label>
+                      New password
+                      <input
+                        autoComplete="new-password"
+                        type="password"
+                        minLength={6}
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                      />
+                    </label>
+                    <label>
+                      Confirm password
+                      <input
+                        autoComplete="new-password"
+                        type="password"
+                        minLength={6}
+                        value={confirmPassword}
+                        onChange={(event) => setConfirmPassword(event.target.value)}
+                      />
+                    </label>
+                    <button className="cx-primary-button" disabled={passwordBusy} type="submit">
+                      {passwordBusy && <Loader2 className="house-spin" aria-hidden="true" />}
+                      <span>Update password</span>
+                    </button>
+                    {passwordMessage && <p role="status">{passwordMessage}</p>}
+                  </div>
+                </form>
+              </div>
             </section>
           )}
         </main>
