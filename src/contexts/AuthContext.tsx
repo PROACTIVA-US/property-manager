@@ -75,14 +75,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Handle auth state changes
   useEffect(() => {
-    // Set up Supabase auth listener
-    const { data: { subscription } } = onAuthStateChange(async (_event, session: Session | null) => {
+    let active = true;
+    let authGeneration = 0;
+
+    const applySession = async (
+      session: Session | null,
+      generation: number,
+    ) => {
       if (session?.user) {
-        // Enforce email allowlist
         const email = session.user.email || '';
         if (!isEmailAllowed(email)) {
           console.warn('Access denied for:', email);
           await signOut();
+          if (!active || generation !== authGeneration) return;
           setUser(null);
           setProfile(null);
           setLoading(false);
@@ -90,33 +95,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         const userProfile = await fetchProfile(session.user.id);
-
+        if (!active || generation !== authGeneration) return;
         setProfile(userProfile);
         setUser(mapSupabaseUser(session.user, userProfile));
       } else {
+        if (!active || generation !== authGeneration) return;
         setUser(null);
         setProfile(null);
       }
       setLoading(false);
+    };
+
+    // Set up Supabase auth listener
+    const { data: { subscription } } = onAuthStateChange((_event, session: Session | null) => {
+      const generation = ++authGeneration;
+      // Supabase holds an internal auth lock while this callback runs. Defer
+      // profile queries and sign-out work until after the callback returns.
+      window.setTimeout(() => {
+        if (active) void applySession(session, generation);
+      }, 0);
     });
 
     // Check current session on mount
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        const email = session.user.email || '';
-        if (!isEmailAllowed(email)) {
-          await signOut();
-          setLoading(false);
-          return;
-        }
-        const userProfile = await fetchProfile(session.user.id);
-        setProfile(userProfile);
-        setUser(mapSupabaseUser(session.user, userProfile));
-      }
-      setLoading(false);
+    void supabase.auth.getSession().then(({ data: { session } }) => {
+      const generation = ++authGeneration;
+      void applySession(session, generation);
     });
 
     return () => {
+      active = false;
       subscription.unsubscribe();
     };
   }, []);

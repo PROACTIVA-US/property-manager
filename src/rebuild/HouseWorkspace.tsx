@@ -24,6 +24,7 @@ function clearRecoveryMode() {
 export default function HouseWorkspace() {
   const [session, setSession] = useState<Session | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [authError, setAuthError] = useState('');
   const [workspace, setWorkspace] = useState<HouseWorkspaceData | null>(null);
   const [workspaceLoading, setWorkspaceLoading] = useState(false);
   const [workspaceError, setWorkspaceError] = useState('');
@@ -34,8 +35,16 @@ export default function HouseWorkspace() {
   useEffect(() => {
     document.title = 'House · Private property workspace';
 
+    const authTimeout = window.setTimeout(() => {
+      setAuthLoading(false);
+      setAuthError(
+        'The secure session check took too long. Reload to try the recovery link again.',
+      );
+    }, 10_000);
+
     void supabase.auth.getSession().then(({ data, error }) => {
-      if (error) setWorkspaceError(error.message);
+      window.clearTimeout(authTimeout);
+      if (error) setAuthError(error.message);
       setSession(data.session);
       setAuthLoading(false);
     });
@@ -43,8 +52,10 @@ export default function HouseWorkspace() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      window.clearTimeout(authTimeout);
       setSession(nextSession);
       setAuthLoading(false);
+      setAuthError('');
       if (event === 'PASSWORD_RECOVERY') setPasswordRecovery(true);
       if (event === 'SIGNED_OUT') {
         setWorkspace(null);
@@ -53,7 +64,10 @@ export default function HouseWorkspace() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      window.clearTimeout(authTimeout);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const refreshWorkspace = useCallback(async () => {
@@ -85,6 +99,24 @@ export default function HouseWorkspace() {
         <Loader2 className="house-spin" aria-hidden="true" />
         <h1>Opening House</h1>
         <p>Checking your private session…</p>
+      </main>
+    );
+  }
+
+  if (authError && !session) {
+    return (
+      <main className="house-gate-state house-gate-error">
+        <span className="house-gate-mark"><AlertTriangle aria-hidden="true" /></span>
+        <h1>The secure session stalled</h1>
+        <p>{authError}</p>
+        <div className="house-gate-actions">
+          <button type="button" onClick={() => window.location.reload()}>
+            <RefreshCw aria-hidden="true" /> Reload recovery
+          </button>
+          <button type="button" onClick={() => setAuthError('')}>
+            Continue to sign in
+          </button>
+        </div>
       </main>
     );
   }
