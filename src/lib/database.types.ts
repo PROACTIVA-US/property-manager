@@ -77,6 +77,41 @@ export type Database = {
           },
         ]
       }
+      contact_submissions: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          message: string
+          name: string
+          teacher_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          message: string
+          name: string
+          teacher_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          teacher_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_submissions_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teacher_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           category: string | null
@@ -215,6 +250,291 @@ export type Database = {
           },
         ]
       }
+      household_members: {
+        Row: {
+          created_at: string
+          household_id: string
+          is_primary_contact: boolean
+          person_id: string
+          profile_id: string | null
+          relationship: string | null
+        }
+        Insert: {
+          created_at?: string
+          household_id: string
+          is_primary_contact?: boolean
+          person_id: string
+          profile_id?: string | null
+          relationship?: string | null
+        }
+        Update: {
+          created_at?: string
+          household_id?: string
+          is_primary_contact?: boolean
+          person_id?: string
+          profile_id?: string | null
+          relationship?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "household_members_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "household_members_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "household_members_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      households: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          property_id: string
+          source_provenance: Json
+          status: string
+          updated_at: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          property_id: string
+          source_provenance?: Json
+          status?: string
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          property_id?: string
+          source_provenance?: Json
+          status?: string
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "households_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lease_parties: {
+        Row: {
+          created_at: string
+          lease_id: string
+          party_role: string
+          person_id: string
+          signature_status: string
+          signed_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          lease_id: string
+          party_role: string
+          person_id: string
+          signature_status?: string
+          signed_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          lease_id?: string
+          party_role?: string
+          person_id?: string
+          signature_status?: string
+          signed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lease_parties_lease_id_fkey"
+            columns: ["lease_id"]
+            isOneToOne: false
+            referencedRelation: "leases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lease_parties_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leases: {
+        Row: {
+          created_at: string
+          ends_on: string | null
+          household_id: string
+          id: string
+          monthly_rent: number
+          monthly_utilities: number
+          notes: string | null
+          property_id: string
+          security_deposit: number | null
+          source_provenance: Json
+          starts_on: string
+          status: Database["public"]["Enums"]["lease_status"]
+          updated_at: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          ends_on?: string | null
+          household_id: string
+          id?: string
+          monthly_rent: number
+          monthly_utilities?: number
+          notes?: string | null
+          property_id: string
+          security_deposit?: number | null
+          source_provenance?: Json
+          starts_on: string
+          status?: Database["public"]["Enums"]["lease_status"]
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          ends_on?: string | null
+          household_id?: string
+          id?: string
+          monthly_rent?: number
+          monthly_utilities?: number
+          notes?: string | null
+          property_id?: string
+          security_deposit?: number | null
+          source_provenance?: Json
+          starts_on?: string
+          status?: Database["public"]["Enums"]["lease_status"]
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leases_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leases_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ledger_entries: {
+        Row: {
+          amount: number
+          correction_of: string | null
+          created_at: string
+          created_by: string | null
+          description: string
+          effective_on: string
+          household_id: string | null
+          id: string
+          kind: Database["public"]["Enums"]["ledger_entry_kind"]
+          property_id: string
+          source_provenance: Json
+          status: string
+          verified_at: string | null
+          work_order_id: string | null
+        }
+        Insert: {
+          amount: number
+          correction_of?: string | null
+          created_at?: string
+          created_by?: string | null
+          description: string
+          effective_on: string
+          household_id?: string | null
+          id?: string
+          kind: Database["public"]["Enums"]["ledger_entry_kind"]
+          property_id: string
+          source_provenance?: Json
+          status?: string
+          verified_at?: string | null
+          work_order_id?: string | null
+        }
+        Update: {
+          amount?: number
+          correction_of?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          effective_on?: string
+          household_id?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["ledger_entry_kind"]
+          property_id?: string
+          source_provenance?: Json
+          status?: string
+          verified_at?: string | null
+          work_order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_entries_correction_of_fkey"
+            columns: ["correction_of"]
+            isOneToOne: false
+            referencedRelation: "ledger_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       message_threads: {
         Row: {
           created_at: string | null
@@ -343,6 +663,113 @@ export type Database = {
           },
         ]
       }
+      owner_property_financials: {
+        Row: {
+          annual_income: number | null
+          capital_improvements_cost: number | null
+          depreciable_value: number | null
+          estimated_selling_costs: number | null
+          lender_label: string | null
+          loan_started_on: string | null
+          loan_term_years: number | null
+          mortgage_interest_rate: number | null
+          mortgage_monthly_escrow: number | null
+          mortgage_monthly_principal_interest: number | null
+          mortgage_principal: number | null
+          mortgage_total_monthly_payment: number | null
+          original_loan_amount: number | null
+          property_id: string
+          source_provenance: Json
+          state_income_tax_rate: number | null
+          updated_at: string
+          verified_at: string | null
+        }
+        Insert: {
+          annual_income?: number | null
+          capital_improvements_cost?: number | null
+          depreciable_value?: number | null
+          estimated_selling_costs?: number | null
+          lender_label?: string | null
+          loan_started_on?: string | null
+          loan_term_years?: number | null
+          mortgage_interest_rate?: number | null
+          mortgage_monthly_escrow?: number | null
+          mortgage_monthly_principal_interest?: number | null
+          mortgage_principal?: number | null
+          mortgage_total_monthly_payment?: number | null
+          original_loan_amount?: number | null
+          property_id: string
+          source_provenance?: Json
+          state_income_tax_rate?: number | null
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Update: {
+          annual_income?: number | null
+          capital_improvements_cost?: number | null
+          depreciable_value?: number | null
+          estimated_selling_costs?: number | null
+          lender_label?: string | null
+          loan_started_on?: string | null
+          loan_term_years?: number | null
+          mortgage_interest_rate?: number | null
+          mortgage_monthly_escrow?: number | null
+          mortgage_monthly_principal_interest?: number | null
+          mortgage_principal?: number | null
+          mortgage_total_monthly_payment?: number | null
+          original_loan_amount?: number | null
+          property_id?: string
+          source_provenance?: Json
+          state_income_tax_rate?: number | null
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "owner_property_financials_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: true
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      people: {
+        Row: {
+          created_at: string
+          display_name: string
+          email: string | null
+          id: string
+          notes: string | null
+          phone: string | null
+          source_provenance: Json
+          updated_at: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          email?: string | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          source_provenance?: Json
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          email?: string | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          source_provenance?: Json
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -350,6 +777,7 @@ export type Database = {
           display_name: string
           email: string
           id: string
+          person_id: string | null
           phone: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string | null
@@ -360,6 +788,7 @@ export type Database = {
           display_name: string
           email: string
           id: string
+          person_id?: string | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
@@ -370,11 +799,20 @@ export type Database = {
           display_name?: string
           email?: string
           id?: string
+          person_id?: string | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "people"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       project_attachments: {
         Row: {
@@ -679,15 +1117,18 @@ export type Database = {
           mortgage_interest_rate: number | null
           mortgage_monthly_payment: number | null
           mortgage_principal: number | null
+          nickname: string | null
           owner_id: string | null
           pm_id: string | null
           property_type: Database["public"]["Enums"]["property_type"] | null
           purchase_date: string | null
           purchase_price: number | null
           security_deposit: number | null
+          source_provenance: Json
           square_footage: number | null
           unit_number: string | null
           updated_at: string | null
+          verified_at: string | null
           year_built: number | null
         }
         Insert: {
@@ -705,15 +1146,18 @@ export type Database = {
           mortgage_interest_rate?: number | null
           mortgage_monthly_payment?: number | null
           mortgage_principal?: number | null
+          nickname?: string | null
           owner_id?: string | null
           pm_id?: string | null
           property_type?: Database["public"]["Enums"]["property_type"] | null
           purchase_date?: string | null
           purchase_price?: number | null
           security_deposit?: number | null
+          source_provenance?: Json
           square_footage?: number | null
           unit_number?: string | null
           updated_at?: string | null
+          verified_at?: string | null
           year_built?: number | null
         }
         Update: {
@@ -731,15 +1175,18 @@ export type Database = {
           mortgage_interest_rate?: number | null
           mortgage_monthly_payment?: number | null
           mortgage_principal?: number | null
+          nickname?: string | null
           owner_id?: string | null
           pm_id?: string | null
           property_type?: Database["public"]["Enums"]["property_type"] | null
           purchase_date?: string | null
           purchase_price?: number | null
           security_deposit?: number | null
+          source_provenance?: Json
           square_footage?: number | null
           unit_number?: string | null
           updated_at?: string | null
+          verified_at?: string | null
           year_built?: number | null
         }
         Relationships: [
@@ -758,6 +1205,368 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      property_documents: {
+        Row: {
+          category: string
+          checksum_sha256: string | null
+          created_at: string
+          external_url: string | null
+          file_name: string
+          file_size: number | null
+          id: string
+          lease_id: string | null
+          mime_type: string | null
+          property_id: string
+          source_provenance: Json
+          storage_path: string | null
+          uploaded_by: string | null
+          verified_at: string | null
+          visibility: Database["public"]["Enums"]["file_visibility"]
+        }
+        Insert: {
+          category?: string
+          checksum_sha256?: string | null
+          created_at?: string
+          external_url?: string | null
+          file_name: string
+          file_size?: number | null
+          id?: string
+          lease_id?: string | null
+          mime_type?: string | null
+          property_id: string
+          source_provenance?: Json
+          storage_path?: string | null
+          uploaded_by?: string | null
+          verified_at?: string | null
+          visibility?: Database["public"]["Enums"]["file_visibility"]
+        }
+        Update: {
+          category?: string
+          checksum_sha256?: string | null
+          created_at?: string
+          external_url?: string | null
+          file_name?: string
+          file_size?: number | null
+          id?: string
+          lease_id?: string | null
+          mime_type?: string | null
+          property_id?: string
+          source_provenance?: Json
+          storage_path?: string | null
+          uploaded_by?: string | null
+          verified_at?: string | null
+          visibility?: Database["public"]["Enums"]["file_visibility"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_documents_lease_id_fkey"
+            columns: ["lease_id"]
+            isOneToOne: false
+            referencedRelation: "leases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_documents_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_memberships: {
+        Row: {
+          activated_at: string | null
+          created_at: string
+          id: string
+          invited_at: string | null
+          invited_by: string | null
+          profile_id: string
+          property_id: string
+          revoked_at: string | null
+          role: Database["public"]["Enums"]["property_membership_role"]
+          status: Database["public"]["Enums"]["membership_status"]
+          updated_at: string
+        }
+        Insert: {
+          activated_at?: string | null
+          created_at?: string
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          profile_id: string
+          property_id: string
+          revoked_at?: string | null
+          role: Database["public"]["Enums"]["property_membership_role"]
+          status?: Database["public"]["Enums"]["membership_status"]
+          updated_at?: string
+        }
+        Update: {
+          activated_at?: string | null
+          created_at?: string
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          profile_id?: string
+          property_id?: string
+          revoked_at?: string | null
+          role?: Database["public"]["Enums"]["property_membership_role"]
+          status?: Database["public"]["Enums"]["membership_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_memberships_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_memberships_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_memberships_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_photos: {
+        Row: {
+          caption: string | null
+          captured_at: string | null
+          category: string
+          checksum_sha256: string | null
+          created_at: string
+          file_name: string
+          file_size: number | null
+          id: string
+          mime_type: string
+          property_id: string
+          sort_order: number
+          source_provenance: Json
+          storage_path: string
+          uploaded_by: string | null
+          verified_at: string | null
+          visibility: Database["public"]["Enums"]["file_visibility"]
+        }
+        Insert: {
+          caption?: string | null
+          captured_at?: string | null
+          category?: string
+          checksum_sha256?: string | null
+          created_at?: string
+          file_name: string
+          file_size?: number | null
+          id?: string
+          mime_type: string
+          property_id: string
+          sort_order?: number
+          source_provenance?: Json
+          storage_path: string
+          uploaded_by?: string | null
+          verified_at?: string | null
+          visibility?: Database["public"]["Enums"]["file_visibility"]
+        }
+        Update: {
+          caption?: string | null
+          captured_at?: string | null
+          category?: string
+          checksum_sha256?: string | null
+          created_at?: string
+          file_name?: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string
+          property_id?: string
+          sort_order?: number
+          source_provenance?: Json
+          storage_path?: string
+          uploaded_by?: string | null
+          verified_at?: string | null
+          visibility?: Database["public"]["Enums"]["file_visibility"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_photos_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_photos_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_value_observations: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          observed_on: string
+          property_id: string
+          source_label: string
+          source_provenance: Json
+          source_url: string | null
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          observed_on: string
+          property_id: string
+          source_label: string
+          source_provenance?: Json
+          source_url?: string | null
+          value: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          observed_on?: string
+          property_id?: string
+          source_label?: string
+          source_provenance?: Json
+          source_url?: string | null
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_value_observations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_value_observations_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recovery_imports: {
+        Row: {
+          classification: string
+          created_at: string
+          id: string
+          imported_by: string | null
+          imported_counts: Json
+          notes: string | null
+          property_id: string | null
+          source_hash: string | null
+          source_kind: string
+          source_label: string
+        }
+        Insert: {
+          classification: string
+          created_at?: string
+          id?: string
+          imported_by?: string | null
+          imported_counts?: Json
+          notes?: string | null
+          property_id?: string | null
+          source_hash?: string | null
+          source_kind: string
+          source_label: string
+        }
+        Update: {
+          classification?: string
+          created_at?: string
+          id?: string
+          imported_by?: string | null
+          imported_counts?: Json
+          notes?: string | null
+          property_id?: string | null
+          source_hash?: string | null
+          source_kind?: string
+          source_label?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recovery_imports_imported_by_fkey"
+            columns: ["imported_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recovery_imports_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teacher_profiles: {
+        Row: {
+          bio: string | null
+          created_at: string | null
+          id: string
+          name: string
+          philosophy: string | null
+          photo_url: string | null
+          schedule: Json | null
+          settings: Json | null
+          tagline: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          philosophy?: string | null
+          photo_url?: string | null
+          schedule?: Json | null
+          settings?: Json | null
+          tagline?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          philosophy?: string | null
+          photo_url?: string | null
+          schedule?: Json | null
+          settings?: Json | null
+          tagline?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       tenants: {
         Row: {
@@ -896,11 +1705,180 @@ export type Database = {
           },
         ]
       }
+      work_order_events: {
+        Row: {
+          actor_profile_id: string | null
+          body: string | null
+          created_at: string
+          event_type: string
+          from_status: Database["public"]["Enums"]["work_order_status"] | null
+          id: string
+          metadata: Json
+          to_status: Database["public"]["Enums"]["work_order_status"] | null
+          work_order_id: string
+        }
+        Insert: {
+          actor_profile_id?: string | null
+          body?: string | null
+          created_at?: string
+          event_type: string
+          from_status?: Database["public"]["Enums"]["work_order_status"] | null
+          id?: string
+          metadata?: Json
+          to_status?: Database["public"]["Enums"]["work_order_status"] | null
+          work_order_id: string
+        }
+        Update: {
+          actor_profile_id?: string | null
+          body?: string | null
+          created_at?: string
+          event_type?: string
+          from_status?: Database["public"]["Enums"]["work_order_status"] | null
+          id?: string
+          metadata?: Json
+          to_status?: Database["public"]["Enums"]["work_order_status"] | null
+          work_order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_order_events_actor_profile_id_fkey"
+            columns: ["actor_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_order_events_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      work_orders: {
+        Row: {
+          assigned_profile_id: string | null
+          category: string
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_on: string | null
+          household_id: string | null
+          id: string
+          priority: Database["public"]["Enums"]["work_order_priority"]
+          property_id: string
+          responsibility: string | null
+          scheduled_end: string | null
+          scheduled_start: string | null
+          source_provenance: Json
+          status: Database["public"]["Enums"]["work_order_status"]
+          title: string
+          updated_at: string
+          verified_at: string | null
+        }
+        Insert: {
+          assigned_profile_id?: string | null
+          category?: string
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_on?: string | null
+          household_id?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["work_order_priority"]
+          property_id: string
+          responsibility?: string | null
+          scheduled_end?: string | null
+          scheduled_start?: string | null
+          source_provenance?: Json
+          status?: Database["public"]["Enums"]["work_order_status"]
+          title: string
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Update: {
+          assigned_profile_id?: string | null
+          category?: string
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_on?: string | null
+          household_id?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["work_order_priority"]
+          property_id?: string
+          responsibility?: string | null
+          scheduled_end?: string | null
+          scheduled_start?: string | null
+          source_provenance?: Json
+          status?: Database["public"]["Enums"]["work_order_status"]
+          title?: string
+          updated_at?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_orders_assigned_profile_id_fkey"
+            columns: ["assigned_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_orders_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_orders_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_orders_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      can_access_household: {
+        Args: { target_household_id: string }
+        Returns: boolean
+      }
+      can_access_person: {
+        Args: { target_person_id: string }
+        Returns: boolean
+      }
+      can_manage_person: {
+        Args: { target_person_id: string }
+        Returns: boolean
+      }
+      can_read_file_visibility: {
+        Args: {
+          target_property_id: string
+          target_visibility: Database["public"]["Enums"]["file_visibility"]
+        }
+        Returns: boolean
+      }
+      can_read_storage_scope: {
+        Args: { target_property_id: string; target_scope: string }
+        Returns: boolean
+      }
       create_client_approval: {
         Args: {
           request_action_question: string
@@ -914,21 +1892,22 @@ export type Database = {
           action_question: string
           composite_image_url: string
           created_at: string
-          decided_at: string | null
+          decided_at: string
           description: string
           expires_at: string
           id: string
-          project_id: string | null
+          project_id: string
           status: string
         }[]
       }
+      current_property_role: {
+        Args: { target_property_id: string }
+        Returns: Database["public"]["Enums"]["property_membership_role"]
+      }
       decide_client_approval: {
-        Args: {
-          request_decision: string
-          request_token: string
-        }
+        Args: { request_decision: string; request_token: string }
         Returns: {
-          created_project_id: string | null
+          created_project_id: string
           final_status: string
         }[]
       }
@@ -937,26 +1916,38 @@ export type Database = {
         Returns: {
           action_question: string
           composite_image_url: string
-          decided_at: string | null
+          decided_at: string
           description: string
           expires_at: string
           id: string
           status: string
         }[]
       }
+      has_property_role: {
+        Args: {
+          allowed_roles?: Database["public"]["Enums"]["property_membership_role"][]
+          target_property_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: never; Returns: boolean }
       list_client_approvals: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           action_question: string
           composite_image_url: string
           created_at: string
-          decided_at: string | null
+          decided_at: string
           description: string
           expires_at: string
           id: string
-          project_id: string | null
+          project_id: string
           status: string
         }[]
+      }
+      shares_property_with: {
+        Args: { target_profile_id: string }
+        Returns: boolean
       }
     }
     Enums: {
@@ -974,6 +1965,16 @@ export type Database = {
         | "c_corp"
         | "partnership"
         | "trust"
+      file_visibility: "shared" | "manager_owner" | "owner" | "tenant"
+      lease_status: "draft" | "active" | "expired" | "terminated"
+      ledger_entry_kind:
+        | "rent_charge"
+        | "payment"
+        | "expense"
+        | "adjustment"
+        | "refund"
+        | "deposit"
+      membership_status: "invited" | "active" | "suspended" | "revoked"
       phase_status: "pending" | "in_progress" | "completed" | "skipped"
       project_category:
         | "maintenance"
@@ -995,6 +1996,7 @@ export type Database = {
         | "on_hold"
         | "completed"
         | "cancelled"
+      property_membership_role: "admin" | "manager" | "owner" | "tenant"
       property_type:
         | "single_family"
         | "condo"
@@ -1002,6 +2004,16 @@ export type Database = {
         | "multi_family"
         | "other"
       user_role: "owner" | "pm" | "tenant" | "admin"
+      work_order_priority: "low" | "normal" | "high" | "urgent"
+      work_order_status:
+        | "reported"
+        | "triage"
+        | "waiting_approval"
+        | "approved"
+        | "scheduled"
+        | "in_progress"
+        | "completed"
+        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1145,6 +2157,17 @@ export const Constants = {
         "partnership",
         "trust",
       ],
+      file_visibility: ["shared", "manager_owner", "owner", "tenant"],
+      lease_status: ["draft", "active", "expired", "terminated"],
+      ledger_entry_kind: [
+        "rent_charge",
+        "payment",
+        "expense",
+        "adjustment",
+        "refund",
+        "deposit",
+      ],
+      membership_status: ["invited", "active", "suspended", "revoked"],
       phase_status: ["pending", "in_progress", "completed", "skipped"],
       project_category: [
         "maintenance",
@@ -1168,6 +2191,7 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      property_membership_role: ["admin", "manager", "owner", "tenant"],
       property_type: [
         "single_family",
         "condo",
@@ -1176,6 +2200,17 @@ export const Constants = {
         "other",
       ],
       user_role: ["owner", "pm", "tenant", "admin"],
+      work_order_priority: ["low", "normal", "high", "urgent"],
+      work_order_status: [
+        "reported",
+        "triage",
+        "waiting_approval",
+        "approved",
+        "scheduled",
+        "in_progress",
+        "completed",
+        "cancelled",
+      ],
     },
   },
 } as const
