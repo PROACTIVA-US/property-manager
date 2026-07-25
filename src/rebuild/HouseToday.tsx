@@ -141,8 +141,8 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
   const handlePasswordUpdate = async (event: FormEvent) => {
     event.preventDefault();
     setPasswordMessage('');
-    if (password.length < 10) {
-      setPasswordMessage('Use at least 10 characters.');
+    if (password.length < 6) {
+      setPasswordMessage('Use at least 6 characters.');
       return;
     }
     if (password !== confirmPassword) {
@@ -688,13 +688,13 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                 <KeyRound aria-hidden="true" />
                 <div>
                   <h3>Change password</h3>
-                  <p>Use at least 10 characters. Property staff cannot view it.</p>
+                  <p>Use at least 6 characters. Property staff cannot view it.</p>
                   <label>
                     New password
                     <input
                       autoComplete="new-password"
                       type="password"
-                      minLength={10}
+                      minLength={6}
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
                     />
@@ -704,7 +704,7 @@ export default function HouseToday({ data, onRefresh }: HouseTodayProps) {
                     <input
                       autoComplete="new-password"
                       type="password"
-                      minLength={10}
+                      minLength={6}
                       value={confirmPassword}
                       onChange={(event) => setConfirmPassword(event.target.value)}
                     />

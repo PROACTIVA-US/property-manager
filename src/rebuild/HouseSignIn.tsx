@@ -78,8 +78,8 @@ export default function HouseSignIn({
   const handleUpdatePassword = async (event: FormEvent) => {
     event.preventDefault();
     resetFeedback();
-    if (password.length < 10) {
-      setError('Use at least 10 characters for the new password.');
+    if (password.length < 6) {
+      setError('Use at least 6 characters for the new password.');
       return;
     }
     if (password !== confirmPassword) {
@@ -241,7 +241,7 @@ export default function HouseSignIn({
           {view === 'reset' && (
             <form className="house-auth-form" onSubmit={handleUpdatePassword}>
               <p className="house-auth-help">
-                Use at least 10 characters. A password manager can create and
+                Use at least 6 characters. A password manager can create and
                 remember a strong one for you.
               </p>
               <label>
@@ -250,7 +250,7 @@ export default function HouseSignIn({
                   <LockKeyhole aria-hidden="true" />
                   <input
                     autoComplete="new-password"
-                    minLength={10}
+                    minLength={6}
                     onChange={(event) => setPassword(event.target.value)}
                     required
                     type="password"
@@ -264,7 +264,7 @@ export default function HouseSignIn({
                   <LockKeyhole aria-hidden="true" />
                   <input
                     autoComplete="new-password"
-                    minLength={10}
+                    minLength={6}
                     onChange={(event) => setConfirmPassword(event.target.value)}
                     required
                     type="password"
